@@ -1,6 +1,6 @@
 package ua.edu.ukma.domain;
 
- public class Student extends Person {
+public class Student extends Person {
      private String studentId;
      private int course;
      private String group;
@@ -17,18 +17,58 @@ package ua.edu.ukma.domain;
          this.status = StudentStatus.STUDYING;
      }
 
+     public String getStudentId() {
+         return studentId;
+     }
+
+     public void setStudentId(String studentId) {
+         if (studentId == null || studentId.isBlank()) throw new IllegalArgumentException("Student ID cannot be empty");
+         this.studentId = studentId;
+     }
+
      public int getCourse() {
          return course;
      }
 
-     enum StudyForm {
-         BUDGET, CONTRACT
+     public void setCourse(int course) {
+         if (course < 1 || course > 6) throw new IllegalArgumentException("Course must be between 1 and 6");
+         this.course = course;
      }
 
-
-     enum StudentStatus {
-         STUDYING, ACADEMIC_LEAVE, EXPELLED
+     public String getGroup() {
+         return group;
      }
 
+     public void setGroup(String group) {
+         if (group == null || group.isBlank()) throw new IllegalArgumentException("Group cannot be empty");
+         this.group = group;
+     }
+
+     public int getAdmissionYear() {
+         return admissionYear;
+     }
+
+     public void setAdmissionYear(int admissionYear) {
+         if (admissionYear < 1900) throw new IllegalArgumentException("Invalid admission year");
+         this.admissionYear = admissionYear;
+     }
+
+     public StudyForm getStudyForm() {
+         return studyForm;
+     }
+
+     public void setStudyForm(StudyForm studyForm) {
+         if (studyForm == null) throw new IllegalArgumentException("Study form cannot be null");
+         this.studyForm = studyForm;
+     }
+
+     public StudentStatus getStatus() {
+         return status;
+     }
+
+     public void setStatus(StudentStatus status) {
+         if (status == null) throw new IllegalArgumentException("Student status cannot be null");
+         this.status = status;
+     }
 
 }
