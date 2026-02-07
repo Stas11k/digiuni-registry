@@ -5,7 +5,7 @@ import ua.edu.ukma.domain.Faculty;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InMemoryFacultyRepository implements Repository<Faculty, String> {
+public class InMemoryFacultyRepository implements Repository<Faculty, Integer> {
 
     private final List<Faculty> faculties = new ArrayList<>();
 
@@ -15,11 +15,9 @@ public class InMemoryFacultyRepository implements Repository<Faculty, String> {
     }
 
     @Override
-    public Faculty findById(String code) {
+    public Faculty findById(Integer id) {
         for (Faculty f : faculties) {
-            if (f.getCode().equals(code)) {
-                return f;
-            }
+            if (f.getId() == id) return f;
         }
         return null;
     }
@@ -30,9 +28,9 @@ public class InMemoryFacultyRepository implements Repository<Faculty, String> {
     }
 
     @Override
-    public boolean deleteById(String code) {
+    public boolean deleteById(Integer id) {
         for (Faculty f : faculties) {
-            if (f.getCode().equals(code)) {
+            if (f.getId() == id) {
                 faculties.remove(f);
                 return true;
             }

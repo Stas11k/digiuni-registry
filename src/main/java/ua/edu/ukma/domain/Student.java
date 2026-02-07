@@ -3,17 +3,19 @@ package ua.edu.ukma.domain;
 public class Student extends Person {
      private String studentId;
      private int course;
-     private String group;
+     private Specialty specialty;
+     private int group;
      private int admissionYear;
      private StudyForm studyForm;
      private StudentStatus status;
 
      public Student(String lastName, String firstName, String middleName,
-                    String studentId, int course, String group) {
+                    String studentId, int course, int group, Specialty specialty) {
          super(lastName, firstName, middleName);
          this.studentId = studentId;
          this.course = course;
          this.group = group;
+         this.specialty = specialty;
          this.status = StudentStatus.STUDYING;
      }
 
@@ -35,12 +37,19 @@ public class Student extends Person {
          this.course = course;
      }
 
-     public String getGroup() {
+     public Specialty getSpecialty() {
+         return specialty;
+     }
+
+     public void setSpecialty(Specialty specialty) {
+         this.specialty = specialty;
+     }
+
+     public int getGroup() {
          return group;
      }
 
-     public void setGroup(String group) {
-         if (group == null || group.isBlank()) throw new IllegalArgumentException("Group cannot be empty");
+     public void setGroup(int group) {
          this.group = group;
      }
 

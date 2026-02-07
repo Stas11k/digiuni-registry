@@ -1,25 +1,22 @@
 package ua.edu.ukma.domain;
 
 public class Department {
-    private String code;
+    private static int counter = 1;
+
+    private final int id;
     private String name;
     private Faculty faculty;
     private Teacher head;
     private String location;
 
-    public Department(String code, String name, Faculty faculty) {
-        this.code = code;
+    public Department(String name, Faculty faculty) {
+        this.id = counter++;
         this.name = name;
         this.faculty = faculty;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        if (code == null || code.isBlank()) throw new IllegalArgumentException("Department code cannot be empty");
-        this.code = code;
+    public int getId() {
+        return id;
     }
 
     public String getName() {

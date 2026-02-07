@@ -1,33 +1,29 @@
 package ua.edu.ukma.domain;
 
 public class Faculty {
-    private String code;
+    private static int counter = 1;
+
+    private final int id;
     private String name;
     private String shortName;
     private Teacher dean;
     private String contacts;
 
-    public Faculty(String code, String name, String shortName) {
-        this.code = code;
+    public Faculty(String name, String shortName) {
+        this.id = counter++;
         this.name = name;
         this.shortName = shortName;
-
     }
 
-    public Faculty(String code, String name, String shortName, Teacher dean) {
-        this.code = code;
+    public Faculty(String name, String shortName, Teacher dean) {
+        this.id = counter++;
         this.name = name;
         this.shortName = shortName;
         this.dean = dean;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        if (code == null || code.isBlank()) throw new IllegalArgumentException("Faculty code cannot be empty");
-        this.code = code;
+    public int getId() {
+        return id;
     }
 
     public String getName() {

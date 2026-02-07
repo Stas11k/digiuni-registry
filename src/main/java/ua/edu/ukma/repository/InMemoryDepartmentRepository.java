@@ -5,7 +5,7 @@ import ua.edu.ukma.domain.Department;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InMemoryDepartmentRepository implements Repository<Department, String> {
+public class InMemoryDepartmentRepository implements Repository<Department, Integer> {
 
     private final List<Department> departments = new ArrayList<>();
 
@@ -15,9 +15,9 @@ public class InMemoryDepartmentRepository implements Repository<Department, Stri
     }
 
     @Override
-    public Department findById(String code) {
+    public Department findById(Integer id) {
         for (Department d : departments) {
-            if (d.getCode().equals(code)) return d;
+            if (d.getId() == id) return d;
         }
         return null;
     }
@@ -28,9 +28,9 @@ public class InMemoryDepartmentRepository implements Repository<Department, Stri
     }
 
     @Override
-    public boolean deleteById(String code) {
+    public boolean deleteById(Integer id) {
         for (Department d : departments) {
-            if (d.getCode().equals(code)) {
+            if (d.getId() == id) {
                 departments.remove(d);
                 return true;
             }
