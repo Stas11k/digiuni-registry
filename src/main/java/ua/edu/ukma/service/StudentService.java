@@ -48,7 +48,7 @@ public class StudentService {
         if (s.getCourse() < 1 || s.getCourse() > 6)
             throw new IllegalArgumentException("Invalid course");
 
-        if (s.getGroup() <= 0)   // ← ЗАМІНА isBlank()
+        if (s.getGroup() <= 0)
             throw new IllegalArgumentException("Invalid group number");
     }
 }
