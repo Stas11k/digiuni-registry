@@ -31,9 +31,14 @@ public class TeacherService {
     }
 
     public List<Teacher> findByPosition(String position) {
-        return repo.findAll().stream()
-                .filter(t -> t.getPosition().equalsIgnoreCase(position))
-                .toList();
+        List<Teacher> result = new ArrayList<>();
+
+        for (Teacher t : repo.findAll()) {
+            if (t.getPosition().equalsIgnoreCase(position)) {
+                result.add(t);
+            }
+        }
+        return result;
     }
 
     private void validate(Teacher t) {
