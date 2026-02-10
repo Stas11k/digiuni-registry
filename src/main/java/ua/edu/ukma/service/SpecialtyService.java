@@ -1,16 +1,17 @@
 package ua.edu.ukma.service;
 
+import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Specialty;
-import ua.edu.ukma.repository.Repository;
+import ua.edu.ukma.repository.InMemorySpecialtyRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SpecialtyService {
 
-    private final Repository<Specialty, Integer> repo;
+    private final InMemorySpecialtyRepository repo;
 
-    public SpecialtyService(Repository<Specialty, Integer> repo) {
+    public SpecialtyService(InMemorySpecialtyRepository repo) {
         this.repo = repo;
     }
 
@@ -48,5 +49,13 @@ public class SpecialtyService {
 
         if (s.getDepartment() == null)
             throw new IllegalArgumentException("Department cannot be null");
+    }
+
+    public boolean update(int id, String name, Department department) {
+        Specialty s = repo.findById(id);
+        if (s == null) return false;
+        s.setName(name);
+        s.setDepartment(department);
+        return true;
     }
 }

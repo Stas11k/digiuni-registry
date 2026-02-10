@@ -1,15 +1,16 @@
 package ua.edu.ukma.service;
 
 import ua.edu.ukma.domain.Faculty;
-import ua.edu.ukma.repository.Repository;
+import ua.edu.ukma.domain.Teacher;
+import ua.edu.ukma.repository.InMemoryFacultyRepository;
 
 import java.util.*;
 
 public class FacultyService {
 
-    private final Repository<Faculty, Integer> repo;
+    private final InMemoryFacultyRepository repo;
 
-    public FacultyService(Repository<Faculty, Integer> repo) {
+    public FacultyService(InMemoryFacultyRepository repo) {
         this.repo = repo;
     }
 
@@ -53,5 +54,15 @@ public class FacultyService {
     private void validate(Faculty f) {
         if (f.getName().isBlank())
             throw new IllegalArgumentException("Faculty name empty");
+    }
+
+    public boolean update(int id, String name, String shortName, Teacher dean, String contacts) {
+        Faculty f = repo.findById(id);
+        if (f == null) return false;
+        f.setName(name);
+        f.setShortName(shortName);
+        f.setDean(dean);
+        f.setContacts(contacts);
+        return true;
     }
 }

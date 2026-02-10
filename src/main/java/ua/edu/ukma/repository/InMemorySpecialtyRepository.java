@@ -3,18 +3,17 @@ package ua.edu.ukma.repository;
 import ua.edu.ukma.domain.Specialty;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class InMemorySpecialtyRepository implements Repository<Specialty, Integer> {
+public class InMemorySpecialtyRepository {
 
     private final List<Specialty> specialties = new ArrayList<>();
 
-    @Override
     public void save(Specialty specialty) {
         specialties.add(specialty);
     }
 
-    @Override
     public Specialty findById(Integer id) {
         for (Specialty s : specialties) {
             if (s.getId() == id) return s;
@@ -22,16 +21,15 @@ public class InMemorySpecialtyRepository implements Repository<Specialty, Intege
         return null;
     }
 
-    @Override
     public List<Specialty> findAll() {
         return new ArrayList<>(specialties);
     }
 
-    @Override
     public boolean deleteById(Integer id) {
-        for (Specialty s : specialties) {
-            if (s.getId() == id) {
-                specialties.remove(s);
+        Iterator<Specialty> it = specialties.iterator();
+        while (it.hasNext()) {
+            if (it.next().getId() == id) {
+                it.remove();
                 return true;
             }
         }

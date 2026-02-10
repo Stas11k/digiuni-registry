@@ -6,7 +6,6 @@ import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Specialty;
 import ua.edu.ukma.repository.InMemorySpecialtyRepository;
-import ua.edu.ukma.repository.Repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,7 +15,7 @@ class SpecialtyServiceTest {
 
     @BeforeEach
     void setUp() {
-        Repository<Specialty, Integer> repo = new InMemorySpecialtyRepository();
+        InMemorySpecialtyRepository repo = new InMemorySpecialtyRepository();
         service = new SpecialtyService(repo);
     }
 

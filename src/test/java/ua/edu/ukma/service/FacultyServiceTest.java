@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.repository.InMemoryFacultyRepository;
-import ua.edu.ukma.repository.Repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,7 +13,7 @@ class FacultyServiceTest {
 
     @BeforeEach
     void setUp() {
-        Repository<Faculty, Integer> repo = new InMemoryFacultyRepository();
+        InMemoryFacultyRepository repo = new InMemoryFacultyRepository();
         service = new FacultyService(repo);
     }
 
