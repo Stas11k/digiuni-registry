@@ -1,7 +1,10 @@
 package ua.edu.ukma;
 
+import ua.edu.ukma.ui.ConsoleMenu;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("DigiUni Registry");
+        ConsoleMenu menu = new ConsoleMenu();
+        menu.start();
     }
 }

@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ua.edu.ukma.domain.*;
 import ua.edu.ukma.repository.InMemoryStudentRepository;
-import ua.edu.ukma.repository.Repository;
 
 import java.util.UUID;
 
@@ -16,7 +15,7 @@ class StudentServiceTest {
 
     @BeforeEach
     void setUp() {
-        Repository<Student, UUID> repo = new InMemoryStudentRepository();
+        InMemoryStudentRepository repo = new InMemoryStudentRepository();
         service = new StudentService(repo);
     }
 

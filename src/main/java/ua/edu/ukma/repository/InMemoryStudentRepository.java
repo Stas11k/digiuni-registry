@@ -3,36 +3,34 @@ package ua.edu.ukma.repository;
 import ua.edu.ukma.domain.Student;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-public class InMemoryStudentRepository implements Repository<Student, UUID> {
+public class InMemoryStudentRepository{
 
     private final List<Student> students = new ArrayList<>();
 
-    @Override
     public void save(Student student) {
         students.add(student);
     }
 
-    @Override
-    public Student findById(UUID id) {
+    public Student findById(Integer id) {
         for (Student s : students) {
-            if (s.getId().equals(id)) return s;
+            if (s.getId() == id) return s;
         }
         return null;
     }
 
-    @Override
     public List<Student> findAll() {
         return new ArrayList<>(students);
     }
 
-    @Override
-    public boolean deleteById(UUID id) {
-        for (Student s : students) {
-            if (s.getId().equals(id)) {
-                students.remove(s);
+    public boolean deleteById(Integer id) {
+        Iterator<Student> it = students.iterator();
+        while (it.hasNext()) {
+            if (it.next().getId() == id) {
+                it.remove();
                 return true;
             }
         }

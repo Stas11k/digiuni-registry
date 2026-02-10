@@ -1,10 +1,13 @@
 package ua.edu.ukma.domain;
 
+import ua.edu.ukma.util.ValidationUtils;
+
 import java.util.Objects;
-import java.util.UUID;
 
 abstract class Person {
-    private final UUID id;
+    private static int counter = 1;
+
+    private final int id;
     private String lastName;
     private String firstName;
     private String middleName;
@@ -14,13 +17,19 @@ abstract class Person {
     private String address;
 
     protected Person(String lastName, String firstName, String middleName) {
-        this.id = UUID.randomUUID();
+        this.id = counter++;
+        ValidationUtils.validateNotEmpty(lastName, "Last name");
+        ValidationUtils.validateNotEmpty(firstName, "First name");
+        ValidationUtils.validateNotEmpty(middleName, "Middle name");
+        ValidationUtils.validateNoDigits(lastName, "Last name");
+        ValidationUtils.validateNoDigits(firstName, "First name");
+        ValidationUtils.validateNoDigits(middleName, "Middle name");
         this.lastName = lastName;
         this.firstName = firstName;
         this.middleName = middleName;
     }
 
-    public UUID getId() {
+    public int getId() {
         return id;
     }
 
@@ -29,7 +38,8 @@ abstract class Person {
     }
 
     public void setFirstName(String firstName) {
-        if (firstName == null || firstName.isBlank()) throw new IllegalArgumentException("First name cannot be empty");
+        ValidationUtils.validateNotEmpty(firstName, "First name");
+        ValidationUtils.validateNoDigits(firstName, "First name");
         this.firstName = firstName;
     }
 
@@ -38,7 +48,8 @@ abstract class Person {
     }
 
     public void setLastName(String lastName) {
-        if (lastName == null || lastName.isBlank()) throw new IllegalArgumentException("Last name cannot be empty");
+        ValidationUtils.validateNotEmpty(lastName, "Last name");
+        ValidationUtils.validateNoDigits(lastName, "Last name");
         this.lastName = lastName;
     }
 
@@ -47,7 +58,8 @@ abstract class Person {
     }
 
     public void setMiddleName(String middleName) {
-        if (middleName == null || middleName.isBlank()) throw new IllegalArgumentException("Middle name cannot be empty");
+        ValidationUtils.validateNotEmpty(middleName, "Middle name");
+        ValidationUtils.validateNoDigits(middleName, "Middle name");
         this.middleName = middleName;
     }
 
@@ -87,19 +99,8 @@ abstract class Person {
         return lastName + " " + firstName + " " + middleName;
     }
 
-
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Person)) return false;
-        Person person = (Person) o;
-        return id.equals(person.id);
+    public String toString() {
+        return getFullName();
     }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
 }

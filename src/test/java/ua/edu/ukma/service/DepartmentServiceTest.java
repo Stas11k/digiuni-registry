@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.repository.InMemoryDepartmentRepository;
-import ua.edu.ukma.repository.Repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,7 +14,7 @@ class DepartmentServiceTest {
 
     @BeforeEach
     void setUp() {
-        Repository<Department, Integer> repo = new InMemoryDepartmentRepository();
+        InMemoryDepartmentRepository repo = new InMemoryDepartmentRepository();
         service = new DepartmentService(repo);
     }
 

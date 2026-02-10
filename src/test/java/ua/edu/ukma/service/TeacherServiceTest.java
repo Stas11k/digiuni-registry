@@ -6,7 +6,6 @@ import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Teacher;
 import ua.edu.ukma.repository.InMemoryTeacherRepository;
-import ua.edu.ukma.repository.Repository;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -19,7 +18,7 @@ class TeacherServiceTest {
 
     @BeforeEach
     void setUp() {
-        Repository<Teacher, UUID> repo = new InMemoryTeacherRepository();
+        InMemoryTeacherRepository repo = new InMemoryTeacherRepository();
         service = new TeacherService(repo);
     }
 
