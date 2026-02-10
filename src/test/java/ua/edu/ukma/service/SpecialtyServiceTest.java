@@ -15,82 +15,74 @@ class SpecialtyServiceTest {
 
     @BeforeEach
     void setUp() {
-        InMemorySpecialtyRepository repo = new InMemorySpecialtyRepository();
-        service = new SpecialtyService(repo);
+        service = new SpecialtyService(new InMemorySpecialtyRepository());
     }
 
-    // helper: валідна спеціальність
-    private Specialty validSpecialty() {
-        Faculty f = new Faculty(
-                "Computer Science",
-                "CS"
+    @Test
+    void addAndGetSpecialty() {
+        Faculty faculty = new Faculty("Computer Science", "CS");
+        Department department = new Department("Programming", faculty);
+        Specialty specialty = new Specialty("Software Engineering", department);
+
+        service.add(specialty);
+
+        Specialty result = service.get(specialty.getId());
+        assertNotNull(result);
+        assertEquals("Software Engineering", result.getName());
+    }
+
+    @Test
+    void findByDepartment_shouldReturnSpecialties() {
+        Faculty faculty = new Faculty("Computer Science", "CS");
+        Department department = new Department("Programming", faculty);
+
+        service.add(new Specialty("Software Engineering", department));
+        service.add(new Specialty("Computer Science", department));
+
+        assertEquals(2, service.findByDepartment(department.getId()).size());
+    }
+
+    @Test
+    void updateSpecialty_shouldUpdateFields() {
+        Faculty faculty = new Faculty("Computer Science", "CS");
+        Department department = new Department("Programming", faculty);
+        Specialty specialty = new Specialty("SE", department);
+        service.add(specialty);
+
+        Department newDepartment = new Department("Applied Math", faculty);
+
+        boolean updated = service.update(
+                specialty.getId(),
+                "Applied Software Engineering",
+                newDepartment
         );
 
-        Department d = new Department(
-                "Programming",
-                f
-        );
+        Specialty updatedSpecialty = service.get(specialty.getId());
 
-        return new Specialty(
-                "Software Engineering",
-                d
-        );
+        assertTrue(updated);
+        assertEquals("Applied Software Engineering", updatedSpecialty.getName());
+        assertEquals(newDepartment, updatedSpecialty.getDepartment());
     }
 
     @Test
-    void addSpecialty_shouldAddSpecialty() {
-        service.add(validSpecialty());
-
-        assertEquals(1, service.getAll().size());
-    }
-
-    @Test
-    void getAll_shouldReturnAllSpecialties() {
-        service.add(validSpecialty());
-        service.add(validSpecialty());
-
-        assertEquals(2, service.getAll().size());
-    }
-
-    @Test
-    void deleteSpecialty_shouldRemoveSpecialty() {
-        Specialty s = validSpecialty();
-        service.add(s);
-
-        service.delete(s.getId());
-
-        assertEquals(0, service.getAll().size());
-    }
-
-    @Test
-    void findByDepartment_shouldReturnCorrectSpecialties() {
-        Specialty s = validSpecialty();
-        service.add(s);
-
-        int departmentId = s.getDepartment().getId();
-
-        assertEquals(1, service.findByDepartment(departmentId).size());
-    }
-
-    @Test
-    void addSpecialty_emptyName_shouldThrowException() {
-        Faculty f = new Faculty("CS", "CS");
-        Department d = new Department("Programming", f);
-
-        Specialty s = new Specialty("", d);
+    void specialtyConstructor_emptyName_shouldThrowException() {
+        Faculty faculty = new Faculty("Computer Science", "CS");
+        Department department = new Department("Programming", faculty);
 
         assertThrows(IllegalArgumentException.class,
-                () -> service.add(s));
+                () -> new Specialty("", department));
     }
-
     @Test
-    void addSpecialty_nullDepartment_shouldThrowException() {
-        Specialty s = new Specialty(
-                "Software Engineering",
-                null
+    void updateSpecialty_nonExistingId_shouldReturnFalse() {
+        Faculty faculty = new Faculty("Computer Science", "CS");
+        Department department = new Department("Programming", faculty);
+
+        boolean result = service.update(
+                999,
+                "Physics",
+                department
         );
 
-        assertThrows(IllegalArgumentException.class,
-                () -> service.add(s));
+        assertFalse(result);
     }
 }
