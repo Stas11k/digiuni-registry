@@ -2,10 +2,14 @@ package ua.edu.ukma.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
+import ua.edu.ukma.domain.Teacher;
 import ua.edu.ukma.repository.InMemoryFacultyRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+
 
 class FacultyServiceTest {
 
@@ -13,48 +17,64 @@ class FacultyServiceTest {
 
     @BeforeEach
     void setUp() {
-        InMemoryFacultyRepository repo = new InMemoryFacultyRepository();
-        service = new FacultyService(repo);
+        service = new FacultyService(new InMemoryFacultyRepository());
     }
 
-    // helper: валідний факультет
-    private Faculty validFaculty() {
-        return new Faculty(
+    @Test
+    void addAndGetFaculty() {
+        Faculty faculty = new Faculty("Computer Science", "CS");
+
+        service.add(faculty);
+
+        Faculty result = service.get(faculty.getId());
+        assertNotNull(result);
+        assertEquals("Computer Science", result.getName());
+    }
+
+    @Test
+    void sortedByName_shouldReturnSortedList() {
+        service.add(new Faculty("Law", "LAW"));
+        service.add(new Faculty("Computer Science", "CS"));
+        service.add(new Faculty("Economics", "ECO"));
+
+        assertEquals(
                 "Computer Science",
-                "CS"
+                service.sortedByName().get(0).getName()
         );
     }
 
     @Test
-    void addFaculty_shouldAddFaculty() {
-        service.add(validFaculty());
+    void updateFaculty_shouldUpdateFields() {
+        Faculty faculty = new Faculty("Computer Science", "CS");
+        service.add(faculty);
+        Department department = new Department("Administration", faculty);
 
-        assertEquals(1, service.getAll().size());
+        Teacher dean = new Teacher(
+                "Shevchenko",
+                "Taras",
+                "T.",
+                "Dean",
+                department
+        );
+
+        boolean updated = service.update(
+                faculty.getId(),
+                "Applied Sciences",
+                "AS",
+                dean,
+                "as@ukma.edu.ua"
+        );
+
+        Faculty updatedFaculty = service.get(faculty.getId());
+
+        assertTrue(updated);
+        assertEquals("Applied Sciences", updatedFaculty.getName());
+        assertEquals("AS", updatedFaculty.getShortName());
     }
 
     @Test
-    void getAll_shouldReturnAllFaculties() {
-        service.add(validFaculty());
-        service.add(new Faculty("Law", "LAW"));
-
-        assertEquals(2, service.getAll().size());
-    }
-
-    @Test
-    void deleteFaculty_shouldRemoveFaculty() {
-        Faculty f = validFaculty();
-        service.add(f);
-
-        service.delete(f.getId());
-
-        assertEquals(0, service.getAll().size());
-    }
-
-    @Test
-    void addFaculty_emptyName_shouldThrowException() {
-        Faculty f = new Faculty("", "CS");
-
+    void facultyConstructor_emptyName_shouldThrowException() {
         assertThrows(IllegalArgumentException.class,
-                () -> service.add(f));
+                () -> new Faculty("", "CS"));
     }
 }

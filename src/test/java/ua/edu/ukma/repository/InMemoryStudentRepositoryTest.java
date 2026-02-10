@@ -2,11 +2,13 @@ package ua.edu.ukma.repository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ua.edu.ukma.domain.*;
-
-import java.util.UUID;
+import ua.edu.ukma.domain.Department;
+import ua.edu.ukma.domain.Faculty;
+import ua.edu.ukma.domain.Specialty;
+import ua.edu.ukma.domain.Student;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 
 class InMemoryStudentRepositoryTest {
 
@@ -46,13 +48,13 @@ class InMemoryStudentRepositoryTest {
         Student found = repository.findById(student.getId());
 
         assertNotNull(found);
-        assertEquals("ST12345", found.getStudentId());
+        assertEquals("ST12345", found.getGradeBookNumber());
     }
 
     @Test
     void deleteById_shouldRemoveStudent() {
         repository.save(student);
-        UUID id = student.getId();
+        int id = student.getId();
 
         boolean deleted = repository.deleteById(id);
 

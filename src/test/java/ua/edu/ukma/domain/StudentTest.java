@@ -1,8 +1,7 @@
-package ua.edu.ukma;
+package ua.edu.ukma.domain;
 import org.junit.jupiter.api.Test;
-import ua.edu.ukma.domain.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class StudentTest {
 

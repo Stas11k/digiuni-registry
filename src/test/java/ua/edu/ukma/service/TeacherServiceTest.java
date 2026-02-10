@@ -18,63 +18,85 @@ class TeacherServiceTest {
 
     @BeforeEach
     void setUp() {
-        InMemoryTeacherRepository repo = new InMemoryTeacherRepository();
-        service = new TeacherService(repo);
+        service = new TeacherService(new InMemoryTeacherRepository());
     }
 
-
-    private Teacher validTeacher() {
+    private Teacher createTeacher() {
         Faculty faculty = new Faculty("Computer Science", "CS");
         Department department = new Department("Programming", faculty);
 
         return new Teacher(
-                "Petrenko",
-                "Petro",
-                "P.",
+                "Ivanenko",
+                "Ivan",
+                "I.",
                 "Professor",
                 department
         );
     }
 
     @Test
-    void addTeacher_validTeacher_shouldAddTeacher() {
-        service.add(validTeacher());
+    void addAndGetTeacher() {
+        Teacher teacher = createTeacher();
+        service.add(teacher);
 
-        assertEquals(1, service.getAll().size());
+        Teacher result = service.get(teacher.getId());
+
+        assertNotNull(result);
+        assertEquals("Ivanenko", result.getLastName());
     }
 
     @Test
-    void addTeacher_emptyPosition_shouldThrowException() {
-        Faculty faculty = new Faculty("CS", "CS");
-        Department department = new Department("Programming", faculty);
+    void findByPosition_shouldReturnTeachers() {
+        service.add(createTeacher());
 
-        Teacher t = new Teacher(
-                "Petrenko",
-                "Petro",
-                "P.",
-                "",
-                department
+        assertEquals(1, service.findByPosition("Professor").size());
+    }
+
+    @Test
+    void updateTeacher_shouldUpdateFields() {
+        Teacher teacher = createTeacher();
+        service.add(teacher);
+
+        Faculty faculty = new Faculty("Mathematics", "MATH");
+        Department newDepartment = new Department("Applied Math", faculty);
+
+        boolean updated = service.update(
+                teacher.getId(),
+                "Shevchenko",
+                "Taras",
+                "T.",
+                "1980-01-01",
+                "taras@mail.com",
+                "123456789",
+                "Kyiv",
+                "Associate Professor",
+                newDepartment,
+                "PhD",
+                "Docent",
+                LocalDate.of(2010, 9, 1),
+                1.0
         );
 
-        assertThrows(IllegalArgumentException.class,
-                () -> service.add(t));
+        Teacher updatedTeacher = service.get(teacher.getId());
+
+        assertTrue(updated);
+        assertEquals("Shevchenko", updatedTeacher.getLastName());
+        assertEquals("Associate Professor", updatedTeacher.getPosition());
+        assertEquals("PhD", updatedTeacher.getDegree());
     }
 
     @Test
-    void addTeacher_emptyFirstName_shouldThrowException() {
-
+    void teacherConstructor_emptyLastName_shouldThrowException() {
         Faculty faculty = new Faculty("Computer Science", "CS");
         Department department = new Department("Programming", faculty);
 
-        Teacher t = new Teacher(
-                "Petrenko",
-                "",
-                "P.",
-                "Professor",
-                department
-        );
-
         assertThrows(IllegalArgumentException.class,
-                () -> service.add(t));
+                () -> new Teacher(
+                        "",
+                        "Ivan",
+                        "I.",
+                        "Professor",
+                        department
+                ));
     }
 }
