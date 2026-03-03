@@ -4,9 +4,11 @@ import ua.edu.ukma.domain.Specialty;
 import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.StudyForm;
 import ua.edu.ukma.domain.StudentStatus;
+import ua.edu.ukma.exception.*;
 import ua.edu.ukma.service.SpecialtyService;
 import ua.edu.ukma.service.StudentService;
 
+import java.util.Optional;
 import java.util.Scanner;
 
 public class StudentMenu {
@@ -76,85 +78,145 @@ public class StudentMenu {
                 System.out.print("Group: ");
                 int group = readInt();
 
-                System.out.println("Choose specialty:");
-                for (Specialty s : specialtyService.getAll()) {
-                    System.out.println(s.getId() + ": " + s.getName());
-                }
+                Specialty specialty = chooseSpecialty();
 
-                Specialty sp = specialtyService.get(readInt());
-                if (sp == null) {
-                    System.out.println("Specialty not found\n");
-                    continue;
-                }
-
-                studentService.add(new Student(last, first, middle, sid, course, group, sp));
+                studentService.add(new Student(last, first, middle, sid, course, group, specialty));
                 System.out.println("Student added");
                 return;
 
-            } catch (IllegalArgumentException e) {
+            } catch (ValidationException | EntityNotFoundException e) {
                 System.out.println("Error: " + e.getMessage());
             }
         }
     }
 
     private void edit() {
-        while (true) {
-            try {
-                System.out.print("Student ID (or 0 to cancel): ");
-                int id = readInt();
-                if (id == 0) return;
+        try {
+            System.out.print("Student ID (or 0 to cancel): ");
+            int id = readInt();
+            if (id == 0) return;
 
-                System.out.print("Last name: ");
-                String last = scanner.nextLine();
+            studentService.getOrThrow(id);
 
-                System.out.print("First name: ");
-                String first = scanner.nextLine();
+            boolean editing = true;
+            while (editing) {
+                System.out.println("""
+                        What do you want to edit
+                        1. Last name
+                        2. First name
+                        3. Middle name
+                        4. Birth date
+                        5. Email
+                        6. Phone
+                        7. Address
+                        8. Grade book number
+                        9. Course
+                        10. Group
+                        11. Specialty
+                        12. Admission year
+                        13. Study form
+                        14. Status
+                        90. Edit all fields
+                        0. Back
+                        """);
+                System.out.print("Choose option: ");
+                int c = readInt();
 
-                System.out.print("Middle name: ");
-                String middle = scanner.nextLine();
+                Optional<String> lastName = Optional.empty();
+                Optional<String> firstName = Optional.empty();
+                Optional<String> middleName = Optional.empty();
+                Optional<String> birthDate = Optional.empty();
+                Optional<String> email = Optional.empty();
+                Optional<String> phone = Optional.empty();
+                Optional<String> address = Optional.empty();
+                Optional<String> gradeBook = Optional.empty();
+                Optional<Integer> course = Optional.empty();
+                Optional<Integer> group = Optional.empty();
+                Optional<Specialty> specialty = Optional.empty();
+                Optional<Integer> admissionYear = Optional.empty();
+                Optional<StudyForm> studyForm = Optional.empty();
+                Optional<StudentStatus> status = Optional.empty();
 
-                System.out.print("Birth date: ");
-                String birthDate = scanner.nextLine();
-
-                System.out.print("Email: ");
-                String email = scanner.nextLine();
-
-                System.out.print("Phone: ");
-                String phone = scanner.nextLine();
-
-                System.out.print("Address: ");
-                String address = scanner.nextLine();
-
-                System.out.print("Grade book: ");
-                String gradeBook = scanner.nextLine();
-
-                System.out.print("Course: ");
-                int course = readInt();
-
-                System.out.print("Group: ");
-                int group = readInt();
-
-                System.out.println("Choose specialty:");
-                for (Specialty s : specialtyService.getAll()) {
-                    System.out.println(s.getId() + ": " + s.getName());
+                switch (c) {
+                    case 1:
+                        lastName = Optional.of(readRequiredLine("New last name"));
+                        break;
+                    case 2:
+                        firstName = Optional.of(readRequiredLine("New first name"));
+                        break;
+                    case 3:
+                        middleName = Optional.of(readRequiredLine("New middle name"));
+                        break;
+                    case 4:
+                        birthDate = Optional.of(readOptionalLine("New birth date (can be empty)"));
+                        break;
+                    case 5:
+                        email = Optional.of(readOptionalLine("New email (can be empty)"));
+                        break;
+                    case 6:
+                        phone = Optional.of(readOptionalLine("New phone (can be empty)"));
+                        break;
+                    case 7:
+                        address = Optional.of(readOptionalLine("New address (can be empty)"));
+                        break;
+                    case 8:
+                        gradeBook = Optional.of(readRequiredLine("New grade book number"));
+                        break;
+                    case 9:
+                        course = Optional.of(readIntValue("New course"));
+                        break;
+                    case 10:
+                        group = Optional.of(readIntValue("New group"));
+                        break;
+                    case 11:
+                        specialty = Optional.of(chooseSpecialty());
+                        break;
+                    case 12:
+                        admissionYear = Optional.of(readIntValue("New admission year"));
+                        break;
+                    case 13:
+                        studyForm = Optional.of(chooseStudyForm());
+                        break;
+                    case 14:
+                        status = Optional.of(chooseStatus());
+                        break;
+                    case 90:
+                        lastName = Optional.of(readRequiredLine("New last name"));
+                        firstName = Optional.of(readRequiredLine("New first name"));
+                        middleName = Optional.of(readRequiredLine("New middle name"));
+                        birthDate = Optional.of(readOptionalLine("New birth date (can be empty)"));
+                        email = Optional.of(readOptionalLine("New email (can be empty)"));
+                        phone = Optional.of(readOptionalLine("New phone (can be empty)"));
+                        address = Optional.of(readOptionalLine("New address (can be empty)"));
+                        gradeBook = Optional.of(readRequiredLine("New grade book number"));
+                        course = Optional.of(readIntValue("New course"));
+                        group = Optional.of(readIntValue("New group"));
+                        specialty = Optional.of(chooseSpecialty());
+                        admissionYear = Optional.of(readIntValue("New admission year"));
+                        studyForm = Optional.of(chooseStudyForm());
+                        status = Optional.of(chooseStatus());
+                        break;
+                    case 0:
+                        editing = false;
+                        continue;
+                    default:
+                        System.out.println("Unknown option\n");
+                        continue;
                 }
-                Specialty specialty = specialtyService.get(readInt());
-                if (specialty == null) {
-                    System.out.println("Specialty not found");
-                    continue;
-                }
 
-                System.out.print("Admission year: ");
-                int year = readInt();
+                studentService.updatePartial(
+                        id,
+                        lastName, firstName, middleName,
+                        birthDate, email, phone, address,
+                        gradeBook, course, group, specialty,
+                        admissionYear, studyForm, status
+                );
 
-                StudyForm studyForm = chooseStudyForm();
-                StudentStatus status = chooseStatus();
-
-                System.out.println(studentService.update(id, last, first, middle, birthDate, email, phone, address, gradeBook, course, group, specialty, year, studyForm, status) ? "Updated" : "Not found");
-                return;
-            } catch (IllegalArgumentException e) {
-                System.out.println("Error: " + e.getMessage());
+                System.out.println("Updated\n");
             }
+
+        } catch (ValidationException | EntityNotFoundException e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
@@ -170,14 +232,12 @@ public class StudentMenu {
                 int course = readInt();
                 if (course == 0) return;
 
-                if (course < 1 || course > 6)
-                    throw new IllegalArgumentException("Invalid course");
-
                 for (Student s : studentService.findByCourse(course)) {
                     System.out.println(s.getId() + " | " + s.getFullName() + " | group " + s.getGroup());
                 }
                 return;
-            } catch (IllegalArgumentException e) {
+
+            } catch (ValidationException e) {
                 System.out.println("Error: " + e.getMessage());
             }
         }
@@ -190,16 +250,59 @@ public class StudentMenu {
                 int group = readInt();
                 if (group == 0) return;
 
-                if (group <= 0)
-                    throw new IllegalArgumentException("Invalid group");
-
                 for (Student s : studentService.findByGroup(group)) {
                     System.out.println(s.getId() + " | " + s.getFullName() + " | course " + s.getCourse());
                 }
                 return;
-            } catch (IllegalArgumentException e) {
+
+            } catch (ValidationException e) {
                 System.out.println("Error: " + e.getMessage());
             }
+        }
+    }
+
+    private Specialty chooseSpecialty() {
+        if (specialtyService.getAll().isEmpty()) throw new ValidationException("No specialties available");
+
+        while (true) {
+            System.out.println("Choose specialty:");
+            for (Specialty s : specialtyService.getAll()) {
+                System.out.println(s.getId() + ": " + s.getName());
+            }
+            System.out.print("Specialty ID: ");
+            int id = readInt();
+
+            try {
+                return specialtyService.getOrThrow(id);
+            } catch (EntityNotFoundException e) {
+                System.out.println("Error: " + e.getMessage() + "\n");
+            }
+        }
+    }
+
+    private String readOptionalLine(String prompt) {
+        System.out.print(prompt + ": ");
+        return scanner.nextLine();
+    }
+
+    private int readIntValue(String prompt) {
+        while (true) {
+            System.out.print(prompt + ": ");
+            String input = scanner.nextLine().trim();
+            try {
+                return Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a number\n");
+            }
+        }
+    }
+
+    private String readRequiredLine(String prompt) {
+        while (true) {
+            System.out.print(prompt + ": ");
+            String v = scanner.nextLine();
+            if (!v.isBlank()) return v;
+            System.out.println("Value cannot be empty\n");
         }
     }
 

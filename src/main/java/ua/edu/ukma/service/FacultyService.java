@@ -2,6 +2,7 @@ package ua.edu.ukma.service;
 
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Teacher;
+import ua.edu.ukma.exception.*;
 import ua.edu.ukma.repository.Repository;
 
 import java.util.*;
@@ -21,8 +22,16 @@ public class FacultyService {
     }
 
 
-    public Faculty get(int id) {
-        return repo.findById(id).orElse(null);
+    public Optional<Faculty> find(int id) {
+        return repo.findById(id);
+    }
+
+    public Faculty getOrThrow(int id) {
+        Optional<Faculty> opt = repo.findById(id);
+        if (opt.isEmpty()) {
+            throw new EntityNotFoundException("Faculty with id " + id + " not found");
+        }
+        return opt.get();
     }
 
     public List<Faculty> getAll() {
@@ -52,18 +61,16 @@ public class FacultyService {
     }
 
     private void validate(Faculty f) {
-        if (f == null) throw new IllegalArgumentException("Faculty cannot be null");
-        if (f.getName().isBlank()) throw new IllegalArgumentException("Faculty name empty");
+        if (f == null) throw new ValidationException("Faculty cannot be null");
+        if (f.getName() == null || f.getName().isBlank()) throw new ValidationException("Faculty name cannot be empty");
     }
 
-    public boolean update(int id, String name, String shortName, Teacher dean, String contacts) {
-        Faculty f = repo.findById(id).orElse(null);
-        if (f == null) return false;
-        f.setName(name);
-        f.setShortName(shortName);
-        f.setDean(dean);
-        f.setContacts(contacts);
+    public void updatePartial(int id, Optional<String> name, Optional<String> shortName, Optional<Teacher> dean, Optional<String> contacts) {
+        Faculty f = getOrThrow(id);
+        if (name.isPresent()) f.setName(name.get());
+        if (shortName.isPresent()) f.setShortName(shortName.get());
+        if (dean.isPresent()) f.setDean(dean.get());
+        if (contacts.isPresent()) f.setContacts(contacts.get());
         repo.save(f);
-        return true;
     }
 }

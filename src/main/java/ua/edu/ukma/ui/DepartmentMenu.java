@@ -3,10 +3,12 @@ package ua.edu.ukma.ui;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Teacher;
+import ua.edu.ukma.exception.*;
 import ua.edu.ukma.service.DepartmentService;
 import ua.edu.ukma.service.FacultyService;
 import ua.edu.ukma.service.TeacherService;
 
+import java.util.Optional;
 import java.util.Scanner;
 
 public class DepartmentMenu {
@@ -66,84 +68,129 @@ public class DepartmentMenu {
                 String name = scanner.nextLine();
                 if (name.equals("0")) return;
 
-                System.out.println("Choose faculty:");
-                for (Faculty f : facultyService.getAll()) {
-                    System.out.println(f.getId() + ": " + f.getName());
-                }
-
-                System.out.print("Faculty ID: ");
-                int facultyId = readInt();
-
-                Faculty faculty = facultyService.get(facultyId);
-                if (faculty == null) {
-                    System.out.println("Faculty not found\n");
-                    continue;
-                }
+                Faculty faculty = chooseFaculty();
 
                 departmentService.add(new Department(name, faculty));
                 System.out.println("Department added");
                 return;
 
-            } catch (IllegalArgumentException e) {
+            } catch (ValidationException | EntityNotFoundException e) {
                 System.out.println("Error: " + e.getMessage());
             }
         }
     }
 
     private void edit() {
-        while (true) {
-            try {
-                System.out.print("Department ID (or 0 to cancel): ");
-                int id = readInt();
-                if (id == 0) return;
+        try {
+            System.out.print("Department ID (or 0 to cancel): ");
+            int id = readInt();
+            if (id == 0) return;
 
-                System.out.print("New name: ");
-                String name = scanner.nextLine();
+            departmentService.getOrThrow(id);
 
-                System.out.println("Choose faculty:");
-                for (Faculty f : facultyService.getAll()) {
-                    System.out.println(f.getId() + ": " + f.getName());
+            boolean editing = true;
+            while (editing) {
+                System.out.println("""
+                        What do you want to edit
+                        1. Name
+                        2. Faculty
+                        3. Head
+                        4. Location
+                        9. Edit all fields
+                        0. Back
+                        """);
+                System.out.print("Choose option: ");
+                int c = readInt();
+
+                Optional<String> name = Optional.empty();
+                Optional<Faculty> facultyOpt = Optional.empty();
+                Optional<Teacher> headOpt = Optional.empty();
+                Optional<String> location = Optional.empty();
+
+                switch (c) {
+                    case 1:
+                        name = Optional.of(readRequiredLine("New name"));
+                        break;
+                    case 2:
+                        facultyOpt = Optional.of(chooseFaculty());
+                        break;
+                    case 3:
+                        headOpt = Optional.of(chooseHead(id));
+                        break;
+                    case 4:
+                        location = Optional.of(readRequiredLine("New location"));
+                        break;
+                    case 9:
+                        name = Optional.of(readRequiredLine("New name"));
+                        facultyOpt = Optional.of(chooseFaculty());
+                        headOpt = Optional.of(chooseHead(id));
+                        location = Optional.of(readRequiredLine("New location"));
+                        break;
+                    case 0:
+                        editing = false;
+                        continue;
+                    default:
+                        System.out.println("Unknown option\n");
+                        continue;
                 }
-                Faculty faculty = facultyService.get(readInt());
-                if (faculty == null) {
-                    System.out.println("Faculty not found");
-                    continue;
-                }
 
-                if (teacherService.getAll().isEmpty()) {
-                    System.out.println("No teachers available");
-                    return;
-                }
-
-                System.out.println("Choose head of department:");
-                for (Teacher t : teacherService.getAll()) {
-                    System.out.println(t.getId() + ": " + t.getFullName());
-                }
-
-                Teacher head = teacherService.get(readInt());
-                if (head == null) {
-                    System.out.println("Teacher not found");
-                    continue;
-                }
-
-                if (isDean(head)) {
-                    System.out.println("This teacher is already a dean. Choose another one.");
-                    continue;
-                }
-
-                if (isHeadOfAnotherDepartment(head, id)) {
-                    System.out.println("This teacher is already head of another department.");
-                    continue;
-                }
-
-                System.out.print("Location: ");
-                String location = scanner.nextLine();
-
-                System.out.println(departmentService.update(id, name, faculty, head, location) ? "Updated" : "Not found");
-                return;
-            } catch (IllegalArgumentException e) {
-                System.out.println("Error: " + e.getMessage());
+                departmentService.updatePartial(id, name, facultyOpt, headOpt, location);
+                System.out.println("Updated\n");
             }
+
+        } catch (ValidationException | EntityNotFoundException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private Faculty chooseFaculty() {
+        if (facultyService.getAll().isEmpty()) throw new ValidationException("No faculties available");
+
+        while (true) {
+            System.out.println("Choose faculty:");
+            for (Faculty f : facultyService.getAll()) {
+                System.out.println(f.getId() + ": " + f.getName());
+            }
+
+            System.out.print("Faculty ID: ");
+            int id = readInt();
+
+            try {
+                return facultyService.getOrThrow(id);
+            } catch (EntityNotFoundException e) {
+                System.out.println("Error: " + e.getMessage() + "\n");
+            }
+        }
+    }
+
+    private Teacher chooseHead(int currentDepartmentId) {
+        if (teacherService.getAll().isEmpty()) throw new ValidationException("No teachers available");
+
+        while (true) {
+            System.out.println("Choose head of department:");
+            for (Teacher t : teacherService.getAll()) {
+                System.out.println(t.getId() + ": " + t.getFullName());
+            }
+            System.out.print("Teacher ID: ");
+            int id = readInt();
+
+            Teacher head;
+            try {
+                head = teacherService.getOrThrow(id);
+            } catch (EntityNotFoundException e) {
+                System.out.println("Error: " + e.getMessage() + "\n");
+                continue;
+            }
+
+            if (isDean(head)) {
+                System.out.println("This teacher is already a dean. Choose another one.\n");
+                continue;
+            }
+            if (isHeadOfAnotherDepartment(head, currentDepartmentId)) {
+                System.out.println("This teacher is already head of another department.\n");
+                continue;
+            }
+            return head;
         }
     }
 
@@ -158,26 +205,11 @@ public class DepartmentMenu {
             return;
         }
 
-        while (true) {
-            try {
-                System.out.println("Choose faculty (or 0 to cancel):");
-                for (Faculty f : facultyService.getAll()) {
-                    System.out.println(f.getId() + ": " + f.getName());
-                }
+        Faculty faculty = chooseFaculty();
+        int id = faculty.getId();
 
-                int facultyId = readInt();
-                if (facultyId == 0) return;
-
-                Faculty faculty = facultyService.get(facultyId);
-                if (faculty == null) throw new IllegalArgumentException("Faculty not found");
-
-                for (Department d : departmentService.findByFaculty(facultyId)) {
-                    System.out.println(d.getId() + ": " + d.getName() + " | location: " + d.getLocation());
-                }
-                return;
-            } catch (IllegalArgumentException e) {
-                System.out.println("Error: " + e.getMessage());
-            }
+        for (Department d : departmentService.findByFaculty(id)) {
+            System.out.println(d.getId() + ": " + d.getName() + " | location: " + d.getLocation());
         }
     }
 
@@ -199,6 +231,14 @@ public class DepartmentMenu {
         return false;
     }
 
+    private String readRequiredLine(String prompt) {
+        while (true) {
+            System.out.print(prompt + ": ");
+            String v = scanner.nextLine();
+            if (!v.isBlank()) return v;
+            System.out.println("Value cannot be empty\n");
+        }
+    }
 
     private int readInt() {
         while (true) {

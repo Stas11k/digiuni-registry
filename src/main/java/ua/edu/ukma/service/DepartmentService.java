@@ -3,6 +3,7 @@ package ua.edu.ukma.service;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Teacher;
+import ua.edu.ukma.exception.*;
 import ua.edu.ukma.repository.Repository;
 
 import java.util.*;
@@ -20,8 +21,16 @@ public class DepartmentService {
         repo.save(d);
     }
 
-    public Department get(int id) {
-        return repo.findById(id).orElse(null);
+    public Optional<Department> find(int id) {
+        return repo.findById(id);
+    }
+
+    public Department getOrThrow(int id) {
+        Optional<Department> opt = repo.findById(id);
+        if (opt.isEmpty()) {
+            throw new EntityNotFoundException("Department with id " + id + " not found");
+        }
+        return opt.get();
     }
 
     public List<Department> getAll() {
@@ -35,28 +44,26 @@ public class DepartmentService {
 
     public List<Department> findByFaculty(int facultyId) {
         List<Department> result = new ArrayList<>();
-
-        for (Department d : repo.findAll()) {
-            if (d.getFaculty().getId() == facultyId) {
-                result.add(d);
-            }
+        List<Department> all = repo.findAll();
+        for (int i = 0; i < all.size(); i++) {
+            Department d = all.get(i);
+            if (d.getFaculty() != null && d.getFaculty().getId() == facultyId) result.add(d);
         }
         return result;
     }
 
     private void validate(Department d) {
-        if (d == null) throw new IllegalArgumentException("Department cannot be null");
-        if (d.getName().isBlank()) throw new IllegalArgumentException("Department name empty");
+        if (d == null) throw new ValidationException("Department cannot be null");
+        if (d.getName() == null || d.getName().isBlank()) throw new ValidationException("Department name cannot be empty");
+        if (d.getFaculty() == null) throw new ValidationException("Faculty cannot be null");
     }
 
-    public boolean update(int id, String name, Faculty faculty, Teacher head, String location) {
-        Department d = repo.findById(id).orElse(null);
-        if (d == null) return false;
-        d.setName(name);
-        d.setFaculty(faculty);
-        d.setHead(head);
-        d.setLocation(location);
+    public void updatePartial(int id, Optional<String> name, Optional<Faculty> faculty, Optional<Teacher> head, Optional<String> location) {
+        Department d = getOrThrow(id);
+        if (name.isPresent()) d.setName(name.get());
+        if (faculty.isPresent()) d.setFaculty(faculty.get());
+        if (head.isPresent()) d.setHead(head.get());
+        if (location.isPresent()) d.setLocation(location.get());
         repo.save(d);
-        return true;
     }
 }
