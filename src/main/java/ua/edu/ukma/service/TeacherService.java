@@ -1,17 +1,18 @@
 package ua.edu.ukma.service;
 
 import ua.edu.ukma.domain.Department;
+import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.Teacher;
-import ua.edu.ukma.repository.InMemoryTeacherRepository;
+import ua.edu.ukma.repository.Repository;
 
 import java.time.LocalDate;
 import java.util.*;
 
 public class TeacherService {
 
-    private final InMemoryTeacherRepository repo;
+    private final Repository<Teacher, Integer> repo;
 
-    public TeacherService(InMemoryTeacherRepository repo) {
+    public TeacherService(Repository<Teacher, Integer> repo) {
         this.repo = repo;
     }
 
@@ -21,7 +22,7 @@ public class TeacherService {
     }
 
     public Teacher get(Integer id) {
-        return repo.findById(id);
+        return repo.findById(id).orElse(null);
     }
 
     public List<Teacher> getAll() {
@@ -52,7 +53,7 @@ public class TeacherService {
     }
 
     public boolean update(int id, String lastName, String firstName, String middleName, String birthDate, String email, String phone, String address, String position, Department department, String degree, String title, LocalDate hireDate, double workload) {
-        Teacher t = repo.findById(id);
+        Teacher t = repo.findById(id).orElse(null);
         if (t == null) return false;
         t.setLastName(lastName);
         t.setFirstName(firstName);
@@ -67,6 +68,7 @@ public class TeacherService {
         t.setTitle(title);
         t.setHireDate(hireDate);
         t.setWorkload(workload);
+        repo.save(t);
         return true;
     }
 }

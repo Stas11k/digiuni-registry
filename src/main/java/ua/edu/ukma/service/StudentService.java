@@ -2,14 +2,14 @@ package ua.edu.ukma.service;
 import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.StudentStatus;
 import ua.edu.ukma.domain.StudyForm;
-import ua.edu.ukma.repository.InMemoryStudentRepository;
 
 import java.util.*;
 import ua.edu.ukma.domain.Specialty;
+import ua.edu.ukma.repository.Repository;
 
 public class StudentService {
-    private final InMemoryStudentRepository repo;
-    public StudentService(InMemoryStudentRepository repo) {
+    private final Repository<Student, Integer> repo;
+    public StudentService(Repository<Student, Integer> repo) {
         this.repo = repo;
     }
     public void add(Student student) {
@@ -17,7 +17,7 @@ public class StudentService {
         repo.save(student);
     }
     public Student get(Integer id) {
-        return repo.findById(id);
+        return repo.findById(id).orElse(null);
     }
     public List<Student> getAll() {
         return repo.findAll();
@@ -72,7 +72,7 @@ public class StudentService {
     }
 
     public boolean update(int id, String lastName, String firstName, String middleName, String birthDate, String email, String phone, String address, String gradeBook, int course, int group, Specialty specialty, int admissionYear, StudyForm studyForm, StudentStatus status) {
-        Student s = repo.findById(id);
+        Student s = repo.findById(id).orElse(null);
         if (s == null) return false;
         s.setLastName(lastName);
         s.setFirstName(firstName);
@@ -88,6 +88,7 @@ public class StudentService {
         s.setAdmissionYear(admissionYear);
         s.setStudyForm(studyForm);
         s.setStatus(status);
+        repo.save(s);
         return true;
     }
 }

@@ -2,16 +2,16 @@ package ua.edu.ukma.service;
 
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Specialty;
-import ua.edu.ukma.repository.InMemorySpecialtyRepository;
+import ua.edu.ukma.repository.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SpecialtyService {
 
-    private final InMemorySpecialtyRepository repo;
+    private final Repository<Specialty, Integer> repo;
 
-    public SpecialtyService(InMemorySpecialtyRepository repo) {
+    public SpecialtyService(Repository<Specialty, Integer> repo) {
         this.repo = repo;
     }
 
@@ -21,7 +21,7 @@ public class SpecialtyService {
     }
 
     public Specialty get(int id) {
-        return repo.findById(id);
+        return repo.findById(id).orElse(null);
     }
 
     public List<Specialty> getAll() {
@@ -52,10 +52,11 @@ public class SpecialtyService {
     }
 
     public boolean update(int id, String name, Department department) {
-        Specialty s = repo.findById(id);
+        Specialty s = repo.findById(id).orElse(null);
         if (s == null) return false;
         s.setName(name);
         s.setDepartment(department);
+        repo.save(s);
         return true;
     }
 }
