@@ -8,7 +8,6 @@ import ua.edu.ukma.domain.Teacher;
 import ua.edu.ukma.repository.InMemoryTeacherRepository;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
