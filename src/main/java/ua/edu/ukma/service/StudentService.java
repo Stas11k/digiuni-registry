@@ -3,6 +3,7 @@ import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.StudentStatus;
 import ua.edu.ukma.domain.StudyForm;
 
+import java.time.LocalDate;
 import java.util.*;
 import ua.edu.ukma.domain.Specialty;
 import ua.edu.ukma.exception.*;
@@ -87,7 +88,7 @@ public class StudentService {
         if (lastName.isPresent()) s.setLastName(lastName.get());
         if (firstName.isPresent()) s.setFirstName(firstName.get());
         if (middleName.isPresent()) s.setMiddleName(middleName.get());
-        if (birthDate.isPresent()) s.setBirthDate(birthDate.get());
+        if (birthDate.isPresent()) s.setBirthDate(LocalDate.parse(birthDate.get()));
         if (email.isPresent()) s.setEmail(email.get());
         if (phone.isPresent()) s.setPhone(phone.get());
         if (address.isPresent()) s.setAddress(address.get());
