@@ -61,7 +61,7 @@ public class TeacherService {
         if (lastName.isPresent()) t.setLastName(lastName.get());
         if (firstName.isPresent()) t.setFirstName(firstName.get());
         if (middleName.isPresent()) t.setMiddleName(middleName.get());
-        if (birthDate.isPresent()) t.setBirthDate(birthDate.get());
+        if (birthDate.isPresent()) t.setBirthDate(LocalDate.parse(birthDate.get()));
         if (email.isPresent()) t.setEmail(email.get());
         if (phone.isPresent()) t.setPhone(phone.get());
         if (address.isPresent()) t.setAddress(address.get());
