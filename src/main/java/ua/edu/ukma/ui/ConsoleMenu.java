@@ -1,5 +1,6 @@
 package ua.edu.ukma.ui;
 
+import ua.edu.ukma.domain.*;
 import ua.edu.ukma.repository.*;
 import ua.edu.ukma.service.*;
 
@@ -9,11 +10,17 @@ public class ConsoleMenu {
 
     private final Scanner scanner = new Scanner(System.in);
 
-    private final FacultyService facultyService = new FacultyService(new InMemoryFacultyRepository());
-    private final DepartmentService departmentService = new DepartmentService(new InMemoryDepartmentRepository());
-    private final SpecialtyService specialtyService = new SpecialtyService(new InMemorySpecialtyRepository());
-    private final StudentService studentService = new StudentService(new InMemoryStudentRepository());
-    private final TeacherService teacherService = new TeacherService(new InMemoryTeacherRepository());
+    private final Repository<Faculty, Integer> facultyRepo = new InMemoryRepository<>();
+    private final Repository<Department, Integer> departmentRepo = new InMemoryRepository<>();
+    private final Repository<Specialty, Integer> specialtyRepo = new InMemoryRepository<>();
+    private final Repository<Student, Integer> studentRepo = new InMemoryRepository<>();
+    private final Repository<Teacher, Integer> teacherRepo = new InMemoryRepository<>();
+
+    private final FacultyService facultyService = new FacultyService(facultyRepo);
+    private final DepartmentService departmentService = new DepartmentService(departmentRepo);
+    private final SpecialtyService specialtyService = new SpecialtyService(specialtyRepo);
+    private final StudentService studentService = new StudentService(studentRepo);
+    private final TeacherService teacherService = new TeacherService(teacherRepo);
 
     public void start() {
         boolean running = true;
