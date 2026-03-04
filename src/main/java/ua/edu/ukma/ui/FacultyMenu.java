@@ -1,10 +1,12 @@
 package ua.edu.ukma.ui;
 
 import ua.edu.ukma.domain.*;
+import ua.edu.ukma.exception.*;
 import ua.edu.ukma.service.DepartmentService;
 import ua.edu.ukma.service.FacultyService;
 import ua.edu.ukma.service.TeacherService;
 
+import java.util.Optional;
 import java.util.Scanner;
 
 public class FacultyMenu {
@@ -64,60 +66,106 @@ public class FacultyMenu {
                 System.out.println("Faculty added");
                 return;
 
-            } catch (IllegalArgumentException e) {
+            } catch (ValidationException e) {
                 System.out.println("Error: " + e.getMessage());
             }
         }
     }
 
     private void edit() {
-        while (true) {
-            try {
-                System.out.print("Faculty ID (or 0 to cancel): ");
-                int id = readInt();
-                if (id == 0) return;
+        try {
+            System.out.print("Faculty ID (or 0 to cancel): ");
+            int id = readInt();
+            if (id == 0) return;
 
-                System.out.print("New name: ");
-                String name = scanner.nextLine();
+            // Перевіряємо що існує
+            service.getOrThrow(id);
 
-                System.out.print("New short name: ");
-                String shortName = scanner.nextLine();
+            boolean editing = true;
+            while (editing) {
+                System.out.println("""
+                        What do you want to edit
+                        1. Name
+                        2. Short name
+                        3. Contacts
+                        4. Dean
+                        9. Edit all fields
+                        0. Back
+                        """);
+                System.out.print("Choose option: ");
+                int c = readInt();
 
-                System.out.print("Contacts: ");
-                String contacts = scanner.nextLine();
+                Optional<String> name = Optional.empty();
+                Optional<String> shortName = Optional.empty();
+                Optional<Teacher> dean = Optional.empty();
+                Optional<String> contacts = Optional.empty();
 
-                if (teacherService.getAll().isEmpty()) {
-                    System.out.println("No teachers available");
-                    return;
+                switch (c) {
+                    case 1:
+                        name = Optional.of(readRequiredLine("New name"));
+                        break;
+                    case 2:
+                        shortName = Optional.of(readRequiredLine("New short name"));
+                        break;
+                    case 3:
+                        contacts = Optional.of(readRequiredLine("New contacts"));
+                        break;
+                    case 4:
+                        dean = Optional.of(chooseDean());
+                        break;
+                    case 9:
+                        name = Optional.of(readRequiredLine("New name"));
+                        shortName = Optional.of(readRequiredLine("New short name"));
+                        contacts = Optional.of(readRequiredLine("New contacts"));
+                        dean = Optional.of(chooseDean());
+                        break;
+                    case 0:
+                        editing = false;
+                        continue;
+                    default:
+                        System.out.println("Unknown option\n");
+                        continue;
                 }
 
-                System.out.println("Choose dean:");
-                for (Teacher t : teacherService.getAll()) {
-                    System.out.println(t.getId() + ": " + t.getFullName());
-                }
-
-                Teacher dean = teacherService.get(readInt());
-                if (dean == null) {
-                    System.out.println("Teacher not found");
-                    continue;
-                }
-
-                if (!canBeDean(dean)) {
-                    System.out.println("This teacher cannot be dean (already a dean or department head). Choose another one.");
-                    continue;
-                }
-
-                System.out.println(service.update(id, name, shortName, dean, contacts) ? "Updated" : "Not found");
-                return;
-            } catch (IllegalArgumentException e) {
-                System.out.println("Error: " + e.getMessage());
+                service.updatePartial(id, name, shortName, dean, contacts);
+                System.out.println("Updated\n");
             }
+
+        } catch (ValidationException | EntityNotFoundException e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
     private void delete() {
         System.out.print("Faculty ID: ");
         System.out.println(service.delete(readInt()) ? "Deleted" : "Not found");
+    }
+
+    private Teacher chooseDean() {
+        if (teacherService.getAll().isEmpty()) throw new ValidationException("No teachers available");
+
+        while (true) {
+            System.out.println("Choose dean:");
+            for (Teacher t : teacherService.getAll()) {
+                System.out.println(t.getId() + ": " + t.getFullName());
+            }
+            System.out.print("Teacher ID: ");
+            int id = readInt();
+
+            Teacher dean;
+            try {
+                dean = teacherService.getOrThrow(id);
+            } catch (EntityNotFoundException e) {
+                System.out.println("Error: " + e.getMessage() + "\n");
+                continue;
+            }
+
+            if (!canBeDean(dean)) {
+                System.out.println("This teacher cannot be dean (already a dean or department head). Choose another one.\n");
+                continue;
+            }
+            return dean;
+        }
     }
 
     private boolean canBeDean(Teacher teacher) {
@@ -128,6 +176,15 @@ public class FacultyMenu {
             if (d.getHead() != null && d.getHead().getId() == teacher.getId()) return false;
         }
         return true;
+    }
+
+    private String readRequiredLine(String prompt) {
+        while (true) {
+            System.out.print(prompt + ": ");
+            String v = scanner.nextLine();
+            if (!v.isBlank()) return v;
+            System.out.println("Value cannot be empty\n");
+        }
     }
 
     private int readInt() {

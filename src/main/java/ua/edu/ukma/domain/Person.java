@@ -1,10 +1,11 @@
 package ua.edu.ukma.domain;
 
+import ua.edu.ukma.repository.Identifiable;
 import ua.edu.ukma.util.ValidationUtils;
 
 import java.util.Objects;
 
-abstract class Person {
+abstract class Person implements Identifiable<Integer> {
     private static int counter = 1;
 
     private final int id;
@@ -29,7 +30,8 @@ abstract class Person {
         this.middleName = middleName;
     }
 
-    public int getId() {
+    @Override
+    public Integer getId() {
         return id;
     }
 
@@ -102,5 +104,18 @@ abstract class Person {
     @Override
     public String toString() {
         return getFullName();
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Person person = (Person) o;
+        return id == person.id;
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(id);
     }
 }
