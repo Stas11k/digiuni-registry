@@ -5,11 +5,15 @@ import ua.edu.ukma.repository.*;
 import ua.edu.ukma.service.*;
 
 import java.util.Scanner;
+import ua.edu.ukma.auth.AuthService;
+import ua.edu.ukma.auth.Role;
+import ua.edu.ukma.auth.User;
 
 public class ConsoleMenu {
 
     private final Scanner scanner = new Scanner(System.in);
 
+    private final AuthService authService = new AuthService();
     private final Repository<Faculty, Integer> facultyRepo = new InMemoryRepository<>();
     private final Repository<Department, Integer> departmentRepo = new InMemoryRepository<>();
     private final Repository<Specialty, Integer> specialtyRepo = new InMemoryRepository<>();
@@ -23,6 +27,24 @@ public class ConsoleMenu {
     private final TeacherService teacherService = new TeacherService(teacherRepo);
 
     public void start() {
+        System.out.print("Login: ");
+        String login = scanner.nextLine();
+
+        System.out.print("Password: ");
+        String password = scanner.nextLine();
+
+        User user = authService.login(login, password);
+
+        if (user == null) {
+            System.out.println("Invalid credentials");
+            return;
+        }
+
+        System.out.println("Welcome " + user.getLogin());
+
+        if (user.getRole() == Role.USER) {
+            System.out.println("(User mode: read only)");
+        }
         boolean running = true;
         while (running) {
             System.out.println("""
@@ -41,7 +63,13 @@ public class ConsoleMenu {
                 case 2 : new DepartmentMenu(scanner, departmentService, facultyService, teacherService).start(); break;
                 case 3 : new SpecialtyMenu(scanner, specialtyService, departmentService).start(); break;
                 case 4 : new StudentMenu(scanner, studentService, specialtyService).start(); break;
-                case 5 : new TeacherMenu(scanner, teacherService, departmentService).start(); break;
+                case 5:
+                    if (user.getRole() == Role.MANAGER) {
+                        new TeacherMenu(scanner, teacherService, departmentService).start();
+                    } else {
+                        System.out.println("Access denied\n");
+                    }
+                    break;
                 case 0 : running = false; break;
                 default : System.out.println("Unknown option\n");
             }
