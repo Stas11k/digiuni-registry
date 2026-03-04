@@ -2,6 +2,8 @@ package ua.edu.ukma.domain;
 
 import ua.edu.ukma.repository.Identifiable;
 import ua.edu.ukma.util.ValidationUtils;
+import java.time.LocalDate;
+import java.time.Period;
 
 import java.util.Objects;
 
@@ -12,7 +14,7 @@ abstract class Person implements Identifiable<Integer> {
     private String lastName;
     private String firstName;
     private String middleName;
-    private String birthDate;
+    private LocalDate birthDate;
     private String email;
     private String phone;
     private String address;
@@ -44,6 +46,10 @@ abstract class Person implements Identifiable<Integer> {
         ValidationUtils.validateNoDigits(firstName, "First name");
         this.firstName = firstName;
     }
+    public int getAge() {
+        if (birthDate == null) return 0;
+        return Period.between(birthDate, LocalDate.now()).getYears();
+    }
 
     public String getLastName() {
         return lastName;
@@ -65,11 +71,11 @@ abstract class Person implements Identifiable<Integer> {
         this.middleName = middleName;
     }
 
-    public String getBirthDate() {
+    public LocalDate getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(String birthDate) {
+    public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
     }
 

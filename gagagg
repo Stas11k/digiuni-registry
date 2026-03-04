@@ -1,0 +1,12 @@
+[1mdiff --git a/src/test/java/ua/edu/ukma/repository/InMemoryStudentRepositoryTest.java b/src/test/java/ua/edu/ukma/repository/InMemoryStudentRepositoryTest.java[m
+[1mindex 0966c0b..21d6040 100644[m
+[1m--- a/src/test/java/ua/edu/ukma/repository/InMemoryStudentRepositoryTest.java[m
+[1m+++ b/src/test/java/ua/edu/ukma/repository/InMemoryStudentRepositoryTest.java[m
+[36m@@ -8,6 +8,7 @@[m [mimport java.util.UUID;[m
+ [m
+ import static org.junit.jupiter.api.Assertions.*;[m
+ [m
+[32m+[m
+ class InMemoryStudentRepositoryTest {[m
+ [m
+     private InMemoryStudentRepository repository;[m
