@@ -3,7 +3,6 @@ package ua.edu.ukma.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ua.edu.ukma.domain.*;
-import ua.edu.ukma.repository.InMemoryStudentRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
