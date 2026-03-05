@@ -9,6 +9,7 @@ public class AuthService {
     public AuthService() {
         users.add(new User("user", "1234", Role.USER));
         users.add(new User("manager", "admin", Role.MANAGER));
+        users.add(new User("admin", "admin", Role.ADMIN));
     }
     public User login(String login, String password) {
         for (User u: users) {

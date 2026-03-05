@@ -1,5 +1,6 @@
 package ua.edu.ukma.ui;
 
+import ua.edu.ukma.auth.Role;
 import ua.edu.ukma.domain.Specialty;
 import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.StudyForm;
@@ -16,36 +17,59 @@ public class StudentMenu {
     private final Scanner scanner;
     private final StudentService studentService;
     private final SpecialtyService specialtyService;
+    private final Role role;
 
-    public StudentMenu(Scanner scanner, StudentService studentService, SpecialtyService specialtyService) {
+    public StudentMenu(Scanner scanner, StudentService studentService, SpecialtyService specialtyService, Role role) {
         this.scanner = scanner;
         this.studentService = studentService;
         this.specialtyService = specialtyService;
+        this.role = role;
     }
 
     public void start() {
         boolean inMenu = true;
         while (inMenu) {
-            System.out.println("""
-                    --- Students ---
+            if (canWrite()) {
+                System.out.println("""
+                        --- Students ---
+                        1. Show all
+                        2. Add
+                        3. Edit
+                        4. Delete
+                        5. Find by course
+                        6. Find by group
+                        0. Back
+                        """);
+            }else{
+                System.out.println("""
+                    --- Departments ---
                     1. Show all
-                    2. Add
-                    3. Edit
-                    4. Delete
                     5. Find by course
                     6. Find by group
                     0. Back
                     """);
+            }
             System.out.print("Choose option: ");
-            switch (readInt()) {
-                case 1 : showAll(); break;
-                case 2 : add(); break;
-                case 3 : edit(); break;
-                case 4 : delete(); break;
-                case 5 : findByCourse(); break;
-                case 6 : findByGroup(); break;
-                case 0 : inMenu = false; break;
-                default : System.out.println("Unknown option\n");
+            int choice = readInt();
+            if (canWrite()) {
+                switch (choice) {
+                    case 1 -> showAll();
+                    case 2 -> add();
+                    case 3 -> edit();
+                    case 4 -> delete();
+                    case 5 -> findByCourse();
+                    case 6 -> findByGroup();
+                    case 0 -> inMenu = false;
+                    default -> System.out.println("Unknown option\n");
+                }
+            } else{
+                switch (choice) {
+                    case 1 -> showAll();
+                    case 5 -> findByCourse();
+                    case 6 -> findByGroup();
+                    case 0 -> inMenu = false;
+                    default -> System.out.println("Unknown option\n");
+                }
             }
         }
     }
@@ -304,6 +328,10 @@ public class StudentMenu {
             if (!v.isBlank()) return v;
             System.out.println("Value cannot be empty\n");
         }
+    }
+
+    private boolean canWrite() {
+        return role == Role.MANAGER || role == Role.ADMIN;
     }
 
     private int readInt() {

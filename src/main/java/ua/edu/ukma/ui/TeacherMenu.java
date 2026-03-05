@@ -1,5 +1,6 @@
 package ua.edu.ukma.ui;
 
+import ua.edu.ukma.auth.Role;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Teacher;
 import ua.edu.ukma.exception.*;
@@ -15,32 +16,51 @@ public class TeacherMenu {
     private final Scanner scanner;
     private final TeacherService teacherService;
     private final DepartmentService departmentService;
+    private final Role role;
 
-    public TeacherMenu(Scanner scanner, TeacherService teacherService, DepartmentService departmentService) {
+    public TeacherMenu(Scanner scanner, TeacherService teacherService, DepartmentService departmentService, Role role) {
         this.scanner = scanner;
         this.teacherService = teacherService;
         this.departmentService = departmentService;
+        this.role = role;
     }
 
     public void start() {
         boolean inMenu = true;
         while (inMenu) {
-            System.out.println("""
-                    --- Teachers ---
-                    1. Show all
-                    2. Add
-                    3. Edit
-                    4. Delete
-                    0. Back
-                    """);
+            if (canWrite()) {
+                System.out.println("""
+                        --- Teachers ---
+                        1. Show all
+                        2. Add
+                        3. Edit
+                        4. Delete
+                        0. Back
+                        """);
+            }else{
+                System.out.println("""
+                        --- Teachers ---
+                        1. Show all
+                        0. Back
+                        """);
+            }
             System.out.print("Choose option: ");
-            switch (readInt()) {
-                case 1 : showAll(); break;
-                case 2 : add(); break;
-                case 3 : edit(); break;
-                case 4 : delete(); break;
-                case 0 : inMenu = false; break;
-                default : System.out.println("Unknown option\n");
+            int choice = readInt();
+            if (canWrite()) {
+                switch (choice) {
+                    case 1 -> showAll();
+                    case 2 -> add();
+                    case 3 -> edit();
+                    case 4 -> delete();
+                    case 0 -> inMenu = false;
+                    default -> System.out.println("Unknown option\n");
+                }
+            }else{
+                switch (choice) {
+                    case 1 -> showAll();
+                    case 0 -> inMenu = false;
+                    default -> System.out.println("Unknown option\n");
+                }
             }
         }
     }
@@ -264,6 +284,10 @@ public class TeacherMenu {
                 System.out.println("Please enter a number\n");
             }
         }
+    }
+
+    private boolean canWrite() {
+        return role == Role.MANAGER || role == Role.ADMIN;
     }
 
     private int readInt() {
