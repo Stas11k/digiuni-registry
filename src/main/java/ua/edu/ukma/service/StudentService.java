@@ -88,7 +88,11 @@ public class StudentService {
         if (lastName.isPresent()) s.setLastName(lastName.get());
         if (firstName.isPresent()) s.setFirstName(firstName.get());
         if (middleName.isPresent()) s.setMiddleName(middleName.get());
-        if (birthDate.isPresent()) s.setBirthDate(LocalDate.parse(birthDate.get()));
+        if (birthDate.isPresent()) {
+            String value = birthDate.get().trim();
+            if (value.isEmpty()) s.setBirthDate(null);
+            else s.setBirthDate(LocalDate.parse(value));
+        }
         if (email.isPresent()) s.setEmail(email.get());
         if (phone.isPresent()) s.setPhone(phone.get());
         if (address.isPresent()) s.setAddress(address.get());

@@ -3,11 +3,12 @@ package ua.edu.ukma.ui;
 import ua.edu.ukma.auth.Role;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Teacher;
-import ua.edu.ukma.exception.*;
+import ua.edu.ukma.exception.EntityNotFoundException;
+import ua.edu.ukma.exception.ValidationException;
 import ua.edu.ukma.service.DepartmentService;
 import ua.edu.ukma.service.TeacherService;
-import java.time.LocalDate;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -37,15 +38,17 @@ public class TeacherMenu {
                         4. Delete
                         0. Back
                         """);
-            }else{
+            } else {
                 System.out.println("""
                         --- Teachers ---
                         1. Show all
                         0. Back
                         """);
             }
+
             System.out.print("Choose option: ");
             int choice = readInt();
+
             if (canWrite()) {
                 switch (choice) {
                     case 1 -> showAll();
@@ -55,7 +58,7 @@ public class TeacherMenu {
                     case 0 -> inMenu = false;
                     default -> System.out.println("Unknown option\n");
                 }
-            }else{
+            } else {
                 switch (choice) {
                     case 1 -> showAll();
                     case 0 -> inMenu = false;
@@ -67,7 +70,22 @@ public class TeacherMenu {
 
     private void showAll() {
         for (Teacher t : teacherService.getAll()) {
-            System.out.println(t.getId() + " | " + t.getFullName() + " | department: " + t.getDepartment() + " | position: " + t.getPosition() + " | degree: " + t.getDegree() + " | title: " + t.getTitle() + " | email: " + t.getEmail() + " | phone: " + t.getPhone() + " | address: " + t.getAddress() + " | birthDate: " + t.getBirthDate() + " | department: " + t.getDepartment() + " | hireDate: " + t.getHireDate() + " | workLoad: " + t.getWorkload());
+            System.out.println(
+                    t.getId() + " | " +
+                            t.getFullName() +
+                            " | age: " + t.getAge() +
+                            " | experience: " + t.getExperienceYears() +
+                            " | department: " + t.getDepartment() +
+                            " | position: " + t.getPosition() +
+                            " | degree: " + t.getDegree() +
+                            " | title: " + t.getTitle() +
+                            " | email: " + t.getEmail() +
+                            " | phone: " + t.getPhone() +
+                            " | address: " + t.getAddress() +
+                            " | birthDate: " + t.getBirthDate() +
+                            " | hireDate: " + t.getHireDate() +
+                            " | workLoad: " + t.getWorkload()
+            );
         }
     }
 
@@ -81,16 +99,21 @@ public class TeacherMenu {
             try {
                 System.out.print("Last name: ");
                 String last = scanner.nextLine();
+
                 System.out.print("First name: ");
                 String first = scanner.nextLine();
+
                 System.out.print("Middle name: ");
                 String middle = scanner.nextLine();
+
                 System.out.print("Position: ");
                 String pos = scanner.nextLine();
 
                 Department department = chooseDepartment();
 
-                teacherService.add(new Teacher(last, first, middle, pos, department));
+                Teacher teacher = new Teacher(last, first, middle, pos, department);
+                teacherService.add(teacher);
+
                 System.out.println("Teacher added");
                 return;
 
@@ -146,50 +169,24 @@ public class TeacherMenu {
                 Optional<Double> workload = Optional.empty();
 
                 switch (c) {
-                    case 1:
-                        lastName = Optional.of(readRequiredLine("New last name"));
-                        break;
-                    case 2:
-                        firstName = Optional.of(readRequiredLine("New first name"));
-                        break;
-                    case 3:
-                        middleName = Optional.of(readRequiredLine("New middle name"));
-                        break;
-                    case 4:
-                        birthDate = Optional.of(readOptionalLine("New birth date (can be empty)"));
-                        break;
-                    case 5:
-                        email = Optional.of(readOptionalLine("New email (can be empty)"));
-                        break;
-                    case 6:
-                        phone = Optional.of(readOptionalLine("New phone (can be empty)"));
-                        break;
-                    case 7:
-                        address = Optional.of(readOptionalLine("New address (can be empty)"));
-                        break;
-                    case 8:
-                        position = Optional.of(readRequiredLine("New position"));
-                        break;
-                    case 9:
-                        department = Optional.of(chooseDepartment());
-                        break;
-                    case 10:
-                        degree = Optional.of(readOptionalLine("New degree (can be empty)"));
-                        break;
-                    case 11:
-                        title = Optional.of(readOptionalLine("New title (can be empty)"));
-                        break;
-                    case 12:
-                        hireDate = Optional.of(readDate("New hire date (YYYY-MM-DD)"));
-                        break;
-                    case 13:
-                        workload = Optional.of(readDoubleValue("New workload"));
-                        break;
-                    case 90:
+                    case 1 -> lastName = Optional.of(readRequiredLine("New last name"));
+                    case 2 -> firstName = Optional.of(readRequiredLine("New first name"));
+                    case 3 -> middleName = Optional.of(readRequiredLine("New middle name"));
+                    case 4 -> birthDate = Optional.of(readOptionalLine("New birth date (YYYY-MM-DD, can be empty)"));
+                    case 5 -> email = Optional.of(readOptionalLine("New email (can be empty)"));
+                    case 6 -> phone = Optional.of(readOptionalLine("New phone (can be empty)"));
+                    case 7 -> address = Optional.of(readOptionalLine("New address (can be empty)"));
+                    case 8 -> position = Optional.of(readRequiredLine("New position"));
+                    case 9 -> department = Optional.of(chooseDepartment());
+                    case 10 -> degree = Optional.of(readOptionalLine("New degree (can be empty)"));
+                    case 11 -> title = Optional.of(readOptionalLine("New title (can be empty)"));
+                    case 12 -> hireDate = Optional.of(readDate("New hire date (YYYY-MM-DD)"));
+                    case 13 -> workload = Optional.of(readDoubleValue("New workload"));
+                    case 90 -> {
                         lastName = Optional.of(readRequiredLine("New last name"));
                         firstName = Optional.of(readRequiredLine("New first name"));
                         middleName = Optional.of(readRequiredLine("New middle name"));
-                        birthDate = Optional.of(readOptionalLine("New birth date (can be empty)"));
+                        birthDate = Optional.of(readOptionalLine("New birth date (YYYY-MM-DD, can be empty)"));
                         email = Optional.of(readOptionalLine("New email (can be empty)"));
                         phone = Optional.of(readOptionalLine("New phone (can be empty)"));
                         address = Optional.of(readOptionalLine("New address (can be empty)"));
@@ -199,13 +196,15 @@ public class TeacherMenu {
                         title = Optional.of(readOptionalLine("New title (can be empty)"));
                         hireDate = Optional.of(readDate("New hire date (YYYY-MM-DD)"));
                         workload = Optional.of(readDoubleValue("New workload"));
-                        break;
-                    case 0:
+                    }
+                    case 0 -> {
                         editing = false;
                         continue;
-                    default:
+                    }
+                    default -> {
                         System.out.println("Unknown option\n");
                         continue;
+                    }
                 }
 
                 teacherService.updatePartial(
@@ -221,11 +220,15 @@ public class TeacherMenu {
 
         } catch (ValidationException | EntityNotFoundException e) {
             System.out.println("Error: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error: invalid date format\n");
         }
     }
 
     private Department chooseDepartment() {
-        if (departmentService.getAll().isEmpty()) throw new ValidationException("No departments available");
+        if (departmentService.getAll().isEmpty()) {
+            throw new ValidationException("No departments available");
+        }
 
         while (true) {
             System.out.println("Choose department:");

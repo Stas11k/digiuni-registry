@@ -5,7 +5,8 @@ import ua.edu.ukma.domain.Specialty;
 import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.StudyForm;
 import ua.edu.ukma.domain.StudentStatus;
-import ua.edu.ukma.exception.*;
+import ua.edu.ukma.exception.EntityNotFoundException;
+import ua.edu.ukma.exception.ValidationException;
 import ua.edu.ukma.service.SpecialtyService;
 import ua.edu.ukma.service.StudentService;
 
@@ -40,17 +41,19 @@ public class StudentMenu {
                         6. Find by group
                         0. Back
                         """);
-            }else{
+            } else {
                 System.out.println("""
-                    --- Departments ---
-                    1. Show all
-                    5. Find by course
-                    6. Find by group
-                    0. Back
-                    """);
+                        --- Students ---
+                        1. Show all
+                        5. Find by course
+                        6. Find by group
+                        0. Back
+                        """);
             }
+
             System.out.print("Choose option: ");
             int choice = readInt();
+
             if (canWrite()) {
                 switch (choice) {
                     case 1 -> showAll();
@@ -62,7 +65,7 @@ public class StudentMenu {
                     case 0 -> inMenu = false;
                     default -> System.out.println("Unknown option\n");
                 }
-            } else{
+            } else {
                 switch (choice) {
                     case 1 -> showAll();
                     case 5 -> findByCourse();
@@ -76,7 +79,23 @@ public class StudentMenu {
 
     private void showAll() {
         for (Student s : studentService.getAll()) {
-            System.out.println(s.getId() + " | " + s.getFullName() + " | gradeBookNumber: " + s.getGradeBookNumber() + " | specialty: " + s.getSpecialty() +" | course: " + s.getCourse() + " | group: " + s.getGroup() + " | email: " + s.getEmail() + " | phone: " + s.getPhone() + " | address: " + s.getAddress() + " | birthDate: " + s.getBirthDate() + " | admissionYear: " + s.getAdmissionYear() + " | studyForm: " + s.getStudyForm() + " | status: " + s.getStatus());
+            System.out.println(
+                    s.getId() + " | " +
+                            s.getFullName() +
+                            " | age: " + s.getAge() +
+                            " | yearsOfStudy: " + s.getYearsOfStudy() +
+                            " | gradeBookNumber: " + s.getGradeBookNumber() +
+                            " | specialty: " + s.getSpecialty() +
+                            " | course: " + s.getCourse() +
+                            " | group: " + s.getGroup() +
+                            " | email: " + s.getEmail() +
+                            " | phone: " + s.getPhone() +
+                            " | address: " + s.getAddress() +
+                            " | birthDate: " + s.getBirthDate() +
+                            " | admissionYear: " + s.getAdmissionYear() +
+                            " | studyForm: " + s.getStudyForm() +
+                            " | status: " + s.getStatus()
+            );
         }
     }
 
@@ -90,21 +109,27 @@ public class StudentMenu {
             try {
                 System.out.print("Last name: ");
                 String last = scanner.nextLine();
+
                 System.out.print("First name: ");
                 String first = scanner.nextLine();
+
                 System.out.print("Middle name: ");
                 String middle = scanner.nextLine();
+
                 System.out.print("Grade book number: ");
                 String sid = scanner.nextLine();
 
                 System.out.print("Course: ");
                 int course = readInt();
+
                 System.out.print("Group: ");
                 int group = readInt();
 
                 Specialty specialty = chooseSpecialty();
 
-                studentService.add(new Student(last, first, middle, sid, course, group, specialty));
+                Student student = new Student(last, first, middle, sid, course, group, specialty);
+                studentService.add(student);
+
                 System.out.println("Student added");
                 return;
 
@@ -162,53 +187,25 @@ public class StudentMenu {
                 Optional<StudentStatus> status = Optional.empty();
 
                 switch (c) {
-                    case 1:
-                        lastName = Optional.of(readRequiredLine("New last name"));
-                        break;
-                    case 2:
-                        firstName = Optional.of(readRequiredLine("New first name"));
-                        break;
-                    case 3:
-                        middleName = Optional.of(readRequiredLine("New middle name"));
-                        break;
-                    case 4:
-                        birthDate = Optional.of(readOptionalLine("New birth date (can be empty)"));
-                        break;
-                    case 5:
-                        email = Optional.of(readOptionalLine("New email (can be empty)"));
-                        break;
-                    case 6:
-                        phone = Optional.of(readOptionalLine("New phone (can be empty)"));
-                        break;
-                    case 7:
-                        address = Optional.of(readOptionalLine("New address (can be empty)"));
-                        break;
-                    case 8:
-                        gradeBook = Optional.of(readRequiredLine("New grade book number"));
-                        break;
-                    case 9:
-                        course = Optional.of(readIntValue("New course"));
-                        break;
-                    case 10:
-                        group = Optional.of(readIntValue("New group"));
-                        break;
-                    case 11:
-                        specialty = Optional.of(chooseSpecialty());
-                        break;
-                    case 12:
-                        admissionYear = Optional.of(readIntValue("New admission year"));
-                        break;
-                    case 13:
-                        studyForm = Optional.of(chooseStudyForm());
-                        break;
-                    case 14:
-                        status = Optional.of(chooseStatus());
-                        break;
-                    case 90:
+                    case 1 -> lastName = Optional.of(readRequiredLine("New last name"));
+                    case 2 -> firstName = Optional.of(readRequiredLine("New first name"));
+                    case 3 -> middleName = Optional.of(readRequiredLine("New middle name"));
+                    case 4 -> birthDate = Optional.of(readOptionalLine("New birth date (YYYY-MM-DD, can be empty)"));
+                    case 5 -> email = Optional.of(readOptionalLine("New email (can be empty)"));
+                    case 6 -> phone = Optional.of(readOptionalLine("New phone (can be empty)"));
+                    case 7 -> address = Optional.of(readOptionalLine("New address (can be empty)"));
+                    case 8 -> gradeBook = Optional.of(readRequiredLine("New grade book number"));
+                    case 9 -> course = Optional.of(readIntValue("New course"));
+                    case 10 -> group = Optional.of(readIntValue("New group"));
+                    case 11 -> specialty = Optional.of(chooseSpecialty());
+                    case 12 -> admissionYear = Optional.of(readIntValue("New admission year"));
+                    case 13 -> studyForm = Optional.of(chooseStudyForm());
+                    case 14 -> status = Optional.of(chooseStatus());
+                    case 90 -> {
                         lastName = Optional.of(readRequiredLine("New last name"));
                         firstName = Optional.of(readRequiredLine("New first name"));
                         middleName = Optional.of(readRequiredLine("New middle name"));
-                        birthDate = Optional.of(readOptionalLine("New birth date (can be empty)"));
+                        birthDate = Optional.of(readOptionalLine("New birth date (YYYY-MM-DD, can be empty)"));
                         email = Optional.of(readOptionalLine("New email (can be empty)"));
                         phone = Optional.of(readOptionalLine("New phone (can be empty)"));
                         address = Optional.of(readOptionalLine("New address (can be empty)"));
@@ -219,13 +216,15 @@ public class StudentMenu {
                         admissionYear = Optional.of(readIntValue("New admission year"));
                         studyForm = Optional.of(chooseStudyForm());
                         status = Optional.of(chooseStatus());
-                        break;
-                    case 0:
+                    }
+                    case 0 -> {
                         editing = false;
                         continue;
-                    default:
+                    }
+                    default -> {
                         System.out.println("Unknown option\n");
                         continue;
+                    }
                 }
 
                 studentService.updatePartial(
@@ -241,6 +240,8 @@ public class StudentMenu {
 
         } catch (ValidationException | EntityNotFoundException e) {
             System.out.println("Error: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error: invalid date format\n");
         }
     }
 
@@ -286,7 +287,9 @@ public class StudentMenu {
     }
 
     private Specialty chooseSpecialty() {
-        if (specialtyService.getAll().isEmpty()) throw new ValidationException("No specialties available");
+        if (specialtyService.getAll().isEmpty()) {
+            throw new ValidationException("No specialties available");
+        }
 
         while (true) {
             System.out.println("Choose specialty:");
@@ -373,5 +376,4 @@ public class StudentMenu {
             System.out.println("Invalid choice\n");
         }
     }
-
 }
