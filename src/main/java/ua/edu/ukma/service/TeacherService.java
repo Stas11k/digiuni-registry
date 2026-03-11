@@ -35,6 +35,18 @@ public class TeacherService {
         return repo.deleteById(id);
     }
 
+    public List<Teacher> findByFullName(String query) {
+        List<Teacher> result = new ArrayList<>();
+        List<Teacher> all = repo.findAll();
+        String search = query.trim().toLowerCase();
+        for (int i = 0; i < all.size(); i++) {
+            Teacher t = all.get(i);
+            String fullName = t.getFullName().toLowerCase();
+            if (fullName.contains(search)) result.add(t);
+        }
+        return result;
+    }
+
     public List<Teacher> findByPosition(String position) {
         return repo.findAll().stream()
                 .filter(t -> t.getPosition() != null && t.getPosition().equalsIgnoreCase(position))

@@ -36,6 +36,18 @@ public class StudentService {
         return repo.deleteById(id);
     }
 
+    public List<Student> findByFullName(String query) {
+        List<Student> result = new ArrayList<>();
+        List<Student> all = repo.findAll();
+        String search = query.trim().toLowerCase();
+        for (int i = 0; i < all.size(); i++) {
+            Student s = all.get(i);
+            String fullName = s.getFullName().toLowerCase();
+            if (fullName.contains(search)) result.add(s);
+        }
+        return result;
+    }
+
     public List<Student> findByCourse(int course) {
         return repo.findAll().stream()
                 .filter(s -> s.getCourse() == course)

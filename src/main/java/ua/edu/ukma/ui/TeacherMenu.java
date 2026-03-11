@@ -36,12 +36,14 @@ public class TeacherMenu {
                         2. Add
                         3. Edit
                         4. Delete
+                        5. Find by full name
                         0. Back
                         """);
             } else {
                 System.out.println("""
                         --- Teachers ---
                         1. Show all
+                        5. Find by full name
                         0. Back
                         """);
             }
@@ -55,12 +57,14 @@ public class TeacherMenu {
                     case 2 -> add();
                     case 3 -> edit();
                     case 4 -> delete();
+                    case 5 -> findByFullName();
                     case 0 -> inMenu = false;
                     default -> System.out.println("Unknown option\n");
                 }
             } else {
                 switch (choice) {
                     case 1 -> showAll();
+                    case 5 -> findByFullName();
                     case 0 -> inMenu = false;
                     default -> System.out.println("Unknown option\n");
                 }
@@ -249,6 +253,22 @@ public class TeacherMenu {
     private void delete() {
         System.out.print("Teacher ID: ");
         System.out.println(teacherService.delete(readInt()) ? "Deleted" : "Not found");
+    }
+
+    private void findByFullName() {
+        while (true) {
+            try {
+                System.out.print("Full name or part of name (or 0 to cancel): ");
+                String fullName = scanner.nextLine().trim();
+                if (fullName.equals("0")) return;
+                for (Teacher t : teacherService.findByFullName(fullName)) {
+                    System.out.println(t.getId() + " | " + t.getFullName() + " | position: " + t.getPosition() + " | department: " + t.getDepartment());
+                }
+                return;
+            } catch (ValidationException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        }
     }
 
     private String readOptionalLine(String prompt) {

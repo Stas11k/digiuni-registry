@@ -7,8 +7,8 @@ import java.util.List;
 public class AuthService {
     private List<User> users =  new ArrayList<>();
     public AuthService() {
-        users.add(new User("user", "1234", Role.USER));
-        users.add(new User("manager", "admin", Role.MANAGER));
+        users.add(new User("user", "user", Role.USER));
+        users.add(new User("manager", "manager", Role.MANAGER));
         users.add(new User("admin", "admin", Role.ADMIN));
     }
     public User login(String login, String password) {
