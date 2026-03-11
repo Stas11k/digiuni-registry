@@ -21,10 +21,6 @@ public class TeacherService {
         repo.save(t);
     }
 
-    public Optional<Teacher> find(int id) {
-        return repo.findById(id);
-    }
-
     public Teacher getOrThrow(int id) {
         Optional<Teacher> opt = repo.findById(id);
         if (opt.isEmpty()) throw new EntityNotFoundException("Teacher with id " + id + " not found");
@@ -40,14 +36,32 @@ public class TeacherService {
     }
 
     public List<Teacher> findByPosition(String position) {
-        List<Teacher> result = new ArrayList<>();
-        List<Teacher> all = repo.findAll();
-        for (int i = 0; i < all.size(); i++) {
-            Teacher t = all.get(i);
-            if (t.getPosition() != null && t.getPosition().equalsIgnoreCase(position)) result.add(t);
-        }
-        return result;
+        return repo.findAll().stream()
+                .filter(t -> t.getPosition() != null && t.getPosition().equalsIgnoreCase(position))
+                .toList();
     }
+
+    public List<Teacher> findByFacultySortedByName(int facultyId) {
+        return repo.findAll().stream()
+                .filter(t -> t.getDepartment() != null
+                        && t.getDepartment().getFaculty() != null
+                        && t.getDepartment().getFaculty().getId() == facultyId)
+                .sorted(Comparator.comparing(Teacher::getLastName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Teacher::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Teacher::getMiddleName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    public List<Teacher> findByDepartmentSortedByName(int departmentId) {
+        return repo.findAll().stream()
+                .filter(t -> t.getDepartment() != null
+                        && t.getDepartment().getId() == departmentId)
+                .sorted(Comparator.comparing(Teacher::getLastName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Teacher::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Teacher::getMiddleName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
 
     private void validate(Teacher t) {
         if (t == null) throw new ValidationException("Teacher cannot be null");
