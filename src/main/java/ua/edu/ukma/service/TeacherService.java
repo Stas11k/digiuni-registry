@@ -21,10 +21,6 @@ public class TeacherService {
         repo.save(t);
     }
 
-    public Optional<Teacher> find(int id) {
-        return repo.findById(id);
-    }
-
     public Teacher getOrThrow(int id) {
         Optional<Teacher> opt = repo.findById(id);
         if (opt.isEmpty()) throw new EntityNotFoundException("Teacher with id " + id + " not found");
@@ -39,15 +35,45 @@ public class TeacherService {
         return repo.deleteById(id);
     }
 
-    public List<Teacher> findByPosition(String position) {
+    public List<Teacher> findByFullName(String query) {
         List<Teacher> result = new ArrayList<>();
         List<Teacher> all = repo.findAll();
+        String search = query.trim().toLowerCase();
         for (int i = 0; i < all.size(); i++) {
             Teacher t = all.get(i);
-            if (t.getPosition() != null && t.getPosition().equalsIgnoreCase(position)) result.add(t);
+            String fullName = t.getFullName().toLowerCase();
+            if (fullName.contains(search)) result.add(t);
         }
         return result;
     }
+
+    public List<Teacher> findByPosition(String position) {
+        return repo.findAll().stream()
+                .filter(t -> t.getPosition() != null && t.getPosition().equalsIgnoreCase(position))
+                .toList();
+    }
+
+    public List<Teacher> findByFacultySortedByName(int facultyId) {
+        return repo.findAll().stream()
+                .filter(t -> t.getDepartment() != null
+                        && t.getDepartment().getFaculty() != null
+                        && t.getDepartment().getFaculty().getId() == facultyId)
+                .sorted(Comparator.comparing(Teacher::getLastName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Teacher::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Teacher::getMiddleName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    public List<Teacher> findByDepartmentSortedByName(int departmentId) {
+        return repo.findAll().stream()
+                .filter(t -> t.getDepartment() != null
+                        && t.getDepartment().getId() == departmentId)
+                .sorted(Comparator.comparing(Teacher::getLastName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Teacher::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Teacher::getMiddleName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
 
     private void validate(Teacher t) {
         if (t == null) throw new ValidationException("Teacher cannot be null");
@@ -61,7 +87,11 @@ public class TeacherService {
         if (lastName.isPresent()) t.setLastName(lastName.get());
         if (firstName.isPresent()) t.setFirstName(firstName.get());
         if (middleName.isPresent()) t.setMiddleName(middleName.get());
-        if (birthDate.isPresent()) t.setBirthDate(LocalDate.parse(birthDate.get()));
+        if (birthDate.isPresent()) {
+            String value = birthDate.get().trim();
+            if (value.isEmpty()) t.setBirthDate(null);
+            else t.setBirthDate(LocalDate.parse(value));
+        }
         if (email.isPresent()) t.setEmail(email.get());
         if (phone.isPresent()) t.setPhone(phone.get());
         if (address.isPresent()) t.setAddress(address.get());

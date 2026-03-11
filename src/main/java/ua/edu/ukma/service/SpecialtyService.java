@@ -5,7 +5,6 @@ import ua.edu.ukma.domain.Specialty;
 import ua.edu.ukma.exception.*;
 import ua.edu.ukma.repository.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,10 +19,6 @@ public class SpecialtyService {
     public void add(Specialty specialty) {
         validate(specialty);
         repo.save(specialty);
-    }
-
-    public Optional<Specialty> find(int id) {
-        return repo.findById(id);
     }
 
     public Specialty getOrThrow(int id) {
@@ -41,13 +36,9 @@ public class SpecialtyService {
     }
 
     public List<Specialty> findByDepartment(int departmentId) {
-        List<Specialty> result = new ArrayList<>();
-        List<Specialty> all = repo.findAll();
-        for (int i = 0; i < all.size(); i++) {
-            Specialty s = all.get(i);
-            if (s.getDepartment() != null && s.getDepartment().getId() == departmentId) result.add(s);
-        }
-        return result;
+        return repo.findAll().stream()
+                .filter(s -> s.getDepartment() != null && s.getDepartment().getId() == departmentId)
+                .toList();
     }
 
     private void validate(Specialty s) {

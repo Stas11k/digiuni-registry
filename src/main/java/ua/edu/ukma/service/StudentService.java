@@ -22,10 +22,6 @@ public class StudentService {
         repo.save(student);
     }
 
-    public Optional<Student> find(int id) {
-        return repo.findById(id);
-    }
-
     public Student getOrThrow(int id) {
         Optional<Student> opt = repo.findById(id);
         if (opt.isEmpty()) throw new EntityNotFoundException("Student with id " + id + " not found");
@@ -40,39 +36,90 @@ public class StudentService {
         return repo.deleteById(id);
     }
 
-    public List<Student> findByCourse(int course) {
+    public List<Student> findByFullName(String query) {
         List<Student> result = new ArrayList<>();
         List<Student> all = repo.findAll();
+        String search = query.trim().toLowerCase();
         for (int i = 0; i < all.size(); i++) {
             Student s = all.get(i);
-            if (s.getCourse() == course) result.add(s);
+            String fullName = s.getFullName().toLowerCase();
+            if (fullName.contains(search)) result.add(s);
         }
         return result;
+    }
+
+    public List<Student> findByCourse(int course) {
+        return repo.findAll().stream()
+                .filter(s -> s.getCourse() == course)
+                .toList();
     }
 
     public List<Student> findByGroup(int group) {
-        List<Student> result = new ArrayList<>();
-        List<Student> all = repo.findAll();
-        for (int i = 0; i < all.size(); i++) {
-            Student s = all.get(i);
-            if (s.getGroup() == group) result.add(s);
-        }
-        return result;
+        return repo.findAll().stream()
+                .filter(s -> s.getGroup() == group)
+                .toList();
     }
 
     public List<Student> sortedByCourse() {
-        List<Student> result = repo.findAll();
+        return repo.findAll().stream()
+                .sorted(Comparator.comparingInt(Student::getCourse))
+                .toList();
+    }
 
-        for (int i = 0; i < result.size(); i++) {
-            for (int j = i + 1; j < result.size(); j++) {
-                if (result.get(i).getCourse() > result.get(j).getCourse()) {
-                    Student tmp = result.get(i);
-                    result.set(i, result.get(j));
-                    result.set(j, tmp);
-                }
-            }
-        }
-        return result;
+    public List<Student> findByFacultySortedByName(int facultyId) {
+        return repo.findAll().stream()
+                .filter(s -> s.getSpecialty() != null
+                        && s.getSpecialty().getDepartment() != null
+                        && s.getSpecialty().getDepartment().getFaculty() != null
+                        && s.getSpecialty().getDepartment().getFaculty().getId() == facultyId)
+                .sorted(Comparator.comparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getMiddleName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    public List<Student> findByDepartmentSortedByCourse(int departmentId) {
+        return repo.findAll().stream()
+                .filter(s -> s.getSpecialty() != null
+                        && s.getSpecialty().getDepartment() != null
+                        && s.getSpecialty().getDepartment().getId() == departmentId)
+                .sorted(Comparator.comparingInt(Student::getCourse)
+                        .thenComparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getMiddleName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    public List<Student> findByDepartmentSortedByName(int departmentId) {
+        return repo.findAll().stream()
+                .filter(s -> s.getSpecialty() != null
+                        && s.getSpecialty().getDepartment() != null
+                        && s.getSpecialty().getDepartment().getId() == departmentId)
+                .sorted(Comparator.comparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getMiddleName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    public List<Student> findByDepartmentAndCourse(int departmentId, int course) {
+        return repo.findAll().stream()
+                .filter(s -> s.getSpecialty() != null
+                        && s.getSpecialty().getDepartment() != null
+                        && s.getSpecialty().getDepartment().getId() == departmentId
+                        && s.getCourse() == course)
+                .toList();
+    }
+
+    public List<Student> findByDepartmentAndCourseSortedByName(int departmentId, int course) {
+        return repo.findAll().stream()
+                .filter(s -> s.getSpecialty() != null
+                        && s.getSpecialty().getDepartment() != null
+                        && s.getSpecialty().getDepartment().getId() == departmentId
+                        && s.getCourse() == course)
+                .sorted(Comparator.comparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getMiddleName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
     }
 
     private void validate(Student s) {
@@ -88,7 +135,11 @@ public class StudentService {
         if (lastName.isPresent()) s.setLastName(lastName.get());
         if (firstName.isPresent()) s.setFirstName(firstName.get());
         if (middleName.isPresent()) s.setMiddleName(middleName.get());
-        if (birthDate.isPresent()) s.setBirthDate(LocalDate.parse(birthDate.get()));
+        if (birthDate.isPresent()) {
+            String value = birthDate.get().trim();
+            if (value.isEmpty()) s.setBirthDate(null);
+            else s.setBirthDate(LocalDate.parse(value));
+        }
         if (email.isPresent()) s.setEmail(email.get());
         if (phone.isPresent()) s.setPhone(phone.get());
         if (address.isPresent()) s.setAddress(address.get());
