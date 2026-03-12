@@ -61,9 +61,10 @@ public class ConsoleMenu {
                         4. Students
                         5. Teachers
                         6. University settings
+                        7. Reports
                         0. Exit
                         """);
-            }else{
+            } else {
                 System.out.println("""
                         === University System ===
                         1. Faculties
@@ -71,23 +72,35 @@ public class ConsoleMenu {
                         3. Specialties
                         4. Students
                         5. Teachers
+                        6. Reports
                         0. Exit
                         """);
             }
             System.out.print("Choose option: ");
             int choice = readInt();
-            switch (choice) {
-                case 1 : new FacultyMenu(scanner, facultyService, teacherService, departmentService, role).start(); break;
-                case 2 : new DepartmentMenu(scanner, departmentService, facultyService, teacherService, role).start(); break;
-                case 3 : new SpecialtyMenu(scanner, specialtyService, departmentService, role).start(); break;
-                case 4 : new StudentMenu(scanner, studentService, specialtyService, role).start(); break;
-                case 5 : new TeacherMenu(scanner, teacherService, departmentService, role).start(); break;
-                case 6 : {
-                    if (role == Role.ADMIN){ new UniversityMenu(scanner, university).start(); break;}
-                    else{ System.out.println("Unknown option\n"); break;}
+            if (role == Role.ADMIN) {
+                switch (choice) {
+                    case 1 -> new FacultyMenu(scanner, facultyService, teacherService, departmentService, role).start();
+                    case 2 -> new DepartmentMenu(scanner, departmentService, facultyService, teacherService, role).start();
+                    case 3 -> new SpecialtyMenu(scanner, specialtyService, departmentService, role).start();
+                    case 4 -> new StudentMenu(scanner, studentService, specialtyService, role).start();
+                    case 5 -> new TeacherMenu(scanner, teacherService, departmentService, role).start();
+                    case 6 -> new UniversityMenu(scanner, university).start();
+                    case 7 -> new ReportMenu(scanner, facultyService, departmentService, studentService, teacherService).start();
+                    case 0 -> running = false;
+                    default -> System.out.println("Unknown option\n");
                 }
-                case 0 : running = false; break;
-                default : System.out.println("Unknown option\n");
+            } else {
+                switch (choice) {
+                    case 1 -> new FacultyMenu(scanner, facultyService, teacherService, departmentService, role).start();
+                    case 2 -> new DepartmentMenu(scanner, departmentService, facultyService, teacherService, role).start();
+                    case 3 -> new SpecialtyMenu(scanner, specialtyService, departmentService, role).start();
+                    case 4 -> new StudentMenu(scanner, studentService, specialtyService, role).start();
+                    case 5 -> new TeacherMenu(scanner, teacherService, departmentService, role).start();
+                    case 6 -> new ReportMenu(scanner, facultyService, departmentService, studentService, teacherService).start();
+                    case 0 -> running = false;
+                    default -> System.out.println("Unknown option\n");
+                }
             }
         }
     }

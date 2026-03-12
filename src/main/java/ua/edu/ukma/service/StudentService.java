@@ -1,13 +1,14 @@
 package ua.edu.ukma.service;
+
 import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.StudentStatus;
 import ua.edu.ukma.domain.StudyForm;
-
-import java.time.LocalDate;
-import java.util.*;
 import ua.edu.ukma.domain.Specialty;
 import ua.edu.ukma.exception.*;
 import ua.edu.ukma.repository.Repository;
+
+import java.time.LocalDate;
+import java.util.*;
 
 public class StudentService {
 
@@ -22,10 +23,6 @@ public class StudentService {
         repo.save(student);
     }
 
-    public Optional<Student> find(int id) {
-        return repo.findById(id);
-    }
-
     public Student getOrThrow(int id) {
         Optional<Student> opt = repo.findById(id);
         if (opt.isEmpty()) throw new EntityNotFoundException("Student with id " + id + " not found");
@@ -38,6 +35,18 @@ public class StudentService {
 
     public boolean delete(Integer id) {
         return repo.deleteById(id);
+    }
+
+    public List<Student> findByFullName(String query) {
+        List<Student> result = new ArrayList<>();
+        List<Student> all = repo.findAll();
+        String search = query.trim().toLowerCase();
+        for (int i = 0; i < all.size(); i++) {
+            Student s = all.get(i);
+            String fullName = s.getFullName().toLowerCase();
+            if (fullName.contains(search)) result.add(s);
+        }
+        return result;
     }
 
     public List<Student> findByCourse(int course) {
@@ -61,24 +70,104 @@ public class StudentService {
     }
 
     public List<Student> sortedByCourse() {
-        List<Student> result = repo.findAll();
+        List<Student> result = new ArrayList<>(repo.findAll());
+        result.sort(Comparator.comparingInt(Student::getCourse));
+        return result;
+    }
 
-        for (int i = 0; i < result.size(); i++) {
-            for (int j = i + 1; j < result.size(); j++) {
-                if (result.get(i).getCourse() > result.get(j).getCourse()) {
-                    Student tmp = result.get(i);
-                    result.set(i, result.get(j));
-                    result.set(j, tmp);
-                }
+    public List<Student> findByFacultySortedByName(int facultyId) {
+        List<Student> result = new ArrayList<>();
+        List<Student> all = repo.findAll();
+        for (int i = 0; i < all.size(); i++) {
+            Student s = all.get(i);
+            if (s.getSpecialty() != null
+                    && s.getSpecialty().getDepartment() != null
+                    && s.getSpecialty().getDepartment().getFaculty() != null
+                    && s.getSpecialty().getDepartment().getFaculty().getId() == facultyId) {
+                result.add(s);
+            }
+        }
+        result.sort(Comparator.comparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
+        );
+
+        return result;
+    }
+    public List<Student> findByDepartmentSortedByCourse(int departmentId) {
+        List<Student> result = new ArrayList<>();
+        List<Student> all = repo.findAll();
+        for (int i = 0; i < all.size(); i++) {
+            Student s = all.get(i);
+            if (s.getSpecialty() != null
+                    && s.getSpecialty().getDepartment() != null
+                    && s.getSpecialty().getDepartment().getId() == departmentId) {
+                result.add(s);
+            }
+        }
+        result.sort(Comparator.comparingInt(Student::getCourse)
+                        .thenComparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
+        );
+        return result;
+    }
+
+    public List<Student> findByDepartmentSortedByName(int departmentId) {
+        List<Student> result = new ArrayList<>();
+        List<Student> all = repo.findAll();
+        for (int i = 0; i < all.size(); i++) {
+            Student s = all.get(i);
+            if (s.getSpecialty() != null
+                    && s.getSpecialty().getDepartment() != null
+                    && s.getSpecialty().getDepartment().getId() == departmentId) {
+                result.add(s);
+            }
+        }
+        result.sort(Comparator.comparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
+        );
+        return result;
+    }
+
+    public List<Student> findByDepartmentAndCourse(int departmentId, int course) {
+        List<Student> result = new ArrayList<>();
+        List<Student> all = repo.findAll();
+        for (int i = 0; i < all.size(); i++) {
+            Student s = all.get(i);
+            if (s.getSpecialty() != null
+                    && s.getSpecialty().getDepartment() != null
+                    && s.getSpecialty().getDepartment().getId() == departmentId
+                    && s.getCourse() == course) {
+                result.add(s);
             }
         }
         return result;
     }
 
+    public List<Student> findByDepartmentAndCourseSortedByName(int departmentId, int course) {
+        List<Student> result = new ArrayList<>();
+        List<Student> all = repo.findAll();
+        for (int i = 0; i < all.size(); i++) {
+            Student s = all.get(i);
+            if (s.getSpecialty() != null
+                    && s.getSpecialty().getDepartment() != null
+                    && s.getSpecialty().getDepartment().getId() == departmentId
+                    && s.getCourse() == course) {
+                result.add(s);
+            }
+        }
+        result.sort(Comparator.comparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
+        );
+        return result;
+    }
+
     private void validate(Student s) {
         if (s == null) throw new ValidationException("Student cannot be null");
-        if (s.getFirstName() == null || s.getFirstName().isBlank()
-                || s.getLastName() == null || s.getLastName().isBlank()) throw new ValidationException("Name cannot be empty");
+        if (s.getFirstName() == null || s.getFirstName().isBlank() || s.getLastName() == null || s.getLastName().isBlank()) throw new ValidationException("Name cannot be empty");
         if (s.getCourse() < 1 || s.getCourse() > 6) throw new ValidationException("Invalid course");
         if (s.getGroup() <= 0) throw new ValidationException("Invalid group number");
     }

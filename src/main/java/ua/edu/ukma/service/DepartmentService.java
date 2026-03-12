@@ -41,7 +41,6 @@ public class DepartmentService {
         return repo.deleteById(id);
     }
 
-
     public List<Department> findByFaculty(int facultyId) {
         List<Department> result = new ArrayList<>();
         List<Department> all = repo.findAll();

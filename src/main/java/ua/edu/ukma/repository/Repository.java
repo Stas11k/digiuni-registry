@@ -13,11 +13,4 @@ public interface Repository<T, ID> {
 
     boolean deleteById(ID id);
 
-    default boolean existsById(ID id) {
-        return findById(id).isPresent();
-    }
-
-    default int count() {
-        return findAll().size();
-    }
 }
