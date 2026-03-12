@@ -5,106 +5,84 @@ import org.junit.jupiter.api.Test;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Specialty;
-import ua.edu.ukma.repository.InMemoryRepository;
-
-
-import java.util.List;
-import java.util.Optional;
+import ua.edu.ukma.repository.InMemorySpecialtyRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class SpecialtyServiceTest {
 
+    private SpecialtyService service;
+
+    @BeforeEach
+    void setUp() {
+        service = new SpecialtyService(new InMemorySpecialtyRepository());
+    }
 
     @Test
     void addAndGetSpecialty() {
-        InMemoryRepository<Specialty, Integer> repo = new InMemoryRepository<>();
-        SpecialtyService service = new SpecialtyService(repo);
-
-        Department department = new Department("Programming", new Faculty("FCS", "CS"));
+        Faculty faculty = new Faculty("Computer Science", "CS");
+        Department department = new Department("Programming", faculty);
         Specialty specialty = new Specialty("Software Engineering", department);
 
         service.add(specialty);
-        assertEquals(1, service.getAll().size());
-    }
 
-
-    @Test
-    void getOrThrow_shouldReturnSpecialty() {
-        InMemoryRepository<Specialty, Integer> repo = new InMemoryRepository<>();
-        SpecialtyService service = new SpecialtyService(repo);
-        Department department = new Department("ComputerScience", new Faculty("FCS", "CS"));
-        Specialty specialty = new Specialty("SoftwareEngineering", department);
-        repo.save(specialty);
-        Specialty result = service.getOrThrow(specialty.getId());
-        assertEquals("SoftwareEngineering", result.getName());
+        Specialty result = service.get(specialty.getId());
+        assertNotNull(result);
+        assertEquals("Software Engineering", result.getName());
     }
 
     @Test
-    void getOrThrow_shouldThrowException() {
-        InMemoryRepository<Specialty, Integer> repo = new InMemoryRepository<>();
-        SpecialtyService service = new SpecialtyService(repo);
-        Department department = new Department("ComputerScience", new Faculty("FCS", "CS"));
-        Specialty specialty = new Specialty("SoftwareEngineering", department);
-        repo.save(specialty);
-        assertThrows(RuntimeException.class, () -> service.getOrThrow(100));
+    void findByDepartment_shouldReturnSpecialties() {
+        Faculty faculty = new Faculty("Computer Science", "CS");
+        Department department = new Department("Programming", faculty);
 
-    }
+        service.add(new Specialty("Software Engineering", department));
+        service.add(new Specialty("Computer Science", department));
 
-
-    @Test
-    void deleteSpecialty() {
-        InMemoryRepository<Specialty, Integer> repo = new InMemoryRepository<>();
-        SpecialtyService service = new SpecialtyService(repo);
-        Department department = new Department("ComputerScience", new Faculty("FCS", "CS"));
-        Specialty specialty = new Specialty("SoftwareEngineering", department);
-        repo.save(specialty);
-        service.delete(specialty.getId());
-        assertTrue(service.getAll().isEmpty());
-
+        assertEquals(2, service.findByDepartment(department.getId()).size());
     }
 
     @Test
-    void findByDepartmentTest() {
-        InMemoryRepository<Specialty, Integer> repo = new InMemoryRepository<>();
-        SpecialtyService service = new SpecialtyService(repo);
+    void updateSpecialty_shouldUpdateFields() {
+        Faculty faculty = new Faculty("Computer Science", "CS");
+        Department department = new Department("Programming", faculty);
+        Specialty specialty = new Specialty("SE", department);
+        service.add(specialty);
 
-        Department d1 = new Department("ComputerScience", new Faculty("FCS","CS"));
-        Department d2 = new Department("Math", new Faculty("FM","M"));
+        Department newDepartment = new Department("Applied Math", faculty);
 
-        Specialty s1 = new Specialty("SoftwareEngineering", d1);
-        Specialty s2 = new Specialty("CyberSecurity", d1);
-        Specialty s3 = new Specialty("Algebra", d2);
-
-        repo.save(s1);
-        repo.save(s2);
-        repo.save(s3);
-
-        List<Specialty> result = service.findByDepartment(d2.getId());
-
-        assertEquals(1, result.size());
-
-    }
-
-    @Test
-    void updatePartialSpecialty() {
-        InMemoryRepository<Specialty, Integer> repo = new InMemoryRepository<>();
-        SpecialtyService service = new SpecialtyService(repo);
-
-        Department department = new Department("ComputerScience", new Faculty("FCS","CS"));
-        Specialty specialty = new Specialty("OldName", department);
-
-        repo.save(specialty);
-
-        service.updatePartial(
+        boolean updated = service.update(
                 specialty.getId(),
-                Optional.of("NewName"),
-                Optional.empty()
+                "Applied Software Engineering",
+                newDepartment
         );
 
-        Specialty updated = service.getOrThrow(specialty.getId());
+        Specialty updatedSpecialty = service.get(specialty.getId());
 
-        assertEquals("NewName", updated.getName());
+        assertTrue(updated);
+        assertEquals("Applied Software Engineering", updatedSpecialty.getName());
+        assertEquals(newDepartment, updatedSpecialty.getDepartment());
+    }
 
+    @Test
+    void specialtyConstructor_emptyName_shouldThrowException() {
+        Faculty faculty = new Faculty("Computer Science", "CS");
+        Department department = new Department("Programming", faculty);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new Specialty("", department));
+    }
+    @Test
+    void updateSpecialty_nonExistingId_shouldReturnFalse() {
+        Faculty faculty = new Faculty("Computer Science", "CS");
+        Department department = new Department("Programming", faculty);
+
+        boolean result = service.update(
+                999,
+                "Physics",
+                department
+        );
+
+        assertFalse(result);
     }
 }

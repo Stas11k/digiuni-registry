@@ -5,97 +5,71 @@ import org.junit.jupiter.api.Test;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Teacher;
-import ua.edu.ukma.repository.InMemoryRepository;
-
-import java.util.List;
-import java.util.Optional;
+import ua.edu.ukma.repository.InMemoryDepartmentRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class DepartmentServiceTest {
     private DepartmentService service;
 
+    @BeforeEach
+    void setUp() {
+        service = new DepartmentService(new InMemoryDepartmentRepository());
+    }
 
     @Test
     void addAndGetDepartment() {
-        InMemoryRepository<Department, Integer> repo = new InMemoryRepository<>();
-        DepartmentService service = new DepartmentService(repo);
-        Faculty faculty = new Faculty("Software engeneering", "SE");
-        Department department = new Department("Information Technology", faculty);
+        Faculty faculty = new Faculty("Computer Science", "CS");
+        Department department = new Department("Programming", faculty);
+
         service.add(department);
-        assertTrue(service.find(department.getId()).isPresent());
-        assertEquals("Information Technology", service.find(department.getId()).get().getName());
+
+        Department result = service.get(department.getId());
+        assertNotNull(result);
+        assertEquals("Programming", result.getName());
     }
 
-
     @Test
-    void findDepartmentById() {
-        InMemoryRepository<Department, Integer> repo = new InMemoryRepository<>();
-        DepartmentService service = new DepartmentService(repo);
-
+    void findByFaculty() {
         Faculty faculty = new Faculty("Computer Science", "CS");
-        Department department = new Department("Information Technology", faculty);
 
-        repo.save(department);
+        service.add(new Department("Programming", faculty));
+        service.add(new Department("Databases", faculty));
 
-        assertTrue(service.find(department.getId()).isPresent());
-
-
+        assertEquals(2, service.findByFaculty(faculty.getId()).size());
     }
 
-
     @Test
-    void getOrThrow_shouldThrowException() {
-        InMemoryRepository<Department, Integer> repo = new InMemoryRepository<>();
-        DepartmentService service = new DepartmentService(repo);
-        assertThrows(RuntimeException.class, () -> service.getOrThrow(100));
-
-    }
-
-
-    @Test
-    void deleteDepartmentById() {
-        InMemoryRepository<Department, Integer> repo = new InMemoryRepository<>();
-        DepartmentService service = new DepartmentService(repo);
+    void updateDepartment() {
         Faculty faculty = new Faculty("Computer Science", "CS");
-        Department department = new Department("Information Technology", faculty);
-        repo.save(department);
-        service.delete(department.getId());
-        assertTrue(service.find(department.getId()).isEmpty());
-    }
-    @Test
-    void findByFacultyId() {
-        InMemoryRepository<Department, Integer> repo = new InMemoryRepository<>();
-        DepartmentService service = new DepartmentService(repo);
-        Faculty faculty1 = new Faculty("Computer Science", "CS");
-        Faculty faculty2 = new Faculty("Information ipz", "IPZ");
-        Department department1 = new Department("Information Technology", faculty1);
-        Department department2 = new Department("Information Technology", faculty2);
-        repo.save(department1);
-        repo.save(department2);
-        List<Department> result = service.findByFaculty(faculty1.getId());
-        assertEquals(1, result.size());
-    }
-    @Test
-    void updatePartialTest() {
-        InMemoryRepository<Department, Integer> repo = new InMemoryRepository<>();
-        DepartmentService service = new DepartmentService(repo);
+        Department department = new Department("Programming", faculty);
+        service.add(department);
 
-        Faculty faculty = new Faculty("ComputerScience", "CS");
-        Department department = new Department("Informat", faculty);
-
-        repo.save(department);
-
-        service.updatePartial(
-                department.getId(),
-                Optional.of("NewName"),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty()
+        Teacher head = new Teacher(
+                "Ivanenko",
+                "Ivan",
+                "I.",
+                "Professor",
+                department
         );
 
-        Department updated = service.getOrThrow(department.getId());
+        boolean updated = service.update(
+                department.getId(),
+                "Applied Programming",
+                faculty,
+                head,
+                "Room 201"
+        );
 
-        assertEquals("NewName", updated.getName());
+        assertTrue(updated);
+        assertEquals("Applied Programming", service.get(department.getId()).getName());
+    }
+
+    @Test
+    void departmentConstructor_emptyName_shouldThrowException() {
+        Faculty faculty = new Faculty("Computer Science", "CS");
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new Department("", faculty));
     }
 }

@@ -4,116 +4,98 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
-import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.Teacher;
-import ua.edu.ukma.exception.EntityNotFoundException;
-import ua.edu.ukma.repository.InMemoryRepository;
+import ua.edu.ukma.repository.InMemoryTeacherRepository;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class TeacherServiceTest {
 
-    private InMemoryRepository<Teacher, Integer> repo;
     private TeacherService service;
 
     @BeforeEach
     void setUp() {
-        repo = new InMemoryRepository<>();
-        service = new TeacherService(repo);
+        service = new TeacherService(new InMemoryTeacherRepository());
     }
 
-    private Teacher createTeacher(String firstName, String lastName, String position) {
-
-        Faculty faculty = new Faculty("FCS", "CS");
-        Department department = new Department("SE", faculty);
+    private Teacher createTeacher() {
+        Faculty faculty = new Faculty("Computer Science", "CS");
+        Department department = new Department("Programming", faculty);
 
         return new Teacher(
-                lastName,
-                firstName,
-                "Test",
-                position,
+                "Ivanenko",
+                "Ivan",
+                "I.",
+                "Professor",
                 department
         );
     }
 
-
     @Test
     void addAndGetTeacher() {
-        Teacher teacher = createTeacher("Illia", "Kabysh", "teacher");
+        Teacher teacher = createTeacher();
         service.add(teacher);
-        assertEquals(1, service.getAll().size());
+
+        Teacher result = service.get(teacher.getId());
+
+        assertNotNull(result);
+        assertEquals("Ivanenko", result.getLastName());
     }
 
-
     @Test
-    void getOrThrowTeacherTest() {
-        Teacher teacher = createTeacher("Ivan", "Petrenko", "Professor");
-        repo.save(teacher);
-        Teacher result = service.getOrThrow(teacher.getId());
-        assertEquals("Petrenko", result.getLastName());
-    }
-    @Test
-    void getOrThrow_shouldThrow() {
+    void findByPosition_shouldReturnTeachers() {
+        service.add(createTeacher());
 
-        assertThrows(EntityNotFoundException.class,
-                () -> service.getOrThrow(100));
+        assertEquals(1, service.findByPosition("Professor").size());
     }
 
-
     @Test
-    void deleteTeacherTest() {
-        Teacher teacher = createTeacher("Ivan", "Petrenko", "Professor");
-        repo.save(teacher);
-        repo.deleteById(teacher.getId());
-        assertTrue(repo.findById(teacher.getId()).isEmpty());
-    }
+    void updateTeacher_shouldUpdateFields() {
+        Teacher teacher = createTeacher();
+        service.add(teacher);
 
+        Faculty faculty = new Faculty("Mathematics", "MATH");
+        Department newDepartment = new Department("Applied Math", faculty);
 
-    @Test
-    void findByFullNameTeacherTest() {
-        Teacher teacher = createTeacher("Ivan", "Petrenko", "Professor");
-        repo.save(teacher);
-        List<Teacher> result = service.findByFullName("Iva");
-        assertEquals(1, result.size());
-    }
-    @Test
-    void findByPositionTeacherTest() {
-        Teacher teacher = createTeacher("Ivan", "Petrenko", "Professor");
-        repo.save(teacher);
-        List<Teacher> result = service.findByPosition("Professor");
-        assertEquals(1, result.size());
-
-    }
-    @Test
-    void updatePartial() {
-
-        Teacher teacher = createTeacher("Ivan","Petrenko","Professor");
-        repo.save(teacher);
-
-        service.updatePartial(
+        boolean updated = service.update(
                 teacher.getId(),
-                Optional.of("Shevchenko"),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty()
+                "Shevchenko",
+                "Taras",
+                "T.",
+                "1980-01-01",
+                "taras@mail.com",
+                "123456789",
+                "Kyiv",
+                "Associate Professor",
+                newDepartment,
+                "PhD",
+                "Docent",
+                LocalDate.of(2010, 9, 1),
+                1.0
         );
 
-        Teacher updated = service.getOrThrow(teacher.getId());
+        Teacher updatedTeacher = service.get(teacher.getId());
 
-        assertEquals("Shevchenko", updated.getLastName());
+        assertTrue(updated);
+        assertEquals("Shevchenko", updatedTeacher.getLastName());
+        assertEquals("Associate Professor", updatedTeacher.getPosition());
+        assertEquals("PhD", updatedTeacher.getDegree());
     }
 
+    @Test
+    void teacherConstructor_emptyLastName_shouldThrowException() {
+        Faculty faculty = new Faculty("Computer Science", "CS");
+        Department department = new Department("Programming", faculty);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new Teacher(
+                        "",
+                        "Ivan",
+                        "I.",
+                        "Professor",
+                        department
+                ));
+    }
 }
