@@ -2,6 +2,8 @@ package ua.edu.ukma.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Teacher;
@@ -14,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DepartmentServiceTest {
     private DepartmentService service;
-
 
     @Test
     void addAndGetDepartment() {

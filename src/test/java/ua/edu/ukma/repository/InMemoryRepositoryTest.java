@@ -1,6 +1,8 @@
 package ua.edu.ukma.repository;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
 
@@ -53,5 +55,21 @@ public class InMemoryRepositoryTest {
         repo.save(department);
         repo.deleteById(department.getId());
         assertTrue(repo.findById(department.getId()).isEmpty());
+    }
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 3})
+    void deleteByIdParameterized(int id) {
+
+        InMemoryRepository<Department, Integer> repo = new InMemoryRepository<>();
+
+        Faculty faculty = new Faculty("CS", "CS");
+
+        Department d = new Department("Department", faculty);
+
+        repo.save(d);
+
+        boolean deleted = repo.deleteById(d.getId());
+
+        assertTrue(deleted);
     }
 }
