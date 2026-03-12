@@ -7,6 +7,7 @@ import ua.edu.ukma.exception.*;
 import ua.edu.ukma.repository.Repository;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class DepartmentService {
 
@@ -42,12 +43,9 @@ public class DepartmentService {
     }
 
     public List<Department> findByFaculty(int facultyId) {
-        List<Department> result = new ArrayList<>();
-        List<Department> all = repo.findAll();
-        for (int i = 0; i < all.size(); i++) {
-            Department d = all.get(i);
-            if (d.getFaculty() != null && d.getFaculty().getId() == facultyId) result.add(d);
-        }
+        List<Department> result = new ArrayList<>(repo.findAll());
+        Predicate<Department> belongsToFaculty = d -> d.getFaculty() != null && d.getFaculty().getId() == facultyId;
+        result.removeIf(belongsToFaculty.negate());
         return result;
     }
 
