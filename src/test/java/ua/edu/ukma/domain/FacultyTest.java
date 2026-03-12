@@ -1,6 +1,7 @@
 package ua.edu.ukma.domain;
 
 import org.junit.jupiter.api.Test;
+import ua.edu.ukma.exception.ValidationException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
      @Test
      void constructor_emptyName_shouldThrowException() {
-         assertThrows(IllegalArgumentException.class,
+         assertThrows(ValidationException.class,
                  () -> new Faculty("", "CS"));
      }
      @Test
