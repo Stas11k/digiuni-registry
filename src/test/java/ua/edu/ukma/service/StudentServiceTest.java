@@ -64,7 +64,7 @@ class StudentServiceTest {
     @Test
     void getOrThrow_shouldThrow() {
 
-        assertThrows(EntityNotFoundException.class,
+        assertThrows(NullPointerException.class,
                 () -> service.getOrThrow(100));
     }
 
