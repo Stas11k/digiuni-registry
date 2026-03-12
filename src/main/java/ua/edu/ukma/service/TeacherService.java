@@ -54,31 +54,41 @@ public class TeacherService {
     }
 
     public List<Teacher> findByFacultySortedByName(int facultyId) {
-        return repo.findAll().stream()
-                .filter(t -> t.getDepartment() != null
-                        && t.getDepartment().getFaculty() != null
-                        && t.getDepartment().getFaculty().getId() == facultyId)
-                .sorted(Comparator.comparing(Teacher::getLastName, String.CASE_INSENSITIVE_ORDER)
-                        .thenComparing(Teacher::getFirstName, String.CASE_INSENSITIVE_ORDER)
-                        .thenComparing(Teacher::getMiddleName, String.CASE_INSENSITIVE_ORDER))
-                .toList();
+        List<Teacher> result = new ArrayList<>();
+        List<Teacher> all = repo.findAll();
+        for (int i = 0; i < all.size(); i++) {
+            Teacher t = all.get(i);
+            if (t.getDepartment() != null
+                    && t.getDepartment().getFaculty() != null
+                    && t.getDepartment().getFaculty().getId() == facultyId) {
+                result.add(t);
+            }
+        }
+        result.sort(Comparator.comparing(Teacher::getLastName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(Teacher::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(t -> t.getMiddleName() == null ? "" : t.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
+        );
+        return result;
     }
 
     public List<Teacher> findByDepartmentSortedByName(int departmentId) {
-        return repo.findAll().stream()
-                .filter(t -> t.getDepartment() != null
-                        && t.getDepartment().getId() == departmentId)
-                .sorted(Comparator.comparing(Teacher::getLastName, String.CASE_INSENSITIVE_ORDER)
-                        .thenComparing(Teacher::getFirstName, String.CASE_INSENSITIVE_ORDER)
-                        .thenComparing(Teacher::getMiddleName, String.CASE_INSENSITIVE_ORDER))
-                .toList();
+        List<Teacher> result = new ArrayList<>();
+        List<Teacher> all = repo.findAll();
+        for (int i = 0; i < all.size(); i++) {
+            Teacher t = all.get(i);
+            if (t.getDepartment() != null && t.getDepartment().getId() == departmentId) result.add(t);
+        }
+        result.sort(Comparator.comparing(Teacher::getLastName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(Teacher::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(t -> t.getMiddleName() == null ? "" : t.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
+        );
+        return result;
     }
 
 
     private void validate(Teacher t) {
         if (t == null) throw new ValidationException("Teacher cannot be null");
-        if (t.getFirstName() == null || t.getFirstName().isBlank()
-                || t.getLastName() == null || t.getLastName().isBlank()) throw new ValidationException("Name cannot be empty");
+        if (t.getFirstName() == null || t.getFirstName().isBlank() || t.getLastName() == null || t.getLastName().isBlank()) throw new ValidationException("Name cannot be empty");
         if (t.getPosition() == null || t.getPosition().isBlank()) throw new ValidationException("Position required");
     }
 
