@@ -2,11 +2,14 @@ package ua.edu.ukma.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Teacher;
 import ua.edu.ukma.repository.InMemoryRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,6 +25,35 @@ class FacultyServiceTest {
         Faculty faculty = new Faculty("Computer Science", "CS");
         service.add(faculty);
         assertEquals("Computer Science", service.find(faculty.getId()).get().getName());
+    }
+    @Test
+    void sortedByNameTest() {
+        InMemoryRepository<Faculty, Integer> repo = new InMemoryRepository<>();
+        FacultyService service = new FacultyService(repo);
+
+        repo.save(new Faculty("Mathematics", "M"));
+        repo.save(new Faculty("Computer Science", "CS"));
+
+        List<Faculty> result = service.sortedByName();
+
+        assertEquals("Computer Science", result.get(0).getName());
+    }
+    @ParameterizedTest
+    @CsvSource({
+            "Mathematics, Computer Science, Computer Science",
+            "Physics, Mathematics, Mathematics"
+    })
+    void sortedByNameParameterized(String name1, String name2, String expectedFirst) {
+
+        InMemoryRepository<Faculty, Integer> repo = new InMemoryRepository<>();
+        FacultyService service = new FacultyService(repo);
+
+        repo.save(new Faculty(name1, "A"));
+        repo.save(new Faculty(name2, "B"));
+
+        List<Faculty> result = service.sortedByName();
+
+        assertEquals(expectedFirst, result.get(0).getName());
     }
 
 

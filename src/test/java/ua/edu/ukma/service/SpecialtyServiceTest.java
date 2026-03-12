@@ -2,6 +2,8 @@ package ua.edu.ukma.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Specialty;
@@ -84,6 +86,35 @@ class SpecialtyServiceTest {
 
         assertEquals(1, result.size());
 
+    }
+    @ParameterizedTest
+    @CsvSource({
+            "1, 2",
+            "2, 1"
+    })
+    void findByDepartmentParameterized(int departmentIndex, int expectedSize) {
+
+        InMemoryRepository<Specialty, Integer> repo = new InMemoryRepository<>();
+        SpecialtyService service = new SpecialtyService(repo);
+
+        Faculty faculty = new Faculty("CS", "CS");
+
+        Department d1 = new Department("Software Engineering", faculty);
+        Department d2 = new Department("Mathematics", faculty);
+
+        Specialty s1 = new Specialty("AI", d1);
+        Specialty s2 = new Specialty("Cybersecurity", d1);
+        Specialty s3 = new Specialty("Algebra", d2);
+
+        repo.save(s1);
+        repo.save(s2);
+        repo.save(s3);
+
+        int departmentId = (departmentIndex == 1) ? d1.getId() : d2.getId();
+
+        List<Specialty> result = service.findByDepartment(departmentId);
+
+        assertEquals(expectedSize, result.size());
     }
 
     @Test

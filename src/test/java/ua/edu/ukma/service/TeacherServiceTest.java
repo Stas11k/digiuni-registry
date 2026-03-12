@@ -2,6 +2,8 @@ package ua.edu.ukma.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Student;
@@ -114,6 +116,39 @@ class TeacherServiceTest {
         Teacher updated = service.getOrThrow(teacher.getId());
 
         assertEquals("Shevchenko", updated.getLastName());
+    }
+    @ParameterizedTest
+    @CsvSource({
+            "Professor, 2",
+            "Assistant, 1"
+    })
+    void findByPositionParameterized(String position, int expectedSize) {
+
+        InMemoryRepository<Teacher, Integer> repo = new InMemoryRepository<>();
+        TeacherService service = new TeacherService(repo);
+
+        Faculty faculty = new Faculty("CS", "CS");
+        Department department = new Department("Software Engineering", faculty);
+
+        repo.save(new Teacher("Petrenko", "Ivan", "A", "Professor", department));
+        repo.save(new Teacher("Bondar", "Anna", "B", "Professor", department));
+        repo.save(new Teacher("Koval", "Oleh", "C", "Assistant", department));
+
+        List<Teacher> result = service.findByPosition(position);
+
+        assertEquals(expectedSize, result.size());
+    }
+    @Test
+    void findByDepartmentSortedByName() {
+        Faculty faculty = new Faculty("CS", "CS");
+        Department department = new Department("SE", faculty);
+
+        repo.save(new Teacher("Petrenko", "Ivan", "A", "Professor", department));
+        repo.save(new Teacher("Bondar", "Anna", "B", "Professor", department));
+
+        List<Teacher> result = service.findByDepartmentSortedByName(department.getId());
+
+        assertEquals("Bondar", result.get(0).getLastName());
     }
 
 }
