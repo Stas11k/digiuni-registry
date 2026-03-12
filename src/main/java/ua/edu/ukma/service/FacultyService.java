@@ -40,10 +40,11 @@ public class FacultyService {
         return repo.deleteById(id);
     }
 
+
     public List<Faculty> sortedByName() {
-        return repo.findAll().stream()
-                .sorted(Comparator.comparing(Faculty::getName, String.CASE_INSENSITIVE_ORDER))
-                .toList();
+        List<Faculty> result = new ArrayList<>(repo.findAll());
+        result.sort(Comparator.comparing(Faculty::getName, String.CASE_INSENSITIVE_ORDER));
+        return result;
     }
 
     private void validate(Faculty f) {
