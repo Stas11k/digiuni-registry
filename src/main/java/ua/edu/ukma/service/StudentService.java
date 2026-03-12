@@ -1,13 +1,14 @@
 package ua.edu.ukma.service;
+
 import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.StudentStatus;
 import ua.edu.ukma.domain.StudyForm;
-
-import java.time.LocalDate;
-import java.util.*;
 import ua.edu.ukma.domain.Specialty;
 import ua.edu.ukma.exception.*;
 import ua.edu.ukma.repository.Repository;
+
+import java.time.LocalDate;
+import java.util.*;
 
 public class StudentService {
 
@@ -37,6 +38,18 @@ public class StudentService {
     }
 
     public List<Student> findByFullName(String query) {
+        List<Student> result = new ArrayList<>();
+        List<Student> all = repo.findAll();
+        String search = query.trim().toLowerCase();
+        for (int i = 0; i < all.size(); i++) {
+            Student s = all.get(i);
+            String fullName = s.getFullName().toLowerCase();
+            if (fullName.contains(search)) result.add(s);
+        }
+        return result;
+    }
+
+    public List<Student> findByCourse(int course) {
         List<Student> result = new ArrayList<>();
         List<Student> all = repo.findAll();
         String search = query.trim().toLowerCase();
@@ -86,6 +99,31 @@ public class StudentService {
         return result;
     }
 
+    public List<Student> sortedByCourse() {
+        List<Student> result = new ArrayList<>(repo.findAll());
+        result.sort(Comparator.comparingInt(Student::getCourse));
+        return result;
+    }
+
+    public List<Student> findByFacultySortedByName(int facultyId) {
+        List<Student> result = new ArrayList<>();
+        List<Student> all = repo.findAll();
+        for (int i = 0; i < all.size(); i++) {
+            Student s = all.get(i);
+            if (s.getSpecialty() != null
+                    && s.getSpecialty().getDepartment() != null
+                    && s.getSpecialty().getDepartment().getFaculty() != null
+                    && s.getSpecialty().getDepartment().getFaculty().getId() == facultyId) {
+                result.add(s);
+            }
+        }
+        result.sort(Comparator.comparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
+        );
+
+        return result;
+    }
     public List<Student> findByDepartmentSortedByCourse(int departmentId) {
         List<Student> result = new ArrayList<>();
         List<Student> all = repo.findAll();
@@ -98,9 +136,9 @@ public class StudentService {
             }
         }
         result.sort(Comparator.comparingInt(Student::getCourse)
-                .thenComparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
-                .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
-                .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
         );
         return result;
     }
@@ -117,8 +155,8 @@ public class StudentService {
             }
         }
         result.sort(Comparator.comparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
-                .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
-                .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
         );
         return result;
     }
@@ -151,8 +189,8 @@ public class StudentService {
             }
         }
         result.sort(Comparator.comparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
-                .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
-                .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
         );
         return result;
     }
