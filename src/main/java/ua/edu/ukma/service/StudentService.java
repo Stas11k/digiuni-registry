@@ -52,50 +52,20 @@ public class StudentService {
     public List<Student> findByCourse(int course) {
         List<Student> result = new ArrayList<>();
         List<Student> all = repo.findAll();
-        String search = query.trim().toLowerCase();
         for (int i = 0; i < all.size(); i++) {
             Student s = all.get(i);
-            String fullName = s.getFullName().toLowerCase();
-            if (fullName.contains(search)) result.add(s);
+            if (s.getCourse() == course) result.add(s);
         }
         return result;
     }
 
-    public List<Student> findByCourse(int course) {
-        return repo.findAll().stream()
-                .filter(s -> s.getCourse() == course)
-                .toList();
-    }
-
     public List<Student> findByGroup(int group) {
-        return repo.findAll().stream()
-                .filter(s -> s.getGroup() == group)
-                .toList();
-    }
-
-    public List<Student> sortedByCourse() {
-        List<Student> result = new ArrayList<>(repo.findAll());
-        result.sort(Comparator.comparingInt(Student::getCourse));
-        return result;
-    }
-
-    public List<Student> findByFacultySortedByName(int facultyId) {
         List<Student> result = new ArrayList<>();
         List<Student> all = repo.findAll();
         for (int i = 0; i < all.size(); i++) {
             Student s = all.get(i);
-            if (s.getSpecialty() != null
-                    && s.getSpecialty().getDepartment() != null
-                    && s.getSpecialty().getDepartment().getFaculty() != null
-                    && s.getSpecialty().getDepartment().getFaculty().getId() == facultyId) {
-                result.add(s);
-            }
+            if (s.getGroup() == group) result.add(s);
         }
-        result.sort(Comparator.comparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
-                .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
-                .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
-        );
-
         return result;
     }
 
