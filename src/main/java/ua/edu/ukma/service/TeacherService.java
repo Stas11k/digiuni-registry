@@ -48,12 +48,40 @@ public class TeacherService {
     }
 
     public List<Teacher> findByPosition(String position) {
+        return repo.findAll().stream()
+                .filter(t -> t.getPosition() != null && t.getPosition().equalsIgnoreCase(position))
+                .toList();
+    }
+
+    public List<Teacher> findByFacultySortedByName(int facultyId) {
         List<Teacher> result = new ArrayList<>();
         List<Teacher> all = repo.findAll();
         for (int i = 0; i < all.size(); i++) {
             Teacher t = all.get(i);
-            if (t.getPosition() != null && t.getPosition().equalsIgnoreCase(position)) result.add(t);
+            if (t.getDepartment() != null
+                    && t.getDepartment().getFaculty() != null
+                    && t.getDepartment().getFaculty().getId() == facultyId) {
+                result.add(t);
+            }
         }
+        result.sort(Comparator.comparing(Teacher::getLastName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(Teacher::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(t -> t.getMiddleName() == null ? "" : t.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
+        );
+        return result;
+    }
+
+    public List<Teacher> findByDepartmentSortedByName(int departmentId) {
+        List<Teacher> result = new ArrayList<>();
+        List<Teacher> all = repo.findAll();
+        for (int i = 0; i < all.size(); i++) {
+            Teacher t = all.get(i);
+            if (t.getDepartment() != null && t.getDepartment().getId() == departmentId) result.add(t);
+        }
+        result.sort(Comparator.comparing(Teacher::getLastName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(Teacher::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(t -> t.getMiddleName() == null ? "" : t.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
+        );
         return result;
     }
 
