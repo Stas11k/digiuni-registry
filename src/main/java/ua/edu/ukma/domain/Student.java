@@ -2,6 +2,8 @@ package ua.edu.ukma.domain;
 
 import ua.edu.ukma.util.ValidationUtils;
 
+import java.time.LocalDate;
+
 public class Student extends Person {
      private String gradeBookNumber;
      private int course;
@@ -67,6 +69,12 @@ public class Student extends Person {
     public void setAdmissionYear(int admissionYear) {
         if (admissionYear < 1900) throw new IllegalArgumentException("Invalid admission year");
         this.admissionYear = admissionYear;
+    }
+
+    public int getYearsOfStudy() {
+        if (admissionYear <= 0) return 0;
+        int years = LocalDate.now().getYear() - admissionYear;
+        return Math.max(years, 0);
     }
 
     public StudyForm getStudyForm() {

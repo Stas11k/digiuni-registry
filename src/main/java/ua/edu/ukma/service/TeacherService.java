@@ -21,10 +21,6 @@ public class TeacherService {
         repo.save(t);
     }
 
-    public Optional<Teacher> find(int id) {
-        return repo.findById(id);
-    }
-
     public Teacher getOrThrow(int id) {
         Optional<Teacher> opt = repo.findById(id);
         if (opt.isEmpty()) throw new EntityNotFoundException("Teacher with id " + id + " not found");
@@ -39,6 +35,18 @@ public class TeacherService {
         return repo.deleteById(id);
     }
 
+    public List<Teacher> findByFullName(String query) {
+        List<Teacher> result = new ArrayList<>();
+        List<Teacher> all = repo.findAll();
+        String search = query.trim().toLowerCase();
+        for (int i = 0; i < all.size(); i++) {
+            Teacher t = all.get(i);
+            String fullName = t.getFullName().toLowerCase();
+            if (fullName.contains(search)) result.add(t);
+        }
+        return result;
+    }
+
     public List<Teacher> findByPosition(String position) {
         List<Teacher> result = new ArrayList<>();
         List<Teacher> all = repo.findAll();
@@ -49,10 +57,41 @@ public class TeacherService {
         return result;
     }
 
+    public List<Teacher> findByFacultySortedByName(int facultyId) {
+        List<Teacher> result = new ArrayList<>();
+        List<Teacher> all = repo.findAll();
+        for (int i = 0; i < all.size(); i++) {
+            Teacher t = all.get(i);
+            if (t.getDepartment() != null
+                    && t.getDepartment().getFaculty() != null
+                    && t.getDepartment().getFaculty().getId() == facultyId) {
+                result.add(t);
+            }
+        }
+        result.sort(Comparator.comparing(Teacher::getLastName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Teacher::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(t -> t.getMiddleName() == null ? "" : t.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
+        );
+        return result;
+    }
+
+    public List<Teacher> findByDepartmentSortedByName(int departmentId) {
+        List<Teacher> result = new ArrayList<>();
+        List<Teacher> all = repo.findAll();
+        for (int i = 0; i < all.size(); i++) {
+            Teacher t = all.get(i);
+            if (t.getDepartment() != null && t.getDepartment().getId() == departmentId) result.add(t);
+        }
+        result.sort(Comparator.comparing(Teacher::getLastName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(Teacher::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(t -> t.getMiddleName() == null ? "" : t.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
+        );
+        return result;
+    }
+
     private void validate(Teacher t) {
         if (t == null) throw new ValidationException("Teacher cannot be null");
-        if (t.getFirstName() == null || t.getFirstName().isBlank()
-                || t.getLastName() == null || t.getLastName().isBlank()) throw new ValidationException("Name cannot be empty");
+        if (t.getFirstName() == null || t.getFirstName().isBlank() || t.getLastName() == null || t.getLastName().isBlank()) throw new ValidationException("Name cannot be empty");
         if (t.getPosition() == null || t.getPosition().isBlank()) throw new ValidationException("Position required");
     }
 
@@ -61,7 +100,11 @@ public class TeacherService {
         if (lastName.isPresent()) t.setLastName(lastName.get());
         if (firstName.isPresent()) t.setFirstName(firstName.get());
         if (middleName.isPresent()) t.setMiddleName(middleName.get());
-        if (birthDate.isPresent()) t.setBirthDate(LocalDate.parse(birthDate.get()));
+        if (birthDate.isPresent()) {
+            String value = birthDate.get().trim();
+            if (value.isEmpty()) t.setBirthDate(null);
+            else t.setBirthDate(LocalDate.parse(value));
+        }
         if (email.isPresent()) t.setEmail(email.get());
         if (phone.isPresent()) t.setPhone(phone.get());
         if (address.isPresent()) t.setAddress(address.get());

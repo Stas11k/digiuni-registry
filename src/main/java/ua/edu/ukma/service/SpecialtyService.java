@@ -22,10 +22,6 @@ public class SpecialtyService {
         repo.save(specialty);
     }
 
-    public Optional<Specialty> find(int id) {
-        return repo.findById(id);
-    }
-
     public Specialty getOrThrow(int id) {
         Optional<Specialty> opt = repo.findById(id);
         if (opt.isEmpty()) throw new EntityNotFoundException("Specialty with id " + id + " not found");

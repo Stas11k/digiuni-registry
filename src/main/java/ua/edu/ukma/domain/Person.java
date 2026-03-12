@@ -76,6 +76,7 @@ abstract class Person implements Identifiable<Integer> {
     }
 
     public void setBirthDate(LocalDate birthDate) {
+        if (birthDate != null && birthDate.isAfter(LocalDate.now())) throw new IllegalArgumentException("Birth date cannot be in the future");
         this.birthDate = birthDate;
     }
 
