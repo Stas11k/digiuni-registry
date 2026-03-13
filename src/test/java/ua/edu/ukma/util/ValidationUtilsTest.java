@@ -2,6 +2,7 @@ package ua.edu.ukma.util;
 
 
 import org.junit.jupiter.api.Test;
+import ua.edu.ukma.exception.ValidationException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,21 +16,21 @@ import static org.junit.jupiter.api.Assertions.*;
 
      @Test
      void validateNotEmpty_emptyString_shouldThrow() {
-         assertThrows(IllegalArgumentException.class, () ->
+         assertThrows(ValidationException.class, () ->
                  ValidationUtils.validateNotEmpty("", "Name")
          );
      }
 
      @Test
      void validateNotEmpty_blankString_shouldThrow() {
-         assertThrows(IllegalArgumentException.class, () ->
+         assertThrows(ValidationException.class, () ->
                  ValidationUtils.validateNotEmpty("   ", "Name")
          );
      }
 
      @Test
      void validateNotEmpty_null_shouldThrow() {
-         assertThrows(IllegalArgumentException.class, () ->
+         assertThrows(ValidationException.class, () ->
                  ValidationUtils.validateNotEmpty(null, "Name")
          );
      }
@@ -44,14 +45,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
      @Test
      void validateCourse_lessThanOne_shouldThrow() {
-         assertThrows(IllegalArgumentException.class, () ->
+         assertThrows(ValidationException.class, () ->
                  ValidationUtils.validateCourse(0)
          );
      }
 
      @Test
      void validateCourse_greaterThanSix_shouldThrow() {
-         assertThrows(IllegalArgumentException.class, () ->
+         assertThrows(ValidationException.class, () ->
                  ValidationUtils.validateCourse(7)
          );
      }
@@ -66,14 +67,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
      @Test
      void validateGroup_zero_shouldThrow() {
-         assertThrows(IllegalArgumentException.class, () ->
+         assertThrows(ValidationException.class, () ->
                  ValidationUtils.validateGroup(0)
          );
      }
 
      @Test
      void validateGroup_negative_shouldThrow() {
-         assertThrows(IllegalArgumentException.class, () ->
+         assertThrows(ValidationException.class, () ->
                  ValidationUtils.validateGroup(-5)
          );
      }

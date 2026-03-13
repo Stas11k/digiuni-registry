@@ -42,13 +42,9 @@ public class DepartmentService {
     }
 
     public List<Department> findByFaculty(int facultyId) {
-        List<Department> result = new ArrayList<>();
-        List<Department> all = repo.findAll();
-        for (int i = 0; i < all.size(); i++) {
-            Department d = all.get(i);
-            if (d.getFaculty() != null && d.getFaculty().getId() == facultyId) result.add(d);
-        }
-        return result;
+        return repo.findAll().stream()
+                .filter(d -> d.getFaculty() != null && d.getFaculty().getId() == facultyId)
+                .toList();
     }
 
     private void validate(Department d) {

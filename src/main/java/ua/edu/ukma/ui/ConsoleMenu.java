@@ -17,17 +17,19 @@ public class ConsoleMenu {
             new University("Kyiv-Mohyla Academy", "NaUKMA", "Kyiv", "2 Hryhorii Skovoroda St.");
 
     private final AuthService authService = new AuthService();
-    private final Repository<Faculty, Integer> facultyRepo = new InMemoryRepository<>();
-    private final Repository<Department, Integer> departmentRepo = new InMemoryRepository<>();
-    private final Repository<Specialty, Integer> specialtyRepo = new InMemoryRepository<>();
-    private final Repository<Student, Integer> studentRepo = new InMemoryRepository<>();
-    private final Repository<Teacher, Integer> teacherRepo = new InMemoryRepository<>();
+    private final FacultyService facultyService;
+    private final DepartmentService departmentService;
+    private final SpecialtyService specialtyService;
+    private final StudentService studentService;
+    private final TeacherService teacherService;
 
-    private final FacultyService facultyService = new FacultyService(facultyRepo);
-    private final DepartmentService departmentService = new DepartmentService(departmentRepo);
-    private final SpecialtyService specialtyService = new SpecialtyService(specialtyRepo);
-    private final StudentService studentService = new StudentService(studentRepo);
-    private final TeacherService teacherService = new TeacherService(teacherRepo);
+    public ConsoleMenu(FacultyService facultyService, DepartmentService departmentService, SpecialtyService specialtyService, StudentService studentService, TeacherService teacherService) {
+        this.facultyService = facultyService;
+        this.departmentService = departmentService;
+        this.specialtyService = specialtyService;
+        this.studentService = studentService;
+        this.teacherService = teacherService;
+    }
 
     public void start() {
         System.out.print("Login: ");
