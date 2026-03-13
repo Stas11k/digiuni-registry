@@ -79,4 +79,9 @@ public class Teacher extends Person {
         this.workload = workload;
     }
 
+    public int getExperienceYears() {
+        if (hireDate == null) return 0;
+        return java.time.Period.between(hireDate, LocalDate.now()).getYears();
+    }
+
 }

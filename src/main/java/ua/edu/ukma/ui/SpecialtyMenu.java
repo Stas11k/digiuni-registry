@@ -1,10 +1,13 @@
 package ua.edu.ukma.ui;
 
+import ua.edu.ukma.auth.Role;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Specialty;
+import ua.edu.ukma.exception.*;
 import ua.edu.ukma.service.DepartmentService;
 import ua.edu.ukma.service.SpecialtyService;
 
+import java.util.Optional;
 import java.util.Scanner;
 
 public class SpecialtyMenu {
@@ -12,18 +15,21 @@ public class SpecialtyMenu {
     private final Scanner scanner;
     private final SpecialtyService specialtyService;
     private final DepartmentService departmentService;
+    private final Role role;
 
-    public SpecialtyMenu(Scanner scanner, SpecialtyService specialtyService, DepartmentService departmentService) {
+    public SpecialtyMenu(Scanner scanner, SpecialtyService specialtyService, DepartmentService departmentService, Role role) {
         this.scanner = scanner;
         this.specialtyService = specialtyService;
         this.departmentService = departmentService;
+        this.role = role;
     }
 
     public void start() {
         boolean inMenu = true;
         while (inMenu) {
-            System.out.println("""
-                    --- Specialties ---
+            if (canWrite()) {
+                System.out.println("""
+                    --- Departments ---
                     1. Show all
                     2. Add
                     3. Edit
@@ -31,15 +37,33 @@ public class SpecialtyMenu {
                     5. Show by department
                     0. Back
                     """);
+            } else {
+                System.out.println("""
+                    --- Departments ---
+                    1. Show all
+                    5. Show by department
+                    0. Back
+                    """);
+            }
             System.out.print("Choose option: ");
-            switch (readInt()) {
-                case 1 : showAll(); break;
-                case 2 : add(); break;
-                case 3 : edit(); break;
-                case 4 : delete(); break;
-                case 5 : showByDepartment(); break;
-                case 0 : inMenu = false; break;
-                default : System.out.println("Unknown option\n");
+            int choice = readInt();
+            if (canWrite()) {
+                switch (choice) {
+                    case 1 -> showAll();
+                    case 2 -> add();
+                    case 3 -> edit();
+                    case 4 -> delete();
+                    case 5 -> showByDepartment();
+                    case 0 -> inMenu = false;
+                    default -> System.out.println("Unknown option\n");
+                }
+            } else {
+                switch (choice) {
+                    case 1 -> showAll();
+                    case 5 -> showByDepartment();
+                    case 0 -> inMenu = false;
+                    default -> System.out.println("Unknown option\n");
+                }
             }
         }
     }
@@ -62,54 +86,66 @@ public class SpecialtyMenu {
                 String name = scanner.nextLine();
                 if (name.equals("0")) return;
 
-                System.out.println("Choose department:");
-                for (Department d : departmentService.getAll()) {
-                    System.out.println(d.getId() + ": " + d.getName());
-                }
-
-                System.out.print("Department ID: ");
-                Department d = departmentService.get(readInt());
-
-                if (d == null) {
-                    System.out.println("Department not found\n");
-                    continue;
-                }
+                Department d = chooseDepartment();
 
                 specialtyService.add(new Specialty(name, d));
                 System.out.println("Specialty added");
                 return;
 
-            } catch (IllegalArgumentException e) {
+            } catch (ValidationException | EntityNotFoundException e) {
                 System.out.println("Error: " + e.getMessage());
             }
         }
     }
 
     private void edit() {
-        while (true) {
-            try {
-                System.out.print("Specialty ID (or 0 to cancel): ");
-                int id = readInt();
-                if (id == 0) return;
+        try {
+            System.out.print("Specialty ID (or 0 to cancel): ");
+            int id = readInt();
+            if (id == 0) return;
 
-                System.out.print("New name: ");
-                String name = scanner.nextLine();
+            specialtyService.getOrThrow(id);
 
-                System.out.println("Choose department:");
-                for (Department d : departmentService.getAll()) {
-                    System.out.println(d.getId() + ": " + d.getName());
+            boolean editing = true;
+            while (editing) {
+                System.out.println("""
+                        What do you want to edit
+                        1. Name
+                        2. Department
+                        9. Edit all fields
+                        0. Back
+                        """);
+                System.out.print("Choose option: ");
+                int c = readInt();
+
+                Optional<String> name = Optional.empty();
+                Optional<Department> dept = Optional.empty();
+
+                switch (c) {
+                    case 1:
+                        name = Optional.of(readRequiredLine("New name"));
+                        break;
+                    case 2:
+                        dept = Optional.of(chooseDepartment());
+                        break;
+                    case 9:
+                        name = Optional.of(readRequiredLine("New name"));
+                        dept = Optional.of(chooseDepartment());
+                        break;
+                    case 0:
+                        editing = false;
+                        continue;
+                    default:
+                        System.out.println("Unknown option\n");
+                        continue;
                 }
-                Department department = departmentService.get(readInt());
-                if (department == null) {
-                    System.out.println("Department not found");
-                    continue;
-                }
 
-                System.out.println(specialtyService.update(id, name, department) ? "Updated" : "Not found");
-                return;
-            } catch (IllegalArgumentException e) {
-                System.out.println("Error: " + e.getMessage());
+                specialtyService.updatePartial(id, name, dept);
+                System.out.println("Updated\n");
             }
+
+        } catch (ValidationException | EntityNotFoundException e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
@@ -118,34 +154,63 @@ public class SpecialtyMenu {
         System.out.println(specialtyService.delete(readInt()) ? "Deleted" : "Not found");
     }
 
+    private Department chooseDepartment() {
+        if (departmentService.getAll().isEmpty()) throw new ValidationException("No departments available");
+
+        while (true) {
+            System.out.println("Choose department:");
+            for (Department d : departmentService.getAll()) {
+                System.out.println(d.getId() + ": " + d.getName());
+            }
+
+            System.out.print("Department ID: ");
+            int id = readInt();
+
+            try {
+                return departmentService.getOrThrow(id);
+            } catch (EntityNotFoundException e) {
+                System.out.println("Error: " + e.getMessage() + "\n");
+            }
+        }
+    }
+
     private void showByDepartment() {
         if (departmentService.getAll().isEmpty()) {
             System.out.println("No departments available");
             return;
         }
 
-        while (true) {
-            try {
-                System.out.println("Choose department (or 0 to cancel):");
-                for (Department d : departmentService.getAll()) {
-                    System.out.println(d.getId() + ": " + d.getName());
-                }
-
-                int departmentId = readInt();
-                if (departmentId == 0) return;
-
-                Department d = departmentService.get(departmentId);
-                if (d == null)
-                    throw new IllegalArgumentException("Department not found");
-
-                for (Specialty s : specialtyService.findByDepartment(departmentId)) {
-                    System.out.println(s.getId() + ": " + s.getName());
-                }
-                return;
-            } catch (IllegalArgumentException e) {
-                System.out.println("Error: " + e.getMessage());
+        try {
+            System.out.println("Choose department:");
+            for (Department d : departmentService.getAll()) {
+                System.out.println(d.getId() + ": " + d.getName());
             }
+            System.out.print("Department ID (or 0 to cancel): ");
+            int id = readInt();
+            if (id == 0) return;
+
+            departmentService.getOrThrow(id);
+
+            for (Specialty s : specialtyService.findByDepartment(id)) {
+                System.out.println(s.getId() + ": " + s.getName());
+            }
+
+        } catch (EntityNotFoundException e) {
+            System.out.println("Error: " + e.getMessage());
         }
+    }
+
+    private String readRequiredLine(String prompt) {
+        while (true) {
+            System.out.print(prompt + ": ");
+            String v = scanner.nextLine();
+            if (!v.isBlank()) return v;
+            System.out.println("Value cannot be empty\n");
+        }
+    }
+
+    private boolean canWrite() {
+        return role == Role.MANAGER || role == Role.ADMIN;
     }
 
     private int readInt() {

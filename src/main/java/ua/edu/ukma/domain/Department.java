@@ -1,8 +1,11 @@
 package ua.edu.ukma.domain;
 
+import ua.edu.ukma.repository.Identifiable;
 import ua.edu.ukma.util.ValidationUtils;
 
-public class Department {
+import java.util.Objects;
+
+public class Department implements Identifiable<Integer> {
     private static int counter = 1;
 
     private final int id;
@@ -20,7 +23,8 @@ public class Department {
         this.faculty = faculty;
     }
 
-    public int getId() {
+    @Override
+    public Integer getId() {
         return id;
     }
 
@@ -62,5 +66,18 @@ public class Department {
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Department that = (Department) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

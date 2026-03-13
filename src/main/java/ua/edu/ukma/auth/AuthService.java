@@ -1,0 +1,22 @@
+package ua.edu.ukma.auth;
+import ua.edu.ukma.domain.Teacher;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class AuthService {
+    private List<User> users =  new ArrayList<>();
+    public AuthService() {
+        users.add(new User("user", "user", Role.USER));
+        users.add(new User("manager", "manager", Role.MANAGER));
+        users.add(new User("admin", "admin", Role.ADMIN));
+    }
+    public User login(String login, String password) {
+        for (User u: users) {
+            if (u.getLogin().equals(login) && u.getPassword().equals(password)) {
+                return u;
+            }
+        }
+        return null;
+    }
+}

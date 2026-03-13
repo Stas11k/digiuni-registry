@@ -2,27 +2,34 @@ package ua.edu.ukma.service;
 
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Teacher;
-import ua.edu.ukma.repository.InMemoryFacultyRepository;
+import ua.edu.ukma.exception.*;
+import ua.edu.ukma.repository.Repository;
 
 import java.util.*;
 
 public class FacultyService {
 
-    private final InMemoryFacultyRepository repo;
+    private final Repository<Faculty, Integer> repo;
 
-    public FacultyService(InMemoryFacultyRepository repo) {
+    public FacultyService(Repository<Faculty, Integer> repo) {
         this.repo = repo;
     }
-
 
     public void add(Faculty f) {
         validate(f);
         repo.save(f);
     }
 
-
-    public Faculty get(int id) {
+    public Optional<Faculty> find(int id) {
         return repo.findById(id);
+    }
+
+    public Faculty getOrThrow(int id) {
+        Optional<Faculty> opt = repo.findById(id);
+        if (opt.isEmpty()) {
+            throw new EntityNotFoundException("Faculty with id " + id + " not found");
+        }
+        return opt.get();
     }
 
     public List<Faculty> getAll() {
@@ -33,36 +40,23 @@ public class FacultyService {
         return repo.deleteById(id);
     }
 
-
     public List<Faculty> sortedByName() {
-        List<Faculty> list = repo.findAll();
-
-        for (int i = 0; i < list.size(); i++) {
-            for (int j = i + 1; j < list.size(); j++) {
-                if (list.get(i).getName()
-                        .compareToIgnoreCase(list.get(j).getName()) > 0) {
-
-                    Faculty tmp = list.get(i);
-                    list.set(i, list.get(j));
-                    list.set(j, tmp);
-                }
-            }
-        }
-        return list;
+        List<Faculty> result = new ArrayList<>(repo.findAll());
+        result.sort(Comparator.comparing(Faculty::getName, String.CASE_INSENSITIVE_ORDER));
+        return result;
     }
 
     private void validate(Faculty f) {
-        if (f.getName().isBlank())
-            throw new IllegalArgumentException("Faculty name empty");
+        if (f == null) throw new ValidationException("Faculty cannot be null");
+        if (f.getName() == null || f.getName().isBlank()) throw new ValidationException("Faculty name cannot be empty");
     }
 
-    public boolean update(int id, String name, String shortName, Teacher dean, String contacts) {
-        Faculty f = repo.findById(id);
-        if (f == null) return false;
-        f.setName(name);
-        f.setShortName(shortName);
-        f.setDean(dean);
-        f.setContacts(contacts);
-        return true;
+    public void updatePartial(int id, Optional<String> name, Optional<String> shortName, Optional<Teacher> dean, Optional<String> contacts) {
+        Faculty f = getOrThrow(id);
+        if (name.isPresent()) f.setName(name.get());
+        if (shortName.isPresent()) f.setShortName(shortName.get());
+        if (dean.isPresent()) f.setDean(dean.get());
+        if (contacts.isPresent()) f.setContacts(contacts.get());
+        repo.save(f);
     }
 }

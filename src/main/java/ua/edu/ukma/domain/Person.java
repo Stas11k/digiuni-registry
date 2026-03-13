@@ -1,17 +1,20 @@
 package ua.edu.ukma.domain;
 
+import ua.edu.ukma.repository.Identifiable;
 import ua.edu.ukma.util.ValidationUtils;
+import java.time.LocalDate;
+import java.time.Period;
 
 import java.util.Objects;
 
-abstract class Person {
+abstract class Person implements Identifiable<Integer> {
     private static int counter = 1;
 
     private final int id;
     private String lastName;
     private String firstName;
     private String middleName;
-    private String birthDate;
+    private LocalDate birthDate;
     private String email;
     private String phone;
     private String address;
@@ -29,7 +32,8 @@ abstract class Person {
         this.middleName = middleName;
     }
 
-    public int getId() {
+    @Override
+    public Integer getId() {
         return id;
     }
 
@@ -41,6 +45,10 @@ abstract class Person {
         ValidationUtils.validateNotEmpty(firstName, "First name");
         ValidationUtils.validateNoDigits(firstName, "First name");
         this.firstName = firstName;
+    }
+    public int getAge() {
+        if (birthDate == null) return 0;
+        return Period.between(birthDate, LocalDate.now()).getYears();
     }
 
     public String getLastName() {
@@ -63,11 +71,12 @@ abstract class Person {
         this.middleName = middleName;
     }
 
-    public String getBirthDate() {
+    public LocalDate getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(String birthDate) {
+    public void setBirthDate(LocalDate birthDate) {
+        if (birthDate != null && birthDate.isAfter(LocalDate.now())) throw new IllegalArgumentException("Birth date cannot be in the future");
         this.birthDate = birthDate;
     }
 
@@ -102,5 +111,18 @@ abstract class Person {
     @Override
     public String toString() {
         return getFullName();
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Person person = (Person) o;
+        return id == person.id;
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(id);
     }
 }

@@ -2,10 +2,15 @@ package ua.edu.ukma.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Teacher;
-import ua.edu.ukma.repository.InMemoryFacultyRepository;
+import ua.edu.ukma.repository.InMemoryRepository;
+
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,68 +18,86 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FacultyServiceTest {
 
-    private FacultyService service;
-
-    @BeforeEach
-    void setUp() {
-        service = new FacultyService(new InMemoryFacultyRepository());
-    }
-
     @Test
     void addAndGetFaculty() {
-        Faculty faculty = new Faculty("Computer Science", "CS");
-
-        service.add(faculty);
-
-        Faculty result = service.get(faculty.getId());
-        assertNotNull(result);
-        assertEquals("Computer Science", result.getName());
-    }
-
-    @Test
-    void sortedByName_shouldReturnSortedList() {
-        service.add(new Faculty("Law", "LAW"));
-        service.add(new Faculty("Computer Science", "CS"));
-        service.add(new Faculty("Economics", "ECO"));
-
-        assertEquals(
-                "Computer Science",
-                service.sortedByName().get(0).getName()
-        );
-    }
-
-    @Test
-    void updateFaculty_shouldUpdateFields() {
+        InMemoryRepository<Faculty, Integer> repo = new InMemoryRepository<>();
+        FacultyService service = new FacultyService(repo);
         Faculty faculty = new Faculty("Computer Science", "CS");
         service.add(faculty);
-        Department department = new Department("Administration", faculty);
+        assertEquals("Computer Science", service.find(faculty.getId()).get().getName());
+    }
+    @Test
+    void sortedByNameTest() {
+        InMemoryRepository<Faculty, Integer> repo = new InMemoryRepository<>();
+        FacultyService service = new FacultyService(repo);
 
-        Teacher dean = new Teacher(
-                "Shevchenko",
-                "Taras",
-                "T.",
-                "Dean",
-                department
-        );
+        repo.save(new Faculty("Mathematics", "M"));
+        repo.save(new Faculty("Computer Science", "CS"));
 
-        boolean updated = service.update(
-                faculty.getId(),
-                "Applied Sciences",
-                "AS",
-                dean,
-                "as@ukma.edu.ua"
-        );
+        List<Faculty> result = service.sortedByName();
 
-        Faculty updatedFaculty = service.get(faculty.getId());
+        assertEquals("Computer Science", result.get(0).getName());
+    }
+    @ParameterizedTest
+    @CsvSource({
+            "Mathematics, Computer Science, Computer Science",
+            "Physics, Mathematics, Mathematics"
+    })
+    void sortedByNameParameterized(String name1, String name2, String expectedFirst) {
 
-        assertTrue(updated);
-        assertEquals("Applied Sciences", updatedFaculty.getName());
-        assertEquals("AS", updatedFaculty.getShortName());
+        InMemoryRepository<Faculty, Integer> repo = new InMemoryRepository<>();
+        FacultyService service = new FacultyService(repo);
+
+        repo.save(new Faculty(name1, "A"));
+        repo.save(new Faculty(name2, "B"));
+
+        List<Faculty> result = service.sortedByName();
+
+        assertEquals(expectedFirst, result.get(0).getName());
     }
 
+
     @Test
-    void facultyConstructor_emptyName_shouldThrowException() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new Faculty("", "CS"));
+    void findFacultyById() {
+        InMemoryRepository<Faculty, Integer> repo = new InMemoryRepository<>();
+        FacultyService service = new FacultyService(repo);
+        Faculty f = new Faculty("Computer Science", "CS");
+        repo.save(f);
+        assertTrue(service.find(f.getId()).isPresent());
+
+    }
+    @Test
+    void getOrThrowFacultyTest() {
+        InMemoryRepository<Faculty, Integer> repo = new InMemoryRepository<>();
+        FacultyService service = new FacultyService(repo);
+        assertThrows(RuntimeException.class, () -> service.getOrThrow(100));
+    }
+    @Test
+    void deleteFacultyById() {
+        InMemoryRepository<Faculty, Integer> repo = new InMemoryRepository<>();
+        FacultyService service = new FacultyService(repo);
+        Faculty faculty = new Faculty("Computer Science", "CS");
+        repo.save(faculty);
+        service.delete(faculty.getId());
+        assertFalse(service.find(faculty.getId()).isPresent());
+    }
+    @Test
+    void updatePartialFaculty() {
+        InMemoryRepository<Faculty, Integer> repo = new InMemoryRepository<>();
+        FacultyService service = new FacultyService(repo);
+        Faculty faculty = new Faculty("Computer Science", "CS");
+
+        repo.save(faculty);
+
+        service.updatePartial(
+                faculty.getId(), Optional.of("NewName"),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
+        );
+        Faculty updated = service.getOrThrow(faculty.getId());
+        assertEquals("NewName", updated.getName());
+
+
     }
 }

@@ -1,6 +1,7 @@
 package ua.edu.ukma.domain;
 
 import org.junit.jupiter.api.Test;
+import ua.edu.ukma.exception.ValidationException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,7 +25,7 @@ class SpecialtyTest {
     void constructor_emptyName_shouldThrowException() {
         Department department = createDepartment();
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(ValidationException.class,
                 () -> new Specialty("", department));
     }
     @Test
