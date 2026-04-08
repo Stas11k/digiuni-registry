@@ -4,7 +4,7 @@ import ua.edu.ukma.util.ValidationUtils;
 
 import java.time.LocalDate;
 
-public class Student extends Person {
+public final class Student extends Person {
      private String gradeBookNumber;
      private int course;
      private Specialty specialty;

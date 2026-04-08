@@ -7,7 +7,9 @@ import java.time.Period;
 
 import java.util.Objects;
 
-abstract class Person implements Identifiable<Integer> {
+public abstract sealed class Person
+        implements Identifiable<Integer>
+        permits Student, Teacher{
     private static int counter = 1;
 
     private final int id;
