@@ -1,6 +1,8 @@
 package ua.edu.ukma.ui;
 
+import ua.edu.ukma.auth.Permission;
 import ua.edu.ukma.auth.Role;
+import ua.edu.ukma.auth.User;
 import ua.edu.ukma.domain.*;
 import ua.edu.ukma.exception.*;
 import ua.edu.ukma.service.DepartmentService;
@@ -16,14 +18,14 @@ public class FacultyMenu {
     private final FacultyService service;
     private final DepartmentService departmentService;
     private final TeacherService teacherService;
-    private final Role role;
+    private final User user;
 
-    public FacultyMenu(Scanner scanner, FacultyService service, TeacherService teacherService, DepartmentService departmentService, Role role) {
+    public FacultyMenu(Scanner scanner, FacultyService service, TeacherService teacherService, DepartmentService departmentService, User user) {
         this.scanner = scanner;
         this.service = service;
         this.teacherService = teacherService;
         this.departmentService = departmentService;
-        this.role = role;
+        this.user = user;
     }
 
     public void start() {
@@ -208,7 +210,7 @@ public class FacultyMenu {
     }
 
     private boolean canWrite() {
-        return role == Role.MANAGER || role == Role.ADMIN;
+        return user.hasPermission(Permission.EDIT_FACULTIES);
     }
 
     private int readInt() {

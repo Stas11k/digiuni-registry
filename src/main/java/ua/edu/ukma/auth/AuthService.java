@@ -72,4 +72,19 @@ public class AuthService {
         return findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
     }
+
+    public boolean hasPermission(User user, int permission) {
+        if (user == null) return false;
+        return user.hasPermission(permission);
+    }
+
+    public void addPermission(int id, int permission) {
+        User user = getUserOrThrow(id);
+        user.addPermission(permission);
+    }
+
+    public void removePermission(int id, int permission) {
+        User user = getUserOrThrow(id);
+        user.removePermission(permission);
+    }
 }

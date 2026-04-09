@@ -9,6 +9,7 @@ public class User {
     private String login;
     private String password;
     private Role role;
+    private int permissions;
     private boolean blocked;
 
     public User(String login, String password, Role role) {
@@ -19,6 +20,7 @@ public class User {
         this.login = login;
         this.password = password;
         this.role = role;
+        this.permissions = role.getDefaultPermissions();
         this.blocked = false;
     }
 
@@ -51,6 +53,7 @@ public class User {
     public void setRole(Role role) {
         validateRole(role);
         this.role = role;
+        this.permissions = role.getDefaultPermissions();
     }
 
     public boolean isBlocked() {
@@ -73,8 +76,31 @@ public class User {
         if (role == null) throw new ValidationException("Role cannot be null");
     }
 
+    public int getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(int permissions) {
+        this.permissions = permissions;
+    }
+
+    public boolean hasPermission(int permission) {
+        return Permission.has(this.permissions, permission);
+    }
+
+    public void addPermission(int permission) {
+        this.permissions = Permission.add(this.permissions, permission);
+    }
+
+    public void removePermission(int permission) {
+        this.permissions = Permission.remove(this.permissions, permission);
+    }
+
     @Override
     public String toString() {
-        return id + " | " + login + " | role: " + role + " | blocked: " + blocked;
+        return id + " | " + login
+                + " | role: " + role
+                + " | permissions: " + permissions
+                + " | blocked: " + blocked;
     }
 }

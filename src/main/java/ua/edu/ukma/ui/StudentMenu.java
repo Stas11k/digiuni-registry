@@ -1,6 +1,8 @@
 package ua.edu.ukma.ui;
 
+import ua.edu.ukma.auth.Permission;
 import ua.edu.ukma.auth.Role;
+import ua.edu.ukma.auth.User;
 import ua.edu.ukma.domain.Specialty;
 import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.StudyForm;
@@ -18,13 +20,13 @@ public class StudentMenu {
     private final Scanner scanner;
     private final StudentService studentService;
     private final SpecialtyService specialtyService;
-    private final Role role;
+    private final User user;
 
-    public StudentMenu(Scanner scanner, StudentService studentService, SpecialtyService specialtyService, Role role) {
+    public StudentMenu(Scanner scanner, StudentService studentService, SpecialtyService specialtyService, User user) {
         this.scanner = scanner;
         this.studentService = studentService;
         this.specialtyService = specialtyService;
-        this.role = role;
+        this.user = user;
     }
 
     public void start() {
@@ -354,7 +356,7 @@ public class StudentMenu {
     }
 
     private boolean canWrite() {
-        return role == Role.MANAGER || role == Role.ADMIN;
+        return user.hasPermission(Permission.EDIT_STUDENTS);
     }
 
     private int readInt() {

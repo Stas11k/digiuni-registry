@@ -1,6 +1,8 @@
 package ua.edu.ukma.ui;
 
+import ua.edu.ukma.auth.Permission;
 import ua.edu.ukma.auth.Role;
+import ua.edu.ukma.auth.User;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Teacher;
 import ua.edu.ukma.exception.EntityNotFoundException;
@@ -17,13 +19,13 @@ public class TeacherMenu {
     private final Scanner scanner;
     private final TeacherService teacherService;
     private final DepartmentService departmentService;
-    private final Role role;
+    private final User user;
 
-    public TeacherMenu(Scanner scanner, TeacherService teacherService, DepartmentService departmentService, Role role) {
+    public TeacherMenu(Scanner scanner, TeacherService teacherService, DepartmentService departmentService, User user) {
         this.scanner = scanner;
         this.teacherService = teacherService;
         this.departmentService = departmentService;
-        this.role = role;
+        this.user = user;
     }
 
     public void start() {
@@ -310,7 +312,7 @@ public class TeacherMenu {
     }
 
     private boolean canWrite() {
-        return role == Role.MANAGER || role == Role.ADMIN;
+        return user.hasPermission(Permission.EDIT_TEACHERS);
     }
 
     private int readInt() {

@@ -1,7 +1,7 @@
 package ua.edu.ukma.ui;
 
 import ua.edu.ukma.auth.AuthService;
-import ua.edu.ukma.auth.Role;
+import ua.edu.ukma.auth.Permission;
 import ua.edu.ukma.auth.User;
 import ua.edu.ukma.domain.University;
 import ua.edu.ukma.exception.ValidationException;
@@ -40,9 +40,7 @@ public class ConsoleMenu {
     }
 
     public void start() {
-        boolean applicationRunning = true;
-
-        while (applicationRunning) {
+        while (true) {
             User user = authorize();
             if (user == null) {
                 return;
@@ -100,80 +98,122 @@ public class ConsoleMenu {
 
     private void showWelcome(User user) {
         System.out.println("Welcome " + user.getLogin());
+        System.out.println("Role: " + user.getRole());
+        System.out.println("Permissions mask: " + user.getPermissions());
 
-        if (user.getRole() == Role.USER) {
-            System.out.println("(User mode: read only)");
-        } else if (user.getRole() == Role.MANAGER) {
-            System.out.println("(Manager mode: CRUD access)");
+        if (user.hasPermission(Permission.MANAGE_USERS)) {
+            System.out.println("(Admin capabilities available)");
+        } else if (user.hasPermission(Permission.EDIT_STUDENTS)
+                || user.hasPermission(Permission.EDIT_TEACHERS)
+                || user.hasPermission(Permission.EDIT_FACULTIES)
+                || user.hasPermission(Permission.EDIT_DEPARTMENTS)
+                || user.hasPermission(Permission.EDIT_SPECIALTIES)) {
+            System.out.println("(Editing capabilities available)");
         } else {
-            System.out.println("(Admin mode: CRUD + user management)");
+            System.out.println("(Read only mode)");
         }
     }
 
     private void runSession(User user) {
-        Role role = user.getRole();
         boolean sessionRunning = true;
 
         while (sessionRunning) {
-            printMainMenu(role);
+            printMainMenu(user);
 
             System.out.print("Choose option: ");
             int choice = readInt();
 
-            if (role == Role.ADMIN) {
-                switch (choice) {
-                    case 1 -> new FacultyMenu(scanner, facultyService, teacherService, departmentService, role).start();
-                    case 2 -> new DepartmentMenu(scanner, departmentService, facultyService, teacherService, role).start();
-                    case 3 -> new SpecialtyMenu(scanner, specialtyService, departmentService, role).start();
-                    case 4 -> new StudentMenu(scanner, studentService, specialtyService, role).start();
-                    case 5 -> new TeacherMenu(scanner, teacherService, departmentService, role).start();
-                    case 6 -> new UniversityMenu(scanner, university).start();
-                    case 7 -> new ReportMenu(scanner, facultyService, departmentService, studentService, teacherService).start();
-                    case 8 -> new UserManagementMenu(scanner, authService).start();
-                    case 0 -> sessionRunning = false;
-                    default -> System.out.println("Unknown option\n");
+            switch (choice) {
+                case 1 -> {
+                    if (user.hasPermission(Permission.VIEW_FACULTIES)) {
+                        new FacultyMenu(scanner, facultyService, teacherService, departmentService, user).start();
+                    } else {
+                        System.out.println("Access denied\n");
+                    }
                 }
-            } else {
-                switch (choice) {
-                    case 1 -> new FacultyMenu(scanner, facultyService, teacherService, departmentService, role).start();
-                    case 2 -> new DepartmentMenu(scanner, departmentService, facultyService, teacherService, role).start();
-                    case 3 -> new SpecialtyMenu(scanner, specialtyService, departmentService, role).start();
-                    case 4 -> new StudentMenu(scanner, studentService, specialtyService, role).start();
-                    case 5 -> new TeacherMenu(scanner, teacherService, departmentService, role).start();
-                    case 6 -> new ReportMenu(scanner, facultyService, departmentService, studentService, teacherService).start();
-                    case 0 -> sessionRunning = false;
-                    default -> System.out.println("Unknown option\n");
+                case 2 -> {
+                    if (user.hasPermission(Permission.VIEW_DEPARTMENTS)) {
+                        new DepartmentMenu(scanner, departmentService, facultyService, teacherService, user).start();
+                    } else {
+                        System.out.println("Access denied\n");
+                    }
                 }
+                case 3 -> {
+                    if (user.hasPermission(Permission.VIEW_SPECIALTIES)) {
+                        new SpecialtyMenu(scanner, specialtyService, departmentService, user).start();
+                    } else {
+                        System.out.println("Access denied\n");
+                    }
+                }
+                case 4 -> {
+                    if (user.hasPermission(Permission.VIEW_STUDENTS)) {
+                        new StudentMenu(scanner, studentService, specialtyService, user).start();
+                    } else {
+                        System.out.println("Access denied\n");
+                    }
+                }
+                case 5 -> {
+                    if (user.hasPermission(Permission.VIEW_TEACHERS)) {
+                        new TeacherMenu(scanner, teacherService, departmentService, user).start();
+                    } else {
+                        System.out.println("Access denied\n");
+                    }
+                }
+                case 6 -> {
+                    if (user.hasPermission(Permission.EDIT_UNIVERSITY)) {
+                        new UniversityMenu(scanner, university).start();
+                    } else if (user.hasPermission(Permission.VIEW_REPORTS)) {
+                        new ReportMenu(scanner, facultyService, departmentService, studentService, teacherService).start();
+                    } else {
+                        System.out.println("Access denied\n");
+                    }
+                }
+                case 7 -> {
+                    if (user.hasPermission(Permission.EDIT_UNIVERSITY)) {
+                        new ReportMenu(scanner, facultyService, departmentService, studentService, teacherService).start();
+                    } else if (user.hasPermission(Permission.MANAGE_USERS)) {
+                        new UserManagementMenu(scanner, authService).start();
+                    } else {
+                        System.out.println("Unknown option\n");
+                    }
+                }
+                case 8 -> {
+                    if (user.hasPermission(Permission.MANAGE_USERS)) {
+                        new UserManagementMenu(scanner, authService).start();
+                    } else {
+                        System.out.println("Unknown option\n");
+                    }
+                }
+                case 0 -> sessionRunning = false;
+                default -> System.out.println("Unknown option\n");
             }
         }
     }
 
-    private void printMainMenu(Role role) {
-        if (role == Role.ADMIN) {
-            System.out.println("""
-                    === University System ===
-                    1. Faculties
-                    2. Departments
-                    3. Specialties
-                    4. Students
-                    5. Teachers
-                    6. University settings
-                    7. Reports
-                    8. User management
-                    0. Exit
-                    """);
+    private void printMainMenu(User user) {
+        System.out.println("=== University System ===");
+        System.out.println("1. Faculties");
+        System.out.println("2. Departments");
+        System.out.println("3. Specialties");
+        System.out.println("4. Students");
+        System.out.println("5. Teachers");
+
+        if (user.hasPermission(Permission.EDIT_UNIVERSITY)) {
+            System.out.println("6. University settings");
+            System.out.println("7. Reports");
+            if (user.hasPermission(Permission.MANAGE_USERS)) {
+                System.out.println("8. User management");
+            }
         } else {
-            System.out.println("""
-                    === University System ===
-                    1. Faculties
-                    2. Departments
-                    3. Specialties
-                    4. Students
-                    5. Teachers
-                    6. Reports
-                    0. Exit
-                    """);
+            if (user.hasPermission(Permission.VIEW_REPORTS)) {
+                System.out.println("6. Reports");
+            }
+            if (user.hasPermission(Permission.MANAGE_USERS)) {
+                System.out.println("7. User management");
+            }
         }
+
+        System.out.println("0. Logout");
     }
 
     private int readInt() {
