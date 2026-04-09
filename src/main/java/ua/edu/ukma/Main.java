@@ -23,12 +23,17 @@ public class Main {
 
         Faculty f1 = new Faculty("Faculty of Informatics", "FI");
         Faculty f2 = new Faculty("Faculty of Humanities", "FH");
+        facultyService.add(f1);
+        facultyService.add(f2);
         //facultyService.add(f1);
         //facultyService.add(f2);
 
         Department d1 = new Department("Software Engineering", f1);
         Department d2 = new Department("Computer Science", f1);
         Department d3 = new Department("History", f2);
+        departmentService.add(d1);
+        departmentService.add(d2);
+        departmentService.add(d3);
         //departmentService.add(d1);
         //departmentService.add(d2);
         //departmentService.add(d3);
@@ -39,6 +44,9 @@ public class Main {
         specialtyService.add(s1);
         specialtyService.add(s2);
         specialtyService.add(s3);
+
+        // Завантажуємо студентів тільки ПІСЛЯ того, як уже існують specialty
+        studentService.loadFromFile(specialtyService.getAll());
 
         Teacher t1 = new Teacher("Petrenko", "Ivan", "Olehovych", "Professor", d1);
         Teacher t2 = new Teacher("Shevchenko", "Olena", "Mykolaivna", "Associate Professor", d2);
@@ -56,7 +64,13 @@ public class Main {
         //studentService.add(st3);
         //studentService.add(st4);
 
-        ConsoleMenu menu = new ConsoleMenu(facultyService, departmentService, specialtyService, studentService, teacherService);
+        ConsoleMenu menu = new ConsoleMenu(
+                facultyService,
+                departmentService,
+                specialtyService,
+                studentService,
+                teacherService
+        );
         menu.start();
     }
 }

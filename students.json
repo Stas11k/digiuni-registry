@@ -1,15 +1,5 @@
 [ {
-  "id" : 19,
-  "lastName" : "lol",
-  "firstName" : "bpo",
-  "middleName" : "gio",
-  "course" : 1,
-  "group" : 2,
-  "specialtyName" : "ipz",
-  "departmentName" : "adafasf",
-  "facultyName" : "аіпрва"
-}, {
-  "id" : 20,
+  "id" : 6,
   "lastName" : "kabysh",
   "firstName" : "lol",
   "middleName" : "dr",
@@ -19,12 +9,32 @@
   "departmentName" : "Software Engineering",
   "facultyName" : "Faculty of Informatics"
 }, {
-  "id" : 21,
+  "id" : 7,
   "lastName" : "test",
   "firstName" : "testenko",
   "middleName" : "testovich",
   "course" : 1,
   "group" : 2,
+  "specialtyName" : "Software Engineering",
+  "departmentName" : "Software Engineering",
+  "facultyName" : "Faculty of Informatics"
+}, {
+  "id" : 8,
+  "lastName" : "Aaa",
+  "firstName" : "Aaa",
+  "middleName" : "Aaa",
+  "course" : 1,
+  "group" : 1,
+  "specialtyName" : "Software Engineering",
+  "departmentName" : "Software Engineering",
+  "facultyName" : "Faculty of Informatics"
+}, {
+  "id" : 16,
+  "lastName" : "Bbb",
+  "firstName" : "Bbb",
+  "middleName" : "Bbb",
+  "course" : 1,
+  "group" : 1,
   "specialtyName" : "Software Engineering",
   "departmentName" : "Software Engineering",
   "facultyName" : "Faculty of Informatics"

@@ -1,6 +1,8 @@
 package ua.edu.ukma.ui;
 
+import ua.edu.ukma.auth.Permission;
 import ua.edu.ukma.auth.Role;
+import ua.edu.ukma.auth.User;
 import ua.edu.ukma.domain.Specialty;
 import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.StudyForm;
@@ -23,40 +25,39 @@ public class StudentMenu {
     private final StudentService studentService;
     private final StudentFileService fileService = new StudentFileService();
     private final SpecialtyService specialtyService;
-    private final Role role;
+    private final User user;
 
-    public StudentMenu(Scanner scanner, StudentService studentService, SpecialtyService specialtyService, Role role) {
+    public StudentMenu(Scanner scanner, StudentService studentService, SpecialtyService specialtyService, User user) {
         this.scanner = scanner;
         this.studentService = studentService;
         this.specialtyService = specialtyService;
-        this.role = role;
+        this.user = user;
     }
 
     public void start() {
-        loadFromFile();
         boolean inMenu = true;
         while (inMenu) {
             if (canWrite()) {
                 System.out.println("""
-                        --- Students ---
-                        1. Show all
-                        2. Add
-                        3. Edit
-                        4. Delete
-                        5. Find by full name
-                        6. Find by course
-                        7. Find by group                 
-                        0. Back
-                        """);
+                    --- Students ---
+                    1. Show all
+                    2. Add
+                    3. Edit
+                    4. Delete
+                    5. Find by full name
+                    6. Find by course
+                    7. Find by group                 
+                    0. Back
+                    """);
             } else {
                 System.out.println("""
-                        --- Students ---
-                        1. Show all
-                        5. Find by full name
-                        6. Find by course
-                        7. Find by group
-                        0. Back
-                        """);
+                    --- Students ---
+                    1. Show all
+                    5. Find by full name
+                    6. Find by course
+                    7. Find by group
+                    0. Back
+                    """);
             }
 
             System.out.print("Choose option: ");
@@ -91,7 +92,7 @@ public class StudentMenu {
         System.out.println("Saved ");
     }
 
-    private void loadFromFile() {
+    /*private void loadFromFile() {
         List<Student> loaded = fileService.loadFromFile("students.json");
 
         studentService.clear();
@@ -101,13 +102,14 @@ public class StudentMenu {
         }
 
         System.out.println("Loaded into system ");
-    }
+    }*/
 
     private void showAll() {
         studentService.getAll().
                 stream().
                 sorted(Comparator.comparing(Student::getCourse).thenComparing(Student::getFullName)).
                 forEach(s -> System.out.println(
+                        s.getId() + " | " +
                         s.getFullName()
                         +"| course: " + s.getCourse()
                         +"|" + s.getSpecialty().getName()
@@ -156,8 +158,6 @@ public class StudentMenu {
                 Specialty specialty = chooseSpecialty();
 
                 Student student = new Student(last, first, middle, sid, course, group, specialty);
-                studentService.add(student);
-
                 studentService.add(student);
 
                 saveToFile();
@@ -389,7 +389,7 @@ public class StudentMenu {
     }
 
     private boolean canWrite() {
-        return role == Role.MANAGER || role == Role.ADMIN;
+        return user.hasPermission(Permission.EDIT_STUDENTS);
     }
 
     private int readInt() {
