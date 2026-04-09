@@ -35,30 +35,29 @@ public class StudentMenu {
     }
 
     public void start() {
-        loadFromFile();
         boolean inMenu = true;
         while (inMenu) {
             if (canWrite()) {
                 System.out.println("""
-                        --- Students ---
-                        1. Show all
-                        2. Add
-                        3. Edit
-                        4. Delete
-                        5. Find by full name
-                        6. Find by course
-                        7. Find by group                 
-                        0. Back
-                        """);
+                    --- Students ---
+                    1. Show all
+                    2. Add
+                    3. Edit
+                    4. Delete
+                    5. Find by full name
+                    6. Find by course
+                    7. Find by group                 
+                    0. Back
+                    """);
             } else {
                 System.out.println("""
-                        --- Students ---
-                        1. Show all
-                        5. Find by full name
-                        6. Find by course
-                        7. Find by group
-                        0. Back
-                        """);
+                    --- Students ---
+                    1. Show all
+                    5. Find by full name
+                    6. Find by course
+                    7. Find by group
+                    0. Back
+                    """);
             }
 
             System.out.print("Choose option: ");
@@ -93,7 +92,7 @@ public class StudentMenu {
         System.out.println("Saved ");
     }
 
-    private void loadFromFile() {
+    /*private void loadFromFile() {
         List<Student> loaded = fileService.loadFromFile("students.json");
 
         studentService.clear();
@@ -103,13 +102,14 @@ public class StudentMenu {
         }
 
         System.out.println("Loaded into system ");
-    }
+    }*/
 
     private void showAll() {
         studentService.getAll().
                 stream().
                 sorted(Comparator.comparing(Student::getCourse).thenComparing(Student::getFullName)).
                 forEach(s -> System.out.println(
+                        s.getId() + " | " +
                         s.getFullName()
                         +"| course: " + s.getCourse()
                         +"|" + s.getSpecialty().getName()
@@ -158,8 +158,6 @@ public class StudentMenu {
                 Specialty specialty = chooseSpecialty();
 
                 Student student = new Student(last, first, middle, sid, course, group, specialty);
-                studentService.add(student);
-
                 studentService.add(student);
 
                 saveToFile();

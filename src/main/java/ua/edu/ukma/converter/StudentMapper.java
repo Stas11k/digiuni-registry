@@ -1,7 +1,5 @@
 package ua.edu.ukma.converter;
 
-import ua.edu.ukma.domain.Department;
-import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Specialty;
 import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.dto.StudentDTO;
@@ -25,34 +23,15 @@ public class StudentMapper {
         );
     }
 
-    public static Student fromDTO(StudentDTO dto) {
-
-        Faculty faculty = new Faculty(
-                dto.facultyName() != null ? dto.facultyName() : "Default Faculty",
-                "DF"
-        );
-
-        Department department = new Department(
-                dto.departmentName() != null ? dto.departmentName() : "Default Department",
-                faculty
-        );
-
-        Specialty specialty = new Specialty(
-                dto.specialtyName() != null ? dto.specialtyName() : "Default Specialty",
-                department
-        );
-
-        Student s = new Student(
+    public static Student fromDTO(StudentDTO dto, Specialty specialty) {
+        return new Student(
                 dto.lastName(),
                 dto.firstName(),
                 dto.middleName(),
-                "TEMP", // gradeBook (можеш доробити)
+                "TEMP",
                 dto.course(),
                 dto.group(),
                 specialty
         );
-
-        return s;
     }
 }
-
