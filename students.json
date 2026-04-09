@@ -1,31 +1,31 @@
 [ {
-  "lastName" : "Koval",
-  "firstName" : "Andrii",
-  "middleName" : "Petrovych",
-  "course" : 2,
-  "group" : 1
-}, {
-  "lastName" : "Melnyk",
-  "firstName" : "Iryna",
-  "middleName" : "Stepanivna",
-  "course" : 3,
-  "group" : 2
-}, {
-  "lastName" : "Tkachenko",
-  "firstName" : "Sofiia",
-  "middleName" : "Olehivna",
+  "id" : 19,
+  "lastName" : "lol",
+  "firstName" : "bpo",
+  "middleName" : "gio",
   "course" : 1,
-  "group" : 1
+  "group" : 2,
+  "specialtyName" : "ipz",
+  "departmentName" : "adafasf",
+  "facultyName" : "аіпрва"
 }, {
-  "lastName" : "Kravets",
-  "firstName" : "Oleh",
-  "middleName" : "Serhiiovych",
-  "course" : 2,
-  "group" : 3
+  "id" : 20,
+  "lastName" : "kabysh",
+  "firstName" : "lol",
+  "middleName" : "dr",
+  "course" : 1,
+  "group" : 2,
+  "specialtyName" : "Software Engineering",
+  "departmentName" : "Software Engineering",
+  "facultyName" : "Faculty of Informatics"
 }, {
-  "lastName" : "Testenko",
-  "firstName" : "Test",
-  "middleName" : "Testovich",
-  "course" : 2,
-  "group" : 3
+  "id" : 21,
+  "lastName" : "test",
+  "firstName" : "testenko",
+  "middleName" : "testovich",
+  "course" : 1,
+  "group" : 2,
+  "specialtyName" : "Software Engineering",
+  "departmentName" : "Software Engineering",
+  "facultyName" : "Faculty of Informatics"
 } ]

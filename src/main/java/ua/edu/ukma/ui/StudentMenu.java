@@ -33,6 +33,7 @@ public class StudentMenu {
     }
 
     public void start() {
+        loadFromFile();
         boolean inMenu = true;
         while (inMenu) {
             if (canWrite()) {
@@ -44,9 +45,7 @@ public class StudentMenu {
                         4. Delete
                         5. Find by full name
                         6. Find by course
-                        7. Find by group
-                        8. Save to file
-                        9. Load from file
+                        7. Find by group                 
                         0. Back
                         """);
             } else {
@@ -72,8 +71,6 @@ public class StudentMenu {
                     case 5 -> findByFullName();
                     case 6 -> findByCourse();
                     case 7 -> findByGroup();
-                    case 8 -> saveToFile();
-                    case 9 -> loadFromFile();
                     case 0 -> inMenu = false;
                     default -> System.out.println("Unknown option\n");
                 }
@@ -160,6 +157,10 @@ public class StudentMenu {
 
                 Student student = new Student(last, first, middle, sid, course, group, specialty);
                 studentService.add(student);
+
+                studentService.add(student);
+
+                saveToFile();
 
                 System.out.println("Student added");
                 return;
@@ -265,6 +266,7 @@ public class StudentMenu {
                         gradeBook, course, group, specialty,
                         admissionYear, studyForm, status
                 );
+                saveToFile();
 
                 System.out.println("Updated\n");
             }
@@ -277,8 +279,14 @@ public class StudentMenu {
     }
 
     private void delete() {
-        System.out.print("Student ID: ");
-        System.out.println(studentService.delete(readInt()) ? "Deleted" : "Not found");
+        boolean deleted = studentService.delete(readInt());
+
+        if (deleted) {
+            saveToFile();
+            System.out.println("Deleted");
+        } else {
+            System.out.println("Not found");
+        }
     }
 
     private void findByFullName() {

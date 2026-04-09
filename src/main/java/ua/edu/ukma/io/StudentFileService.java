@@ -8,6 +8,7 @@ import ua.edu.ukma.converter.StudentMapper;
 import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.dto.StudentDTO;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -15,35 +16,36 @@ import java.util.List;
 public class StudentFileService {
 
     private final ObjectMapper mapper = new ObjectMapper()
-            .registerModule(new JavaTimeModule())
             .enable(SerializationFeature.INDENT_OUTPUT);
 
-    public void saveToFile(List<Student> students, String filePath) {
+    public boolean saveToFile(List<Student> students, String filePath) {
         try {
             List<StudentDTO> dtos = students.stream()
                     .map(StudentMapper::toDTO)
                     .toList();
 
-            mapper.writeValue(Path.of(filePath).toFile(), dtos);
+            mapper.writeValue(new File(filePath), dtos);
+            return true;
 
         } catch (IOException e) {
-            System.out.println("Error saving ");
+            e.printStackTrace();
+            return false;
         }
     }
 
     public List<Student> loadFromFile(String filePath) {
         try {
-            List<StudentDTO> dtos = mapper.readValue(
-                    Path.of(filePath).toFile(),
-                    new com.fasterxml.jackson.core.type.TypeReference<List<StudentDTO>>() {}
+            StudentDTO[] dtos = mapper.readValue(
+                    new File(filePath),
+                    StudentDTO[].class
             );
 
-            return dtos.stream()
+            return java.util.Arrays.stream(dtos)
                     .map(StudentMapper::fromDTO)
                     .toList();
 
         } catch (IOException e) {
-            System.out.println("Error reading ");
+            System.out.println("File not found, starting empty");
             return List.of();
         }
     }
