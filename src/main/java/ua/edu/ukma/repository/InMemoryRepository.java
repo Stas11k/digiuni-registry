@@ -19,6 +19,10 @@ public class InMemoryRepository<T extends Identifiable<ID>, ID> implements Repos
         return Optional.ofNullable(storage.get(id));
     }
 
+    public void clear() {
+        storage.clear();
+    }
+
     @Override
     public List<T> findAll() {
         return new ArrayList<>(storage.values());

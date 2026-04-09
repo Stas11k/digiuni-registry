@@ -56,6 +56,9 @@ public class TeacherService {
         }
         return result;
     }
+    public void clear() {
+        repo.clear();
+    }
 
     public List<Teacher> findByFacultySortedByName(int facultyId) {
         List<Teacher> result = new ArrayList<>();

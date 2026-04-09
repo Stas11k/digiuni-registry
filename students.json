@@ -1,0 +1,31 @@
+[ {
+  "lastName" : "Koval",
+  "firstName" : "Andrii",
+  "middleName" : "Petrovych",
+  "course" : 2,
+  "group" : 1
+}, {
+  "lastName" : "Melnyk",
+  "firstName" : "Iryna",
+  "middleName" : "Stepanivna",
+  "course" : 3,
+  "group" : 2
+}, {
+  "lastName" : "Tkachenko",
+  "firstName" : "Sofiia",
+  "middleName" : "Olehivna",
+  "course" : 1,
+  "group" : 1
+}, {
+  "lastName" : "Kravets",
+  "firstName" : "Oleh",
+  "middleName" : "Serhiiovych",
+  "course" : 2,
+  "group" : 3
+}, {
+  "lastName" : "Testenko",
+  "firstName" : "Test",
+  "middleName" : "Testovich",
+  "course" : 2,
+  "group" : 3
+} ]
