@@ -9,9 +9,13 @@ import ua.edu.ukma.domain.StudyForm;
 import ua.edu.ukma.domain.StudentStatus;
 import ua.edu.ukma.exception.EntityNotFoundException;
 import ua.edu.ukma.exception.ValidationException;
+import ua.edu.ukma.io.StudentFileService;
 import ua.edu.ukma.service.SpecialtyService;
 import ua.edu.ukma.service.StudentService;
 
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -19,6 +23,7 @@ public class StudentMenu {
 
     private final Scanner scanner;
     private final StudentService studentService;
+    private final StudentFileService fileService = new StudentFileService();
     private final SpecialtyService specialtyService;
     private final User user;
 
@@ -30,6 +35,7 @@ public class StudentMenu {
     }
 
     public void start() {
+        loadFromFile();
         boolean inMenu = true;
         while (inMenu) {
             if (canWrite()) {
@@ -41,7 +47,7 @@ public class StudentMenu {
                         4. Delete
                         5. Find by full name
                         6. Find by course
-                        7. Find by group
+                        7. Find by group                 
                         0. Back
                         """);
             } else {
@@ -82,27 +88,45 @@ public class StudentMenu {
             }
         }
     }
+    private void saveToFile() {
+        fileService.saveToFile(studentService.getAll(), "students.json");
+        System.out.println("Saved ");
+    }
+
+    private void loadFromFile() {
+        List<Student> loaded = fileService.loadFromFile("students.json");
+
+        studentService.clear();
+
+        for (Student s : loaded) {
+            studentService.add(s);
+        }
+
+        System.out.println("Loaded into system ");
+    }
 
     private void showAll() {
-        for (Student s : studentService.getAll()) {
-            System.out.println(
-                    s.getId() + " | " +
-                            s.getFullName() +
-                            " | age: " + s.getAge() +
-                            " | yearsOfStudy: " + s.getYearsOfStudy() +
-                            " | gradeBookNumber: " + s.getGradeBookNumber() +
-                            " | specialty: " + s.getSpecialty() +
-                            " | course: " + s.getCourse() +
-                            " | group: " + s.getGroup() +
-                            " | email: " + s.getEmail() +
-                            " | phone: " + s.getPhone() +
-                            " | address: " + s.getAddress() +
-                            " | birthDate: " + s.getBirthDate() +
-                            " | admissionYear: " + s.getAdmissionYear() +
-                            " | studyForm: " + s.getStudyForm() +
-                            " | status: " + s.getStatus()
-            );
-        }
+        studentService.getAll().
+                stream().
+                sorted(Comparator.comparing(Student::getCourse).thenComparing(Student::getFullName)).
+                forEach(s -> System.out.println(
+                        s.getFullName()
+                        +"| course: " + s.getCourse()
+                        +"|" + s.getSpecialty().getName()
+                        +"| group: " + s.getGroup()
+                        +"| status: " + s.getStatus()
+                        +"| age: " + s.getAge()
+                        +"| birth date: " + s.getBirthDate()
+                        +"| phone number: " + s.getPhone()
+                        +"| email: " + s.getEmail()
+                        +"| address: " + s.getAddress()
+                        +"| study form: " + s.getStudyForm()
+                        +"| grade book number: " + s.getGradeBookNumber()
+                        +"| admission year: " + s.getAdmissionYear()
+
+                ));
+
+
     }
 
     private void add() {
@@ -135,6 +159,10 @@ public class StudentMenu {
 
                 Student student = new Student(last, first, middle, sid, course, group, specialty);
                 studentService.add(student);
+
+                studentService.add(student);
+
+                saveToFile();
 
                 System.out.println("Student added");
                 return;
@@ -240,6 +268,7 @@ public class StudentMenu {
                         gradeBook, course, group, specialty,
                         admissionYear, studyForm, status
                 );
+                saveToFile();
 
                 System.out.println("Updated\n");
             }
@@ -252,8 +281,14 @@ public class StudentMenu {
     }
 
     private void delete() {
-        System.out.print("Student ID: ");
-        System.out.println(studentService.delete(readInt()) ? "Deleted" : "Not found");
+        boolean deleted = studentService.delete(readInt());
+
+        if (deleted) {
+            saveToFile();
+            System.out.println("Deleted");
+        } else {
+            System.out.println("Not found");
+        }
     }
 
     private void findByFullName() {
@@ -398,4 +433,5 @@ public class StudentMenu {
             System.out.println("Invalid choice\n");
         }
     }
+
 }

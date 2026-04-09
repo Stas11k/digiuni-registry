@@ -4,18 +4,21 @@ import ua.edu.ukma.auth.Permission;
 import ua.edu.ukma.auth.Role;
 import ua.edu.ukma.auth.User;
 import ua.edu.ukma.domain.Department;
+import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.Teacher;
 import ua.edu.ukma.exception.EntityNotFoundException;
 import ua.edu.ukma.exception.ValidationException;
+import ua.edu.ukma.io.TeacherFileService;
 import ua.edu.ukma.service.DepartmentService;
 import ua.edu.ukma.service.TeacherService;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
 public class TeacherMenu {
-
+    private final TeacherFileService fileService = new TeacherFileService();
     private final Scanner scanner;
     private final TeacherService teacherService;
     private final DepartmentService departmentService;
@@ -39,6 +42,8 @@ public class TeacherMenu {
                         3. Edit
                         4. Delete
                         5. Find by full name
+                        6.Save to file
+                        7.Load from file
                         0. Back
                         """);
             } else {
@@ -127,6 +132,22 @@ public class TeacherMenu {
                 System.out.println("Error: " + e.getMessage());
             }
         }
+    }
+    private void saveToFile() {
+        fileService.saveToFile(teacherService.getAll(), "teachers.json");
+        System.out.println("Saved ");
+    }
+
+    private void loadFromFile() {
+        List<Teacher> loaded = fileService.loadFromFile("teachers.json");
+
+        teacherService.clear();
+
+        for (Teacher t : loaded) {
+            teacherService.add(t);
+        }
+
+        System.out.println("Loaded into system ");
     }
 
     private void edit() {

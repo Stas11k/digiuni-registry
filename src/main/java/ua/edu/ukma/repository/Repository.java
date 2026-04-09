@@ -12,5 +12,6 @@ public interface Repository<T, ID> {
     List<T> findAll();
 
     boolean deleteById(ID id);
+    void clear();
 
 }

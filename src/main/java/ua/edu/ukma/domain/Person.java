@@ -7,14 +7,16 @@ import java.time.Period;
 
 import java.util.Objects;
 
-abstract class Person implements Identifiable<Integer> {
+public abstract sealed class Person
+        implements Identifiable<Integer>
+        permits Student, Teacher{
     private static int counter = 1;
 
     private final int id;
     private String lastName;
     private String firstName;
     private String middleName;
-    private LocalDate birthDate;
+    transient  private LocalDate birthDate;
     private String email;
     private String phone;
     private String address;

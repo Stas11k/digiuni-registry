@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Teacher extends Person {
+public final class Teacher extends Person {
     private Department department;
     private String position;
     private String degree;

@@ -1,0 +1,26 @@
+[ {
+  "lastName" : "Petrenko",
+  "firstName" : "Ivan",
+  "middleName" : "Olehovych",
+  "position" : "Professor"
+}, {
+  "lastName" : "Shevchenko",
+  "firstName" : "Olena",
+  "middleName" : "Mykolaivna",
+  "position" : "Associate Professor"
+}, {
+  "lastName" : "Bondar",
+  "firstName" : "Mariia",
+  "middleName" : "Ivanivna",
+  "position" : "Senior Lecturer"
+}, {
+  "lastName" : "Petro",
+  "firstName" : "Vasya",
+  "middleName" : "Lol",
+  "position" : "Dean"
+}, {
+  "lastName" : "vasya",
+  "firstName" : "lol",
+  "middleName" : "lol",
+  "position" : "dean"
+} ]
