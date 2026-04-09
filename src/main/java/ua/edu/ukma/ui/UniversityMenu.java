@@ -1,14 +1,17 @@
 package ua.edu.ukma.ui;
 
+import ua.edu.ukma.domain.Teacher;
 import ua.edu.ukma.domain.University;
+import ua.edu.ukma.io.UniversityFileService;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
 public class UniversityMenu {
-
+    private final UniversityFileService fileService = new UniversityFileService();
     private final Scanner scanner;
-    private final University university;
+    private University university;
 
     public UniversityMenu(Scanner scanner, University university) {
         this.scanner = scanner;
@@ -23,6 +26,8 @@ public class UniversityMenu {
                     --- University settings ---
                     1. Show info
                     2. Edit
+                    3.Save to file
+                    4.Load from file
                     0. Back
                     """);
 
@@ -32,6 +37,8 @@ public class UniversityMenu {
             switch (choice) {
                 case 1 -> show();
                 case 2 -> edit();
+                case 3 -> saveToFile();
+                case 4 -> loadFromFile();
                 case 0 -> inMenu = false;
                 default -> System.out.println("Unknown option\n");
             }
@@ -93,6 +100,19 @@ public class UniversityMenu {
             System.out.println("Updated\n");
         }
     }
+    private void saveToFile() {
+        fileService.saveToFile(university, "university.json");
+        System.out.println("Saved ");
+    }
+    private void loadFromFile() {
+        University loaded = fileService.loadFromFile("university.json");
+
+        if (loaded != null) {
+            university = loaded;
+            System.out.println("Loaded ");
+        }
+    }
+
 
     private void updatePartial(Optional<String> fullName,
                                Optional<String> shortName,
@@ -103,6 +123,7 @@ public class UniversityMenu {
         if (city.isPresent()) university.setCity(city.get());
         if (address.isPresent()) university.setAddress(address.get());
     }
+
 
     private String readRequiredLine(String prompt) {
         while (true) {

@@ -22,6 +22,10 @@ public class StudentService {
         validate(student);
         repo.save(student);
     }
+    public void clear() {
+        repo.clear();
+    }
+
 
     public Student getOrThrow(int id) {
         Optional<Student> opt = repo.findById(id);
@@ -58,6 +62,7 @@ public class StudentService {
         }
         return result;
     }
+
 
     public List<Student> findByGroup(int group) {
         List<Student> result = new ArrayList<>();

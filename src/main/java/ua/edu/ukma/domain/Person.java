@@ -16,7 +16,7 @@ public abstract sealed class Person
     private String lastName;
     private String firstName;
     private String middleName;
-    private LocalDate birthDate;
+    transient  private LocalDate birthDate;
     private String email;
     private String phone;
     private String address;

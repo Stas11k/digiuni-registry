@@ -13,6 +13,8 @@ public final class Student extends Person {
      private StudyForm studyForm;
      private StudentStatus status;
 
+
+
     public Student(String lastName, String firstName, String middleName,
                    String gradeBookNumber, int course, int group, Specialty specialty) {
         super(lastName, firstName, middleName);
