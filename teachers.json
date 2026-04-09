@@ -18,4 +18,9 @@
   "firstName" : "Vasya",
   "middleName" : "Lol",
   "position" : "Dean"
+}, {
+  "lastName" : "vasya",
+  "firstName" : "lol",
+  "middleName" : "lol",
+  "position" : "dean"
 } ]

@@ -27,7 +27,7 @@ public class TeacherFileService {
             mapper.writeValue(Path.of(filePath).toFile(), dtos);
 
         } catch (IOException e) {
-            System.out.println("Error saving ");
+            e.printStackTrace();
         }
     }
 

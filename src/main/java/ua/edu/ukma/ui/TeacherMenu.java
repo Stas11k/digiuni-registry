@@ -63,8 +63,6 @@ public class TeacherMenu {
                     case 3 -> edit();
                     case 4 -> delete();
                     case 5 -> findByFullName();
-                    case 6 -> saveToFile();
-                    case 7 -> loadFromFile();
                     case 0 -> inMenu = false;
                     default -> System.out.println("Unknown option\n");
                 }

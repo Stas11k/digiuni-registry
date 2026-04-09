@@ -5,22 +5,35 @@ import ua.edu.ukma.domain.StudentStatus;
 import ua.edu.ukma.domain.StudyForm;
 import ua.edu.ukma.domain.Specialty;
 import ua.edu.ukma.exception.*;
+import ua.edu.ukma.io.StudentFileService;
 import ua.edu.ukma.repository.Repository;
 
 import java.time.LocalDate;
 import java.util.*;
 
 public class StudentService {
+    private final StudentFileService fileService = new StudentFileService();
 
     private final Repository<Student, Integer> repo;
 
     public StudentService(Repository<Student, Integer> repo) {
         this.repo = repo;
+        List<Student> loaded = fileService.loadFromFile("students.json");
+        repo.clear();
+
+        for (Student s : loaded) {
+            repo.save(s);
+        }
+
+        System.out.println("Data loaded on startup for students");
     }
 
     public void add(Student student) {
         validate(student);
         repo.save(student);
+
+        fileService.saveToFile(repo.findAll(), "students.json");
+        System.out.println("Saved automatically ");
     }
     public void clear() {
         repo.clear();
@@ -38,7 +51,11 @@ public class StudentService {
     }
 
     public boolean delete(Integer id) {
-        return repo.deleteById(id);
+        boolean result = repo.deleteById(id);
+        fileService.saveToFile(repo.findAll(), "students.json");
+        System.out.println("Saved automatically ");
+
+        return result;
     }
 
     public List<Student> findByFullName(String query) {
@@ -198,5 +215,8 @@ public class StudentService {
         if (studyForm.isPresent()) s.setStudyForm(studyForm.get());
         if (status.isPresent()) s.setStatus(status.get());
         repo.save(s);
+
+        fileService.saveToFile(repo.findAll(), "students.json");
+        System.out.println("Saved automatically ");
     }
 }

@@ -1,24 +1,39 @@
 package ua.edu.ukma.service;
 
 import ua.edu.ukma.domain.Department;
+import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.Teacher;
 import ua.edu.ukma.exception.*;
+import ua.edu.ukma.io.StudentFileService;
+import ua.edu.ukma.io.TeacherFileService;
 import ua.edu.ukma.repository.Repository;
 
 import java.time.LocalDate;
 import java.util.*;
 
 public class TeacherService {
+    private final TeacherFileService fileService = new TeacherFileService();
 
     private final Repository<Teacher, Integer> repo;
 
     public TeacherService(Repository<Teacher, Integer> repo) {
         this.repo = repo;
+        List<Teacher> loaded = fileService.loadFromFile("teachers.json");
+        repo.clear();
+
+        for (Teacher t : loaded) {
+            repo.save(t);
+        }
+
+        System.out.println("Data loaded on startup for teachers ");
     }
 
     public void add(Teacher t) {
         validate(t);
         repo.save(t);
+
+        fileService.saveToFile(repo.findAll(), "teachers.json");
+        System.out.println("Saved automatically ");
     }
 
     public Teacher getOrThrow(int id) {
@@ -32,7 +47,11 @@ public class TeacherService {
     }
 
     public boolean delete(Integer id) {
-        return repo.deleteById(id);
+        boolean result = repo.deleteById(id);
+        fileService.saveToFile(repo.findAll(), "teachers.json");
+        System.out.println("Saved automatically ");
+
+        return result;
     }
 
     public List<Teacher> findByFullName(String query) {
@@ -118,5 +137,8 @@ public class TeacherService {
         if (hireDate.isPresent()) t.setHireDate(hireDate.get());
         if (workload.isPresent()) t.setWorkload(workload.get());
         repo.save(t);
+
+        fileService.saveToFile(repo.findAll(), "teachers.json");
+        System.out.println("Saved automatically ");
     }
 }
