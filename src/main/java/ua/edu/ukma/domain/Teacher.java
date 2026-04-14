@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public final class Teacher extends Person {
+    private static int counter = 1;
     private Department department;
     private String position;
     private String degree;
@@ -15,13 +16,27 @@ public final class Teacher extends Person {
 
     public Teacher(String lastName, String firstName, String middleName,
                    String position, Department department) {
-        super(lastName, firstName, middleName);
+        super(counter++,lastName, firstName, middleName);
         ValidationUtils.validateNotEmpty(position, "Position");
         ValidationUtils.validateNoDigits(position, "Position");
         if (department == null) throw new IllegalArgumentException("Department cannot be null");
         this.position = position;
         this.department = department;
         this.hireDate = LocalDate.now();
+    }
+    public Teacher(int id,String lastName, String firstName, String middleName,
+                   String position, Department department) {
+        super(id,lastName, firstName, middleName);
+        ValidationUtils.validateNotEmpty(position, "Position");
+        ValidationUtils.validateNoDigits(position, "Position");
+        if (department == null) throw new IllegalArgumentException("Department cannot be null");
+        this.position = position;
+        this.department = department;
+        this.hireDate = LocalDate.now();
+
+        if (id >= counter) {
+            counter = id + 1;
+        }
     }
 
     public Department getDepartment() {

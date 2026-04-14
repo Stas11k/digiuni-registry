@@ -1,6 +1,7 @@
 package ua.edu.ukma.service;
 
 import ua.edu.ukma.domain.Department;
+import ua.edu.ukma.domain.Person;
 import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.Teacher;
 import ua.edu.ukma.exception.*;
@@ -24,6 +25,7 @@ public class TeacherService {
         for (Teacher t : loaded) {
             repo.save(t);
         }
+
 
         System.out.println("Data loaded on startup for teachers ");
     }

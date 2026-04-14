@@ -10,7 +10,6 @@ import java.util.Objects;
 public abstract sealed class Person
         implements Identifiable<Integer>
         permits Student, Teacher{
-    private static int counter = 1;
 
     private final int id;
     private String lastName;
@@ -21,14 +20,17 @@ public abstract sealed class Person
     private String phone;
     private String address;
 
-    protected Person(String lastName, String firstName, String middleName) {
-        this.id = counter++;
+    protected Person(int id, String lastName, String firstName, String middleName) {
+        this.id = id;
+
         ValidationUtils.validateNotEmpty(lastName, "Last name");
         ValidationUtils.validateNotEmpty(firstName, "First name");
         ValidationUtils.validateNotEmpty(middleName, "Middle name");
+
         ValidationUtils.validateNoDigits(lastName, "Last name");
         ValidationUtils.validateNoDigits(firstName, "First name");
         ValidationUtils.validateNoDigits(middleName, "Middle name");
+
         this.lastName = lastName;
         this.firstName = firstName;
         this.middleName = middleName;
@@ -38,6 +40,7 @@ public abstract sealed class Person
     public Integer getId() {
         return id;
     }
+
 
     public String getFirstName() {
         return firstName;

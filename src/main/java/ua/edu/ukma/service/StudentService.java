@@ -1,9 +1,6 @@
 package ua.edu.ukma.service;
 
-import ua.edu.ukma.domain.Specialty;
-import ua.edu.ukma.domain.Student;
-import ua.edu.ukma.domain.StudentStatus;
-import ua.edu.ukma.domain.StudyForm;
+import ua.edu.ukma.domain.*;
 import ua.edu.ukma.exception.*;
 import ua.edu.ukma.io.StudentFileService;
 import ua.edu.ukma.repository.Repository;

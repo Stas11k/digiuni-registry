@@ -8,7 +8,6 @@ import ua.edu.ukma.ui.ConsoleMenu;
 
 public class Main {
     public static void main(String[] args) {
-
         Repository<Faculty, Integer> facultyRepo = new InMemoryRepository<>();
         Repository<Department, Integer> departmentRepo = new InMemoryRepository<>();
         Repository<Specialty, Integer> specialtyRepo = new InMemoryRepository<>();
@@ -48,17 +47,17 @@ public class Main {
         // Завантажуємо студентів тільки ПІСЛЯ того, як уже існують specialty
         studentService.loadFromFile(specialtyService.getAll());
 
-        Teacher t1 = new Teacher("Petrenko", "Ivan", "Olehovych", "Professor", d1);
-        Teacher t2 = new Teacher("Shevchenko", "Olena", "Mykolaivna", "Associate Professor", d2);
-        Teacher t3 = new Teacher("Bondar", "Mariia", "Ivanivna", "Senior Lecturer", d3);
+        //Teacher t1 = new Teacher("Petrenko", "Ivan", "Olehovych", "Professor", d1);
+        //Teacher t2 = new Teacher("Shevchenko", "Olena", "Mykolaivna", "Associate Professor", d2);
+        //Teacher t3 = new Teacher("Bondar", "Mariia", "Ivanivna", "Senior Lecturer", d3);
         //teacherService.add(t1);
         //teacherService.add(t2);
         //teacherService.add(t3);
 
-        Student st1 = new Student("Koval", "Andrii", "Petrovych", "SE-001", 2, 1, s1);
-        Student st2 = new Student("Melnyk", "Iryna", "Stepanivna", "CS-001", 3, 2, s2);
-        Student st3 = new Student("Tkachenko", "Sofiia", "Olehivna", "HI-001", 1, 1, s3);
-        Student st4 = new Student("Kravets", "Oleh", "Serhiiovych", "SE-002", 2, 3, s1);
+        //Student st1 = new Student("Koval", "Andrii", "Petrovych", "SE-001", 2, 1, s1);
+        //Student st2 = new Student("Melnyk", "Iryna", "Stepanivna", "CS-001", 3, 2, s2);
+        //Student st3 = new Student("Tkachenko", "Sofiia", "Olehivna", "HI-001", 1, 1, s3);
+        //Student st4 = new Student("Kravets", "Oleh", "Serhiiovych", "SE-002", 2, 3, s1);
         //studentService.add(st1);
         //studentService.add(st2);
         //studentService.add(st3);
