@@ -107,12 +107,20 @@ public class StudentMenu {
     private void showAll() {
         studentService.getAll().
                 stream().
-                sorted(Comparator.comparing(Student::getCourse).thenComparing(Student::getFullName)).
+                sorted(Comparator.comparing(Student::getId).thenComparing(Student::getFullName)).
                 forEach(s -> System.out.println(
                         s.getId() + " | " +
-                        s.getFullName()
+                                s.getFullName() + " | " +
+                                (s.getSpecialty() != null &&
+                                        s.getSpecialty().getDepartment() != null &&
+                                        s.getSpecialty().getDepartment().getFaculty() != null
+                                        ? s.getSpecialty().getDepartment().getFaculty().getName()
+                                        : "N/A") + " | " +
+                                (s.getSpecialty() != null
+                                        ? s.getSpecialty().getName()
+                                        : "N/A")
                         +"| course: " + s.getCourse()
-                        +"|" + s.getSpecialty().getName()
+
                         +"| group: " + s.getGroup()
                         +"| status: " + s.getStatus()
                         +"| age: " + s.getAge()

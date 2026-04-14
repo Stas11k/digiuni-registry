@@ -25,6 +25,7 @@ public class StudentMapper {
 
     public static Student fromDTO(StudentDTO dto, Specialty specialty) {
         return new Student(
+                dto.id(),
                 dto.lastName(),
                 dto.firstName(),
                 dto.middleName(),

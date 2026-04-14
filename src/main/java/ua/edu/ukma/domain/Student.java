@@ -5,6 +5,7 @@ import ua.edu.ukma.util.ValidationUtils;
 import java.time.LocalDate;
 
 public final class Student extends Person {
+    private static int counter = 1;
      private String gradeBookNumber;
      private int course;
      private Specialty specialty;
@@ -17,16 +18,30 @@ public final class Student extends Person {
 
     public Student(String lastName, String firstName, String middleName,
                    String gradeBookNumber, int course, int group, Specialty specialty) {
-        super(lastName, firstName, middleName);
-        ValidationUtils.validateNotEmpty(gradeBookNumber, "Grade book number");
-        ValidationUtils.validateCourse(course);
-        ValidationUtils.validateGroup(group);
-        if (specialty == null) throw new IllegalArgumentException("Specialty cannot be null");
+
+        super(counter++, lastName, firstName, middleName);
+
         this.gradeBookNumber = gradeBookNumber;
         this.course = course;
         this.group = group;
         this.specialty = specialty;
         this.status = StudentStatus.STUDYING;
+    }
+
+    public Student(int id, String lastName, String firstName, String middleName,
+                   String gradeBookNumber, int course, int group, Specialty specialty) {
+
+        super(id, lastName, firstName, middleName);
+
+        this.gradeBookNumber = gradeBookNumber;
+        this.course = course;
+        this.group = group;
+        this.specialty = specialty;
+        this.status = StudentStatus.STUDYING;
+
+        if (id >= counter) {
+            counter = id + 1;
+        }
     }
 
 
