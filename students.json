@@ -1,0 +1,31 @@
+[ {
+  "id" : 19,
+  "lastName" : "lol",
+  "firstName" : "bpo",
+  "middleName" : "gio",
+  "course" : 1,
+  "group" : 2,
+  "specialtyName" : "ipz",
+  "departmentName" : "adafasf",
+  "facultyName" : "аіпрва"
+}, {
+  "id" : 20,
+  "lastName" : "kabysh",
+  "firstName" : "lol",
+  "middleName" : "dr",
+  "course" : 1,
+  "group" : 2,
+  "specialtyName" : "Software Engineering",
+  "departmentName" : "Software Engineering",
+  "facultyName" : "Faculty of Informatics"
+}, {
+  "id" : 21,
+  "lastName" : "test",
+  "firstName" : "testenko",
+  "middleName" : "testovich",
+  "course" : 1,
+  "group" : 2,
+  "specialtyName" : "Software Engineering",
+  "departmentName" : "Software Engineering",
+  "facultyName" : "Faculty of Informatics"
+} ]
