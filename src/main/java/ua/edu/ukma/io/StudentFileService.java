@@ -1,16 +1,15 @@
 package ua.edu.ukma.io;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import ua.edu.ukma.converter.StudentMapper;
+import ua.edu.ukma.domain.Specialty;
 import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.dto.StudentDTO;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 public class StudentFileService {
@@ -33,20 +32,39 @@ public class StudentFileService {
         }
     }
 
-    public List<Student> loadFromFile(String filePath) {
+    public List<Student> loadFromFile(String filePath, List<Specialty> specialties) {
         try {
             StudentDTO[] dtos = mapper.readValue(
                     new File(filePath),
                     StudentDTO[].class
             );
 
-            return java.util.Arrays.stream(dtos)
-                    .map(StudentMapper::fromDTO)
-                    .toList();
+            List<Student> result = new ArrayList<>();
+
+            for (StudentDTO dto : dtos) {
+                Specialty specialty = findSpecialtyByName(dto.specialtyName(), specialties);
+
+                if (specialty != null) {
+                    result.add(StudentMapper.fromDTO(dto, specialty));
+                }
+            }
+
+            return result;
 
         } catch (IOException e) {
             System.out.println("File not found, starting empty");
             return List.of();
         }
+    }
+
+    private Specialty findSpecialtyByName(String specialtyName, List<Specialty> specialties) {
+        if (specialtyName == null) return null;
+
+        for (Specialty specialty : specialties) {
+            if (specialty.getName().equalsIgnoreCase(specialtyName)) {
+                return specialty;
+            }
+        }
+        return null;
     }
 }

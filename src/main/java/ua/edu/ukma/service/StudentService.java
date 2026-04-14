@@ -1,9 +1,9 @@
 package ua.edu.ukma.service;
 
+import ua.edu.ukma.domain.Specialty;
 import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.StudentStatus;
 import ua.edu.ukma.domain.StudyForm;
-import ua.edu.ukma.domain.Specialty;
 import ua.edu.ukma.exception.*;
 import ua.edu.ukma.io.StudentFileService;
 import ua.edu.ukma.repository.Repository;
@@ -13,12 +13,14 @@ import java.util.*;
 
 public class StudentService {
     private final StudentFileService fileService = new StudentFileService();
-
     private final Repository<Student, Integer> repo;
 
     public StudentService(Repository<Student, Integer> repo) {
         this.repo = repo;
-        List<Student> loaded = fileService.loadFromFile("students.json");
+    }
+
+    public void loadFromFile(List<Specialty> specialties) {
+        List<Student> loaded = fileService.loadFromFile("students.json", specialties);
         repo.clear();
 
         for (Student s : loaded) {
@@ -35,10 +37,10 @@ public class StudentService {
         fileService.saveToFile(repo.findAll(), "students.json");
         System.out.println("Saved automatically ");
     }
+
     public void clear() {
         repo.clear();
     }
-
 
     public Student getOrThrow(int id) {
         Optional<Student> opt = repo.findById(id);
@@ -54,7 +56,6 @@ public class StudentService {
         boolean result = repo.deleteById(id);
         fileService.saveToFile(repo.findAll(), "students.json");
         System.out.println("Saved automatically ");
-
         return result;
     }
 
@@ -79,7 +80,6 @@ public class StudentService {
         }
         return result;
     }
-
 
     public List<Student> findByGroup(int group) {
         List<Student> result = new ArrayList<>();
@@ -110,12 +110,11 @@ public class StudentService {
             }
         }
         result.sort(Comparator.comparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
-                        .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
-                        .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
-        );
-
+                .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER));
         return result;
     }
+
     public List<Student> findByDepartmentSortedByCourse(int departmentId) {
         List<Student> result = new ArrayList<>();
         List<Student> all = repo.findAll();
@@ -128,10 +127,9 @@ public class StudentService {
             }
         }
         result.sort(Comparator.comparingInt(Student::getCourse)
-                        .thenComparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
-                        .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
-                        .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
-        );
+                .thenComparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER));
         return result;
     }
 
@@ -147,9 +145,8 @@ public class StudentService {
             }
         }
         result.sort(Comparator.comparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
-                        .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
-                        .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
-        );
+                .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER));
         return result;
     }
 
@@ -181,32 +178,36 @@ public class StudentService {
             }
         }
         result.sort(Comparator.comparing(Student::getLastName, String.CASE_INSENSITIVE_ORDER)
-                        .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
-                        .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER)
-        );
+                .thenComparing(Student::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(s -> s.getMiddleName() == null ? "" : s.getMiddleName(), String.CASE_INSENSITIVE_ORDER));
         return result;
     }
 
     private void validate(Student s) {
         if (s == null) throw new ValidationException("Student cannot be null");
-        if (s.getFirstName() == null || s.getFirstName().isBlank() || s.getLastName() == null || s.getLastName().isBlank()) throw new ValidationException("Name cannot be empty");
+        if (s.getFirstName() == null || s.getFirstName().isBlank() || s.getLastName() == null || s.getLastName().isBlank()) {
+            throw new ValidationException("Name cannot be empty");
+        }
         if (s.getCourse() < 1 || s.getCourse() > 6) throw new ValidationException("Invalid course");
         if (s.getGroup() <= 0) throw new ValidationException("Invalid group number");
     }
 
-    public void updatePartial(int id, Optional<String> lastName, Optional<String> firstName, Optional<String> middleName, Optional<String> birthDate, Optional<String> email, Optional<String> phone, Optional<String> address, Optional<String> gradeBook, Optional<Integer> course, Optional<Integer> group, Optional<Specialty> specialty, Optional<Integer> admissionYear, Optional<StudyForm> studyForm, Optional<StudentStatus> status) {
+    public void updatePartial(int id, Optional<String> lastName, Optional<String> firstName, Optional<String> middleName,
+                              Optional<String> birthDate, Optional<String> email, Optional<String> phone, Optional<String> address,
+                              Optional<String> gradeBook, Optional<Integer> course, Optional<Integer> group,
+                              Optional<Specialty> specialty, Optional<Integer> admissionYear,
+                              Optional<StudyForm> studyForm, Optional<StudentStatus> status) {
         Student s = getOrThrow(id);
         if (lastName.isPresent()) s.setLastName(lastName.get());
         if (firstName.isPresent()) s.setFirstName(firstName.get());
         if (middleName.isPresent()) s.setMiddleName(middleName.get());
         if (birthDate.isPresent()) {
-            String value = birthDate.get().trim();
-            if (value.isEmpty()) s.setBirthDate(null);
-            else s.setBirthDate(LocalDate.parse(value));
+            String value = birthDate.get();
+            s.setBirthDate(value.isBlank() ? null : LocalDate.parse(value));
         }
-        if (email.isPresent()) s.setEmail(email.get());
-        if (phone.isPresent()) s.setPhone(phone.get());
-        if (address.isPresent()) s.setAddress(address.get());
+        if (email.isPresent()) s.setEmail(emptyToNull(email.get()));
+        if (phone.isPresent()) s.setPhone(emptyToNull(phone.get()));
+        if (address.isPresent()) s.setAddress(emptyToNull(address.get()));
         if (gradeBook.isPresent()) s.setGradeBookNumber(gradeBook.get());
         if (course.isPresent()) s.setCourse(course.get());
         if (group.isPresent()) s.setGroup(group.get());
@@ -214,9 +215,12 @@ public class StudentService {
         if (admissionYear.isPresent()) s.setAdmissionYear(admissionYear.get());
         if (studyForm.isPresent()) s.setStudyForm(studyForm.get());
         if (status.isPresent()) s.setStatus(status.get());
-        repo.save(s);
 
+        repo.save(s);
         fileService.saveToFile(repo.findAll(), "students.json");
-        System.out.println("Saved automatically ");
+    }
+
+    private String emptyToNull(String value) {
+        return value == null || value.isBlank() ? null : value;
     }
 }
