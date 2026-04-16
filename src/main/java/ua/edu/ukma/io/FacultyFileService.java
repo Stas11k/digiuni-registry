@@ -3,32 +3,30 @@ package ua.edu.ukma.io;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import ua.edu.ukma.converter.StudentMapper;
-import ua.edu.ukma.domain.Student;
-import ua.edu.ukma.dto.StudentDTO;
+import ua.edu.ukma.converter.FacultyMapper;
+import ua.edu.ukma.domain.Faculty;
+import ua.edu.ukma.dto.FacultyDTO;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-public class StudentFileService {
+public class FacultyFileService {
 
     private final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
-    public boolean saveToFile(List<Student> students, String filePath) {
+    public void saveToFile(List<Faculty> faculties, String filePath) {
         try {
-            List<StudentDTO> dtos = students.stream().map(StudentMapper::toDTO).toList();
+            List<FacultyDTO> dtos = faculties.stream().map(FacultyMapper::toDTO).toList();
             mapper.writeValue(Path.of(filePath).toFile(), dtos);
-            return true;
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
         }
     }
 
-    public List<StudentDTO> loadDTOs(String filePath) {
+    public List<FacultyDTO> loadDTOs(String filePath) {
         try {
-            return mapper.readValue(Path.of(filePath).toFile(), new TypeReference<List<StudentDTO>>() {});
+            return mapper.readValue(Path.of(filePath).toFile(), new TypeReference<List<FacultyDTO>>() {});
         } catch (IOException e) {
             return List.of();
         }

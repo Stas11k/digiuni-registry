@@ -3,6 +3,7 @@ package ua.edu.ukma.service;
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Teacher;
 import ua.edu.ukma.exception.*;
+import ua.edu.ukma.io.*;
 import ua.edu.ukma.repository.Repository;
 
 import java.util.*;
@@ -10,14 +11,19 @@ import java.util.*;
 public class FacultyService {
 
     private final Repository<Faculty, Integer> repo;
+    private final DataSaveService saveService;
+    private final DataContext dataContext;
 
-    public FacultyService(Repository<Faculty, Integer> repo) {
+    public FacultyService(Repository<Faculty, Integer> repo, DataSaveService saveService, DataContext dataContext) {
         this.repo = repo;
+        this.saveService = saveService;
+        this.dataContext = dataContext;
     }
 
     public void add(Faculty f) {
         validate(f);
         repo.save(f);
+        saveAll();
     }
 
     public Optional<Faculty> find(int id) {
@@ -37,7 +43,9 @@ public class FacultyService {
     }
 
     public boolean delete(int id) {
-        return repo.deleteById(id);
+        boolean deleted = repo.deleteById(id);
+        if (deleted) saveAll();
+        return deleted;
     }
 
     public List<Faculty> sortedByName() {
@@ -58,5 +66,10 @@ public class FacultyService {
         if (dean.isPresent()) f.setDean(dean.get());
         if (contacts.isPresent()) f.setContacts(contacts.get());
         repo.save(f);
+        saveAll();
+    }
+
+    private void saveAll() {
+        saveService.saveAll(dataContext.facultyRepo(), dataContext.departmentRepo(), dataContext.specialtyRepo(), dataContext.teacherRepo(), dataContext.studentRepo(), dataContext.university());
     }
 }
