@@ -21,6 +21,20 @@ public class Specialty implements Identifiable<Integer> {
         this.department = department;
     }
 
+    public Specialty(int id, String name, Department department) {
+        ValidationUtils.validateNotEmpty(name, "Specialty name");
+        ValidationUtils.validateNoDigits(name, "Specialty name");
+        if (department == null) throw new IllegalArgumentException("Department cannot be null");
+        this.id = id;
+        this.name = name;
+        this.department = department;
+        if (id >= counter) counter = id + 1;
+    }
+
+    public static void resetCounter() {
+        counter = 1;
+    }
+
     @Override
     public Integer getId() {
         return id;

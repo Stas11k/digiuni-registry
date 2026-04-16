@@ -12,13 +12,13 @@ public class UniversityMapper {
                 u.getAddress()
         );
     }
+
     public static University fromDTO(UniversityDTO dto) {
         return new University(
                 dto.fullName(),
                 dto.shortName(),
                 dto.city(),
-                dto.adress()
-
+                dto.address()
         );
     }
 }

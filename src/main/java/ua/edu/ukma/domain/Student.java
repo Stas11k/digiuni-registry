@@ -16,11 +16,8 @@ public final class Student extends Person {
 
 
 
-    public Student(String lastName, String firstName, String middleName,
-                   String gradeBookNumber, int course, int group, Specialty specialty) {
-
+    public Student(String lastName, String firstName, String middleName, String gradeBookNumber, int course, int group, Specialty specialty) {
         super(counter++, lastName, firstName, middleName);
-
         this.gradeBookNumber = gradeBookNumber;
         this.course = course;
         this.group = group;
@@ -28,22 +25,19 @@ public final class Student extends Person {
         this.status = StudentStatus.STUDYING;
     }
 
-    public Student(int id, String lastName, String firstName, String middleName,
-                   String gradeBookNumber, int course, int group, Specialty specialty) {
-
+    public Student(int id, String lastName, String firstName, String middleName, String gradeBookNumber, int course, int group, Specialty specialty) {
         super(id, lastName, firstName, middleName);
-
         this.gradeBookNumber = gradeBookNumber;
         this.course = course;
         this.group = group;
         this.specialty = specialty;
         this.status = StudentStatus.STUDYING;
-
-        if (id >= counter) {
-            counter = id + 1;
-        }
+        if (id >= counter) counter = id + 1;
     }
 
+    public static void resetCounter() {
+        counter = 1;
+    }
 
     public String getGradeBookNumber() {
          return gradeBookNumber;

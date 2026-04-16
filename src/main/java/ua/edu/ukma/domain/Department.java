@@ -23,6 +23,20 @@ public class Department implements Identifiable<Integer> {
         this.faculty = faculty;
     }
 
+    public Department(int id, String name, Faculty faculty) {
+        ValidationUtils.validateNotEmpty(name, "Department name");
+        ValidationUtils.validateNoDigits(name, "Department name");
+        if (faculty == null) throw new IllegalArgumentException("Faculty cannot be null");
+        this.id = id;
+        this.name = name;
+        this.faculty = faculty;
+        if (id >= counter) counter = id + 1;
+    }
+
+    public static void resetCounter() {
+        counter = 1;
+    }
+
     @Override
     public Integer getId() {
         return id;

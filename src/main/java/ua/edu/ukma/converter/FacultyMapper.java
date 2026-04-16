@@ -9,14 +9,15 @@ public class FacultyMapper {
         return new FacultyDTO(
                 f.getId(),
                 f.getName(),
-                f.getShortName()
+                f.getShortName(),
+                f.getDean() != null ? f.getDean().getId() : null,
+                f.getContacts()
         );
     }
 
     public static Faculty fromDTO(FacultyDTO dto) {
-        return new Faculty(
-                dto.name(),
-                dto.shortName()
-        );
+        Faculty faculty = new Faculty(dto.id(), dto.name(), dto.shortName());
+        faculty.setContacts(dto.contacts());
+        return faculty;
     }
 }

@@ -10,16 +10,11 @@ public class SpecialtyMapper {
         return new SpecialtyDTO(
                 s.getId(),
                 s.getName(),
-                s.getDepartment() != null ? s.getDepartment().getName() : null
+                s.getDepartment().getId()
         );
     }
 
-    public static Specialty fromDTO(SpecialtyDTO dto) {
-        Department dep = new Department(dto.departmentName(), null);
-
-        return new Specialty(
-                dto.name(),
-                dep
-        );
+    public static Specialty fromDTO(SpecialtyDTO dto, Department department) {
+        return new Specialty(dto.id(), dto.name(), department);
     }
 }

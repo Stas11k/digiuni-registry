@@ -5,7 +5,7 @@ import ua.edu.ukma.util.ValidationUtils;
 
 import java.util.Objects;
 
-public class Faculty implements Identifiable<Integer>{
+public class Faculty implements Identifiable<Integer> {
     private static int counter = 1;
 
     private final int id;
@@ -22,6 +22,21 @@ public class Faculty implements Identifiable<Integer>{
         this.id = counter++;
         this.name = name;
         this.shortName = shortName;
+    }
+
+    public Faculty(int id, String name, String shortName) {
+        ValidationUtils.validateNotEmpty(name, "Faculty name");
+        ValidationUtils.validateNotEmpty(shortName, "Faculty short name");
+        ValidationUtils.validateNoDigits(name, "Faculty name");
+        ValidationUtils.validateNoDigits(shortName, "Faculty short name");
+        this.id = id;
+        this.name = name;
+        this.shortName = shortName;
+        if (id >= counter) counter = id + 1;
+    }
+
+    public static void resetCounter() {
+        counter = 1;
     }
 
     @Override

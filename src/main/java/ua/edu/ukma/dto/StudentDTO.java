@@ -5,9 +5,15 @@ public record StudentDTO(
         String lastName,
         String firstName,
         String middleName,
+        String gradeBookNumber,
         int course,
         int group,
-        String specialtyName,
-        String departmentName,
-        String facultyName
+        int specialtyId,
+        int admissionYear,
+        String studyForm,
+        String status,
+        String birthDate,
+        String email,
+        String phone,
+        String address
 ) {}
