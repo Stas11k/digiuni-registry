@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "name": "Faculty of Informatics",
+    "shortName": "FI",
+    "deanId": 1,
+    "contacts": "fi@ukma.edu.ua"
+  },
+  {
+    "id": 2,
+    "name": "Faculty of Humanities",
+    "shortName": "FH",
+    "deanId": 2,
+    "contacts": "fh@ukma.edu.ua"
+  }
+]

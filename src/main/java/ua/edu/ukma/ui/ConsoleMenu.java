@@ -17,8 +17,7 @@ public class ConsoleMenu {
 
     private final Scanner scanner = new Scanner(System.in);
 
-    private final University university =
-            new University("Kyiv-Mohyla Academy", "NaUKMA", "Kyiv", "2 Hryhorii Skovoroda St.");
+    private final University university;
 
     private final AuthService authService = new AuthService();
     private final FacultyService facultyService;
@@ -27,16 +26,13 @@ public class ConsoleMenu {
     private final StudentService studentService;
     private final TeacherService teacherService;
 
-    public ConsoleMenu(FacultyService facultyService,
-                       DepartmentService departmentService,
-                       SpecialtyService specialtyService,
-                       StudentService studentService,
-                       TeacherService teacherService) {
+    public ConsoleMenu(FacultyService facultyService, DepartmentService departmentService, SpecialtyService specialtyService, StudentService studentService, TeacherService teacherService, University university) {
         this.facultyService = facultyService;
         this.departmentService = departmentService;
         this.specialtyService = specialtyService;
         this.studentService = studentService;
         this.teacherService = teacherService;
+        this.university = university;
     }
 
     public void start() {

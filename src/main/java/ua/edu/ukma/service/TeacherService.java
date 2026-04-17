@@ -1,6 +1,7 @@
 package ua.edu.ukma.service;
 
 import ua.edu.ukma.domain.Department;
+import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Teacher;
 import ua.edu.ukma.exception.*;
 import ua.edu.ukma.io.DataContext;
@@ -38,9 +39,27 @@ public class TeacherService {
         return repo.findAll();
     }
 
-    public boolean delete(Integer id) {
+    public boolean delete(int id) {
+        Teacher teacher = repo.findById(id).orElse(null);
+        if (teacher == null) {
+            return false;
+        }
+        for (Faculty faculty : dataContext.facultyRepo().findAll()) {
+            if (faculty.getDean() != null && faculty.getDean().getId() == id) {
+                faculty.setDean(null);
+                dataContext.facultyRepo().save(faculty);
+            }
+        }
+        for (Department department : dataContext.departmentRepo().findAll()) {
+            if (department.getHead() != null && department.getHead().getId() == id) {
+                department.setHead(null);
+                dataContext.departmentRepo().save(department);
+            }
+        }
         boolean deleted = repo.deleteById(id);
-        if (deleted) saveAll();
+        if (deleted) {
+            saveAll();
+        }
         return deleted;
     }
 

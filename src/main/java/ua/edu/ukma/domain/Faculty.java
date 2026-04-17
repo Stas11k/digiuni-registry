@@ -69,7 +69,6 @@ public class Faculty implements Identifiable<Integer> {
     }
 
     public void setDean(Teacher dean) {
-        if (dean == null) throw new IllegalArgumentException("Dean cannot be null");
         this.dean = dean;
     }
 

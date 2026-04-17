@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "Software Engineering",
+    "departmentId": 1
+  },
+  {
+    "id": 2,
+    "name": "Applied Software Development",
+    "departmentId": 1
+  },
+  {
+    "id": 3,
+    "name": "Computer Science",
+    "departmentId": 2
+  },
+  {
+    "id": 4,
+    "name": "Data Science",
+    "departmentId": 2
+  },
+  {
+    "id": 5,
+    "name": "History and Archaeology",
+    "departmentId": 3
+  },
+  {
+    "id": 6,
+    "name": "Public History",
+    "departmentId": 3
+  },
+  {
+    "id": 7,
+    "name": "Philosophy",
+    "departmentId": 4
+  },
+  {
+    "id": 8,
+    "name": "Religious Studies",
+    "departmentId": 4
+  }
+]
