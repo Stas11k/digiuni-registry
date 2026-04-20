@@ -2,8 +2,6 @@ package ua.edu.ukma.domain;
 import ua.edu.ukma.util.ValidationUtils;
 
 import java.time.LocalDate;
-import java.util.Objects;
-import java.util.UUID;
 
 public final class Teacher extends Person {
     private static int counter = 1;
@@ -14,8 +12,7 @@ public final class Teacher extends Person {
     private LocalDate hireDate;
     private double workload;
 
-    public Teacher(String lastName, String firstName, String middleName,
-                   String position, Department department) {
+    public Teacher(String lastName, String firstName, String middleName, String position, Department department) {
         super(counter++,lastName, firstName, middleName);
         ValidationUtils.validateNotEmpty(position, "Position");
         ValidationUtils.validateNoDigits(position, "Position");
@@ -24,8 +21,7 @@ public final class Teacher extends Person {
         this.department = department;
         this.hireDate = LocalDate.now();
     }
-    public Teacher(int id,String lastName, String firstName, String middleName,
-                   String position, Department department) {
+    public Teacher(int id,String lastName, String firstName, String middleName, String position, Department department) {
         super(id,lastName, firstName, middleName);
         ValidationUtils.validateNotEmpty(position, "Position");
         ValidationUtils.validateNoDigits(position, "Position");
@@ -33,10 +29,11 @@ public final class Teacher extends Person {
         this.position = position;
         this.department = department;
         this.hireDate = LocalDate.now();
+        if (id >= counter) counter = id + 1;
+    }
 
-        if (id >= counter) {
-            counter = id + 1;
-        }
+    public static void resetCounter() {
+        counter = 1;
     }
 
     public Department getDepartment() {

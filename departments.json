@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "name": "Department of Software Engineering",
+    "facultyId": 1,
+    "headId": 3,
+    "location": "Building 4, room 201"
+  },
+  {
+    "id": 2,
+    "name": "Department of Computer Science",
+    "facultyId": 1,
+    "headId": 4,
+    "location": "Building 4, room 305"
+  },
+  {
+    "id": 3,
+    "name": "Department of History",
+    "facultyId": 2,
+    "headId": 5,
+    "location": "Building 1, room 118"
+  },
+  {
+    "id": 4,
+    "name": "Department of Philosophy and Religious Studies",
+    "facultyId": 2,
+    "headId": 6,
+    "location": "Building 1, room 210"
+  }
+]

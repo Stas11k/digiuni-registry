@@ -2,37 +2,28 @@ package ua.edu.ukma.service;
 
 import ua.edu.ukma.domain.*;
 import ua.edu.ukma.exception.*;
-import ua.edu.ukma.io.StudentFileService;
+import ua.edu.ukma.io.*;
 import ua.edu.ukma.repository.Repository;
 
 import java.time.LocalDate;
 import java.util.*;
 
 public class StudentService {
-    private final StudentFileService fileService = new StudentFileService();
+
     private final Repository<Student, Integer> repo;
+    private final DataSaveService saveService;
+    private final DataContext dataContext;
 
-    public StudentService(Repository<Student, Integer> repo) {
+    public StudentService(Repository<Student, Integer> repo, DataSaveService saveService, DataContext dataContext) {
         this.repo = repo;
-    }
-
-    public void loadFromFile(List<Specialty> specialties) {
-        List<Student> loaded = fileService.loadFromFile("students.json", specialties);
-        repo.clear();
-
-        for (Student s : loaded) {
-            repo.save(s);
-        }
-
-        System.out.println("Data loaded on startup for students");
+        this.saveService = saveService;
+        this.dataContext = dataContext;
     }
 
     public void add(Student student) {
         validate(student);
         repo.save(student);
-
-        fileService.saveToFile(repo.findAll(), "students.json");
-        System.out.println("Saved automatically ");
+        saveAll();
     }
 
     public void clear() {
@@ -50,10 +41,9 @@ public class StudentService {
     }
 
     public boolean delete(Integer id) {
-        boolean result = repo.deleteById(id);
-        fileService.saveToFile(repo.findAll(), "students.json");
-        System.out.println("Saved automatically ");
-        return result;
+        boolean deleted = repo.deleteById(id);
+        if (deleted) saveAll();
+        return deleted;
     }
 
     public List<Student> findByFullName(String query) {
@@ -212,12 +202,15 @@ public class StudentService {
         if (admissionYear.isPresent()) s.setAdmissionYear(admissionYear.get());
         if (studyForm.isPresent()) s.setStudyForm(studyForm.get());
         if (status.isPresent()) s.setStatus(status.get());
-
         repo.save(s);
-        fileService.saveToFile(repo.findAll(), "students.json");
+        saveAll();
     }
 
     private String emptyToNull(String value) {
         return value == null || value.isBlank() ? null : value;
+    }
+
+    private void saveAll() {
+        saveService.saveAll(dataContext.facultyRepo(), dataContext.departmentRepo(), dataContext.specialtyRepo(), dataContext.teacherRepo(), dataContext.studentRepo(), dataContext.university());
     }
 }

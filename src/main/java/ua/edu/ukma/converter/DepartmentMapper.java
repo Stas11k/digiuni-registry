@@ -10,16 +10,15 @@ public class DepartmentMapper {
         return new DepartmentDTO(
                 d.getId(),
                 d.getName(),
-                d.getFaculty() != null ? d.getFaculty().getName() : null
+                d.getFaculty().getId(),
+                d.getHead() != null ? d.getHead().getId() : null,
+                d.getLocation()
         );
     }
 
-    public static Department fromDTO(DepartmentDTO dto) {
-        Faculty faculty = new Faculty(dto.facultyName(), "N/A");
-
-        return new Department(
-                dto.name(),
-                faculty
-        );
+    public static Department fromDTO(DepartmentDTO dto, Faculty faculty) {
+        Department department = new Department(dto.id(), dto.name(), faculty);
+        department.setLocation(dto.location());
+        return department;
     }
 }

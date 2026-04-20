@@ -1,41 +1,32 @@
 package ua.edu.ukma.service;
 
 import ua.edu.ukma.domain.Department;
-import ua.edu.ukma.domain.Person;
-import ua.edu.ukma.domain.Student;
+import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Teacher;
 import ua.edu.ukma.exception.*;
-import ua.edu.ukma.io.StudentFileService;
-import ua.edu.ukma.io.TeacherFileService;
+import ua.edu.ukma.io.DataContext;
+import ua.edu.ukma.io.DataSaveService;
 import ua.edu.ukma.repository.Repository;
 
 import java.time.LocalDate;
 import java.util.*;
 
 public class TeacherService {
-    private final TeacherFileService fileService = new TeacherFileService();
 
     private final Repository<Teacher, Integer> repo;
+    private final DataSaveService saveService;
+    private final DataContext dataContext;
 
-    public TeacherService(Repository<Teacher, Integer> repo) {
+    public TeacherService(Repository<Teacher, Integer> repo, DataSaveService saveService, DataContext dataContext) {
         this.repo = repo;
-        List<Teacher> loaded = fileService.loadFromFile("teachers.json");
-        repo.clear();
-
-        for (Teacher t : loaded) {
-            repo.save(t);
-        }
-
-
-        System.out.println("Data loaded on startup for teachers ");
+        this.saveService = saveService;
+        this.dataContext = dataContext;
     }
 
     public void add(Teacher t) {
         validate(t);
         repo.save(t);
-
-        fileService.saveToFile(repo.findAll(), "teachers.json");
-        System.out.println("Saved automatically ");
+        saveAll();
     }
 
     public Teacher getOrThrow(int id) {
@@ -48,12 +39,28 @@ public class TeacherService {
         return repo.findAll();
     }
 
-    public boolean delete(Integer id) {
-        boolean result = repo.deleteById(id);
-        fileService.saveToFile(repo.findAll(), "teachers.json");
-        System.out.println("Saved automatically ");
-
-        return result;
+    public boolean delete(int id) {
+        Teacher teacher = repo.findById(id).orElse(null);
+        if (teacher == null) {
+            return false;
+        }
+        for (Faculty faculty : dataContext.facultyRepo().findAll()) {
+            if (faculty.getDean() != null && faculty.getDean().getId() == id) {
+                faculty.setDean(null);
+                dataContext.facultyRepo().save(faculty);
+            }
+        }
+        for (Department department : dataContext.departmentRepo().findAll()) {
+            if (department.getHead() != null && department.getHead().getId() == id) {
+                department.setHead(null);
+                dataContext.departmentRepo().save(department);
+            }
+        }
+        boolean deleted = repo.deleteById(id);
+        if (deleted) {
+            saveAll();
+        }
+        return deleted;
     }
 
     public List<Teacher> findByFullName(String query) {
@@ -139,8 +146,10 @@ public class TeacherService {
         if (hireDate.isPresent()) t.setHireDate(hireDate.get());
         if (workload.isPresent()) t.setWorkload(workload.get());
         repo.save(t);
+        saveAll();
+    }
 
-        fileService.saveToFile(repo.findAll(), "teachers.json");
-        System.out.println("Saved automatically ");
+    private void saveAll() {
+        saveService.saveAll(dataContext.facultyRepo(), dataContext.departmentRepo(), dataContext.specialtyRepo(), dataContext.teacherRepo(), dataContext.studentRepo(), dataContext.university());
     }
 }

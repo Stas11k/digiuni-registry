@@ -3,6 +3,7 @@ package ua.edu.ukma.service;
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Specialty;
 import ua.edu.ukma.exception.*;
+import ua.edu.ukma.io.*;
 import ua.edu.ukma.repository.Repository;
 
 import java.util.List;
@@ -11,14 +12,19 @@ import java.util.Optional;
 public class SpecialtyService {
 
     private final Repository<Specialty, Integer> repo;
+    private final DataSaveService saveService;
+    private final DataContext dataContext;
 
-    public SpecialtyService(Repository<Specialty, Integer> repo) {
+    public SpecialtyService(Repository<Specialty, Integer> repo, DataSaveService saveService, DataContext dataContext) {
         this.repo = repo;
+        this.saveService = saveService;
+        this.dataContext = dataContext;
     }
 
     public void add(Specialty specialty) {
         validate(specialty);
         repo.save(specialty);
+        saveAll();
     }
 
     public Specialty getOrThrow(int id) {
@@ -32,7 +38,9 @@ public class SpecialtyService {
     }
 
     public boolean delete(int id) {
-        return repo.deleteById(id);
+        boolean deleted = repo.deleteById(id);
+        if (deleted) saveAll();
+        return deleted;
     }
 
     public List<Specialty> findByDepartment(int departmentId) {
@@ -52,5 +60,10 @@ public class SpecialtyService {
         if (name.isPresent()) s.setName(name.get());
         if (department.isPresent()) s.setDepartment(department.get());
         repo.save(s);
+        saveAll();
+    }
+
+    private void saveAll() {
+        saveService.saveAll(dataContext.facultyRepo(), dataContext.departmentRepo(), dataContext.specialtyRepo(), dataContext.teacherRepo(), dataContext.studentRepo(), dataContext.university());
     }
 }
