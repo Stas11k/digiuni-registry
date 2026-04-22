@@ -2,6 +2,7 @@ package ua.edu.ukma;
 
 import ua.edu.ukma.auth.AuthService;
 import ua.edu.ukma.domain.*;
+import ua.edu.ukma.io.AsyncSaveService;
 import ua.edu.ukma.io.DataBootstrap;
 import ua.edu.ukma.io.DataContext;
 import ua.edu.ukma.io.DataSaveService;
@@ -21,7 +22,7 @@ public class ServerMain {
         DataBootstrap bootstrap = new DataBootstrap();
         University university = bootstrap.loadAll(facultyRepo, departmentRepo, specialtyRepo, teacherRepo, studentRepo);
 
-        DataSaveService saveService = new DataSaveService();
+        AsyncSaveService saveService = new AsyncSaveService();
         DataContext dataContext = new DataContext(facultyRepo, departmentRepo, specialtyRepo, teacherRepo, studentRepo, university);
 
         FacultyService facultyService = new FacultyService(facultyRepo, saveService, dataContext);

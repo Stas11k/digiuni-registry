@@ -11,10 +11,10 @@ import java.util.*;
 public class StudentService {
 
     private final Repository<Student, Integer> repo;
-    private final DataSaveService saveService;
+    private final AsyncSaveService saveService;
     private final DataContext dataContext;
 
-    public StudentService(Repository<Student, Integer> repo, DataSaveService saveService, DataContext dataContext) {
+    public StudentService(Repository<Student, Integer> repo, AsyncSaveService saveService, DataContext dataContext) {
         this.repo = repo;
         this.saveService = saveService;
         this.dataContext = dataContext;
@@ -211,6 +211,6 @@ public class StudentService {
     }
 
     private void saveAll() {
-        saveService.saveAll(dataContext.facultyRepo(), dataContext.departmentRepo(), dataContext.specialtyRepo(), dataContext.teacherRepo(), dataContext.studentRepo(), dataContext.university());
+        saveService.saveAsync(dataContext);
     }
 }

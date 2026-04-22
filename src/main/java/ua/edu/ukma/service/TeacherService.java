@@ -4,6 +4,7 @@ import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
 import ua.edu.ukma.domain.Teacher;
 import ua.edu.ukma.exception.*;
+import ua.edu.ukma.io.AsyncSaveService;
 import ua.edu.ukma.io.DataContext;
 import ua.edu.ukma.io.DataSaveService;
 import ua.edu.ukma.repository.Repository;
@@ -14,10 +15,10 @@ import java.util.*;
 public class TeacherService {
 
     private final Repository<Teacher, Integer> repo;
-    private final DataSaveService saveService;
+    private final AsyncSaveService saveService;
     private final DataContext dataContext;
 
-    public TeacherService(Repository<Teacher, Integer> repo, DataSaveService saveService, DataContext dataContext) {
+    public TeacherService(Repository<Teacher, Integer> repo, AsyncSaveService saveService, DataContext dataContext) {
         this.repo = repo;
         this.saveService = saveService;
         this.dataContext = dataContext;
@@ -150,6 +151,6 @@ public class TeacherService {
     }
 
     private void saveAll() {
-        saveService.saveAll(dataContext.facultyRepo(), dataContext.departmentRepo(), dataContext.specialtyRepo(), dataContext.teacherRepo(), dataContext.studentRepo(), dataContext.university());
+        saveService.saveAsync(dataContext);
     }
 }
