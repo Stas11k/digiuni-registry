@@ -1,7 +1,10 @@
 package ua.edu.ukma.domain;
 
+import ua.edu.ukma.exception.ValidationException;
 import ua.edu.ukma.repository.Identifiable;
-import ua.edu.ukma.util.ValidationUtils;
+import ua.edu.ukma.validation.AnnotationValidator;
+import ua.edu.ukma.validation.NoDigitsField;
+import ua.edu.ukma.validation.NotBlankField;
 
 import java.util.Objects;
 
@@ -9,26 +12,28 @@ public class Specialty implements Identifiable<Integer> {
     private static int counter = 1;
 
     private final int id;
+
+    @NotBlankField(message = "Specialty name cannot be empty")
+    @NoDigitsField(message = "Specialty name cannot contain digits")
     private String name;
+
     private Department department;
 
     public Specialty(String name, Department department) {
-        ValidationUtils.validateNotEmpty(name, "Specialty name");
-        ValidationUtils.validateNoDigits(name, "Specialty name");
-        if (department == null) throw new IllegalArgumentException("Department cannot be null");
+        if (department == null) throw new ValidationException("Department cannot be null");
         this.id = counter++;
         this.name = name;
         this.department = department;
+        AnnotationValidator.validate(this);
     }
 
     public Specialty(int id, String name, Department department) {
-        ValidationUtils.validateNotEmpty(name, "Specialty name");
-        ValidationUtils.validateNoDigits(name, "Specialty name");
-        if (department == null) throw new IllegalArgumentException("Department cannot be null");
+        if (department == null) throw new ValidationException("Department cannot be null");
         this.id = id;
         this.name = name;
         this.department = department;
         if (id >= counter) counter = id + 1;
+        AnnotationValidator.validate(this);
     }
 
     public static void resetCounter() {
@@ -45,9 +50,8 @@ public class Specialty implements Identifiable<Integer> {
     }
 
     public void setName(String name) {
-        ValidationUtils.validateNotEmpty(name, "Specialty name");
-        ValidationUtils.validateNoDigits(name, "Specialty name");
         this.name = name;
+        AnnotationValidator.validate(this);
     }
 
     public Department getDepartment() {
@@ -55,6 +59,7 @@ public class Specialty implements Identifiable<Integer> {
     }
 
     public void setDepartment(Department department) {
+        if (department == null) throw new ValidationException("Department cannot be null");
         this.department = department;
     }
 

@@ -1,35 +1,48 @@
 package ua.edu.ukma.domain;
-import ua.edu.ukma.util.ValidationUtils;
+
+import ua.edu.ukma.exception.ValidationException;
+import ua.edu.ukma.validation.AnnotationValidator;
+import ua.edu.ukma.validation.NoDigitsField;
+import ua.edu.ukma.validation.NotBlankField;
 
 import java.time.LocalDate;
+import java.time.Period;
 
 public final class Teacher extends Person {
     private static int counter = 1;
+
     private Department department;
+
+    @NotBlankField(message = "Position cannot be empty")
+    @NoDigitsField(message = "Position cannot contain digits")
     private String position;
+
+    @NoDigitsField(message = "Degree cannot contain digits")
     private String degree;
+
     private String title;
     private LocalDate hireDate;
     private double workload;
 
     public Teacher(String lastName, String firstName, String middleName, String position, Department department) {
-        super(counter++,lastName, firstName, middleName);
-        ValidationUtils.validateNotEmpty(position, "Position");
-        ValidationUtils.validateNoDigits(position, "Position");
-        if (department == null) throw new IllegalArgumentException("Department cannot be null");
+        super(counter++, lastName, firstName, middleName);
+        if (department == null) throw new ValidationException("Department cannot be null");
         this.position = position;
         this.department = department;
         this.hireDate = LocalDate.now();
+
+        AnnotationValidator.validate(this);
     }
-    public Teacher(int id,String lastName, String firstName, String middleName, String position, Department department) {
-        super(id,lastName, firstName, middleName);
-        ValidationUtils.validateNotEmpty(position, "Position");
-        ValidationUtils.validateNoDigits(position, "Position");
-        if (department == null) throw new IllegalArgumentException("Department cannot be null");
+
+    public Teacher(int id, String lastName, String firstName, String middleName, String position, Department department) {
+        super(id, lastName, firstName, middleName);
+        if (department == null) throw new ValidationException("Department cannot be null");
         this.position = position;
         this.department = department;
         this.hireDate = LocalDate.now();
+
         if (id >= counter) counter = id + 1;
+        AnnotationValidator.validate(this);
     }
 
     public static void resetCounter() {
@@ -37,11 +50,11 @@ public final class Teacher extends Person {
     }
 
     public Department getDepartment() {
-         return department;
+        return department;
     }
 
     public void setDepartment(Department department) {
-        if (department == null) throw new IllegalArgumentException("Department cannot be null");
+        if (department == null) throw new ValidationException("Department cannot be null");
         this.department = department;
     }
 
@@ -50,9 +63,8 @@ public final class Teacher extends Person {
     }
 
     public void setPosition(String position) {
-        ValidationUtils.validateNotEmpty(position, "Position");
-        ValidationUtils.validateNoDigits(position, "Position");
         this.position = position;
+        AnnotationValidator.validate(this);
     }
 
     public String getDegree() {
@@ -60,9 +72,8 @@ public final class Teacher extends Person {
     }
 
     public void setDegree(String degree) {
-        ValidationUtils.validateNotEmpty(degree, "Degree");
-        ValidationUtils.validateNoDigits(degree, "Degree");
         this.degree = degree;
+        AnnotationValidator.validate(this);
     }
 
     public String getTitle() {
@@ -78,7 +89,7 @@ public final class Teacher extends Person {
     }
 
     public void setHireDate(LocalDate hireDate) {
-        if (hireDate == null || hireDate.isAfter(LocalDate.now())) throw new IllegalArgumentException("Invalid hire date");
+        if (hireDate == null || hireDate.isAfter(LocalDate.now())) throw new ValidationException("Invalid hire date");
         this.hireDate = hireDate;
     }
 
@@ -87,13 +98,12 @@ public final class Teacher extends Person {
     }
 
     public void setWorkload(double workload) {
-        if (workload < 0) throw new IllegalArgumentException("Workload cannot be negative");
+        if (workload < 0) throw new ValidationException("Workload cannot be negative");
         this.workload = workload;
     }
 
     public int getExperienceYears() {
         if (hireDate == null) return 0;
-        return java.time.Period.between(hireDate, LocalDate.now()).getYears();
+        return Period.between(hireDate, LocalDate.now()).getYears();
     }
-
 }

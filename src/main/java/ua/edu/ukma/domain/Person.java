@@ -1,39 +1,42 @@
 package ua.edu.ukma.domain;
 
+import ua.edu.ukma.exception.ValidationException;
 import ua.edu.ukma.repository.Identifiable;
-import ua.edu.ukma.util.ValidationUtils;
+import ua.edu.ukma.validation.AnnotationValidator;
+import ua.edu.ukma.validation.NoDigitsField;
+import ua.edu.ukma.validation.NotBlankField;
+
 import java.time.LocalDate;
 import java.time.Period;
-
 import java.util.Objects;
 
-public abstract sealed class Person
-        implements Identifiable<Integer>
-        permits Student, Teacher{
+public abstract sealed class Person implements Identifiable<Integer> permits Student, Teacher {
 
     private final int id;
+
+    @NotBlankField(message = "Last name cannot be empty")
+    @NoDigitsField(message = "Last name cannot contain digits")
     private String lastName;
+
+    @NotBlankField(message = "First name cannot be empty")
+    @NoDigitsField(message = "First name cannot contain digits")
     private String firstName;
+
+    @NotBlankField(message = "Middle name cannot be empty")
+    @NoDigitsField(message = "Middle name cannot contain digits")
     private String middleName;
-    transient  private LocalDate birthDate;
+
+    transient private LocalDate birthDate;
     private String email;
     private String phone;
     private String address;
 
     protected Person(int id, String lastName, String firstName, String middleName) {
         this.id = id;
-
-        ValidationUtils.validateNotEmpty(lastName, "Last name");
-        ValidationUtils.validateNotEmpty(firstName, "First name");
-        ValidationUtils.validateNotEmpty(middleName, "Middle name");
-
-        ValidationUtils.validateNoDigits(lastName, "Last name");
-        ValidationUtils.validateNoDigits(firstName, "First name");
-        ValidationUtils.validateNoDigits(middleName, "Middle name");
-
         this.lastName = lastName;
         this.firstName = firstName;
         this.middleName = middleName;
+        AnnotationValidator.validate(this);
     }
 
     @Override
@@ -41,16 +44,15 @@ public abstract sealed class Person
         return id;
     }
 
-
     public String getFirstName() {
         return firstName;
     }
 
     public void setFirstName(String firstName) {
-        ValidationUtils.validateNotEmpty(firstName, "First name");
-        ValidationUtils.validateNoDigits(firstName, "First name");
         this.firstName = firstName;
+        AnnotationValidator.validate(this);
     }
+
     public int getAge() {
         if (birthDate == null) return 0;
         return Period.between(birthDate, LocalDate.now()).getYears();
@@ -61,9 +63,8 @@ public abstract sealed class Person
     }
 
     public void setLastName(String lastName) {
-        ValidationUtils.validateNotEmpty(lastName, "Last name");
-        ValidationUtils.validateNoDigits(lastName, "Last name");
         this.lastName = lastName;
+        AnnotationValidator.validate(this);
     }
 
     public String getMiddleName() {
@@ -71,9 +72,8 @@ public abstract sealed class Person
     }
 
     public void setMiddleName(String middleName) {
-        ValidationUtils.validateNotEmpty(middleName, "Middle name");
-        ValidationUtils.validateNoDigits(middleName, "Middle name");
         this.middleName = middleName;
+        AnnotationValidator.validate(this);
     }
 
     public LocalDate getBirthDate() {
@@ -81,7 +81,7 @@ public abstract sealed class Person
     }
 
     public void setBirthDate(LocalDate birthDate) {
-        if (birthDate != null && birthDate.isAfter(LocalDate.now())) throw new IllegalArgumentException("Birth date cannot be in the future");
+        if (birthDate != null && birthDate.isAfter(LocalDate.now())) throw new ValidationException("Birth date cannot be in the future");
         this.birthDate = birthDate;
     }
 

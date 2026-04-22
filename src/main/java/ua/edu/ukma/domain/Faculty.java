@@ -1,7 +1,9 @@
 package ua.edu.ukma.domain;
 
 import ua.edu.ukma.repository.Identifiable;
-import ua.edu.ukma.util.ValidationUtils;
+import ua.edu.ukma.validation.AnnotationValidator;
+import ua.edu.ukma.validation.NoDigitsField;
+import ua.edu.ukma.validation.NotBlankField;
 
 import java.util.Objects;
 
@@ -9,30 +11,31 @@ public class Faculty implements Identifiable<Integer> {
     private static int counter = 1;
 
     private final int id;
+
+    @NotBlankField(message = "Faculty name cannot be empty")
+    @NoDigitsField(message = "Faculty name cannot contain digits")
     private String name;
+
+    @NotBlankField(message = "Faculty short name cannot be empty")
+    @NoDigitsField(message = "Faculty short name cannot contain digits")
     private String shortName;
+
     private Teacher dean;
     private String contacts;
 
     public Faculty(String name, String shortName) {
-        ValidationUtils.validateNotEmpty(name, "Faculty name");
-        ValidationUtils.validateNotEmpty(shortName, "Faculty short name");
-        ValidationUtils.validateNoDigits(name, "Faculty name");
-        ValidationUtils.validateNoDigits(shortName, "Faculty short name");
         this.id = counter++;
         this.name = name;
         this.shortName = shortName;
+        AnnotationValidator.validate(this);
     }
 
     public Faculty(int id, String name, String shortName) {
-        ValidationUtils.validateNotEmpty(name, "Faculty name");
-        ValidationUtils.validateNotEmpty(shortName, "Faculty short name");
-        ValidationUtils.validateNoDigits(name, "Faculty name");
-        ValidationUtils.validateNoDigits(shortName, "Faculty short name");
         this.id = id;
         this.name = name;
         this.shortName = shortName;
         if (id >= counter) counter = id + 1;
+        AnnotationValidator.validate(this);
     }
 
     public static void resetCounter() {
@@ -49,9 +52,8 @@ public class Faculty implements Identifiable<Integer> {
     }
 
     public void setName(String name) {
-        ValidationUtils.validateNotEmpty(name, "Faculty name");
-        ValidationUtils.validateNoDigits(name, "Faculty name");
         this.name = name;
+        AnnotationValidator.validate(this);
     }
 
     public String getShortName() {
@@ -59,9 +61,8 @@ public class Faculty implements Identifiable<Integer> {
     }
 
     public void setShortName(String shortName) {
-        ValidationUtils.validateNotEmpty(shortName, "Faculty short name");
-        ValidationUtils.validateNoDigits(shortName, "Faculty short name");
         this.shortName = shortName;
+        AnnotationValidator.validate(this);
     }
 
     public Teacher getDean() {
@@ -97,5 +98,4 @@ public class Faculty implements Identifiable<Integer> {
     public int hashCode() {
         return Objects.hash(id);
     }
-
 }
