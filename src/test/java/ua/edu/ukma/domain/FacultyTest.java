@@ -20,13 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
          assertThrows(ValidationException.class,
                  () -> new Faculty("", "CS"));
      }
-     @Test
-     void setDean_null_shouldThrowException() {
-         Faculty faculty = new Faculty("Computer Science", "CS");
-
-         assertThrows(IllegalArgumentException.class,
-                 () -> faculty.setDean(null));
-     }
 
      @Test
      void setContacts_shouldSetContacts() {

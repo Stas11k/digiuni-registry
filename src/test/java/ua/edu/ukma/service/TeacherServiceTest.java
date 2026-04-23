@@ -4,20 +4,42 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import ua.edu.ukma.domain.Department;
-import ua.edu.ukma.domain.Faculty;
-import ua.edu.ukma.domain.Student;
-import ua.edu.ukma.domain.Teacher;
+import ua.edu.ukma.domain.*;
 import ua.edu.ukma.exception.EntityNotFoundException;
+import ua.edu.ukma.io.AsyncSaveService;
+import ua.edu.ukma.io.DataContext;
 import ua.edu.ukma.repository.InMemoryRepository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class TeacherServiceTest {
+    InMemoryRepository<Faculty, Integer> facultyRepo = new InMemoryRepository<>();
+    InMemoryRepository<Department, Integer> departmentRepo = new InMemoryRepository<>();
+    InMemoryRepository<Specialty, Integer> specialtyRepo = new InMemoryRepository<>();
+    InMemoryRepository<Teacher, Integer> teacherRepo = new InMemoryRepository<>();
+    InMemoryRepository<Student, Integer> studentRepo = new InMemoryRepository<>();
+
+    University university = new University("NaUKMA", "NaUKMA", "Kyiv", "Address");
+
+    DataContext dataContext = new DataContext(
+            facultyRepo,
+            departmentRepo,
+            specialtyRepo,
+            teacherRepo,
+            studentRepo,
+            university
+    );
+    AsyncSaveService saveService = new AsyncSaveService() {
+        @Override
+        public CompletableFuture<Void> saveAsync(DataContext dataContext) {
+
+            return CompletableFuture.completedFuture(null);
+        }
+    };
 
     private InMemoryRepository<Teacher, Integer> repo;
     private TeacherService service;
@@ -25,7 +47,7 @@ class TeacherServiceTest {
     @BeforeEach
     void setUp() {
         repo = new InMemoryRepository<>();
-        service = new TeacherService(repo);
+        service = new TeacherService(teacherRepo,saveService,dataContext);
     }
 
     private Teacher createTeacher(String firstName, String lastName, String position) {
@@ -54,7 +76,7 @@ class TeacherServiceTest {
     @Test
     void getOrThrowTeacherTest() {
         Teacher teacher = createTeacher("Ivan", "Petrenko", "Professor");
-        repo.save(teacher);
+        teacherRepo.save(teacher);
         Teacher result = service.getOrThrow(teacher.getId());
         assertEquals("Petrenko", result.getLastName());
     }
@@ -69,8 +91,8 @@ class TeacherServiceTest {
     @Test
     void deleteTeacherTest() {
         Teacher teacher = createTeacher("Ivan", "Petrenko", "Professor");
-        repo.save(teacher);
-        repo.deleteById(teacher.getId());
+        teacherRepo.save(teacher);
+        teacherRepo.deleteById(teacher.getId());
         assertTrue(repo.findById(teacher.getId()).isEmpty());
     }
 
@@ -78,14 +100,14 @@ class TeacherServiceTest {
     @Test
     void findByFullNameTeacherTest() {
         Teacher teacher = createTeacher("Ivan", "Petrenko", "Professor");
-        repo.save(teacher);
+        teacherRepo.save(teacher);
         List<Teacher> result = service.findByFullName("Iva");
         assertEquals(1, result.size());
     }
     @Test
     void findByPositionTeacherTest() {
         Teacher teacher = createTeacher("Ivan", "Petrenko", "Professor");
-        repo.save(teacher);
+        teacherRepo.save(teacher);
         List<Teacher> result = service.findByPosition("Professor");
         assertEquals(1, result.size());
 
@@ -94,7 +116,7 @@ class TeacherServiceTest {
     void updatePartial() {
 
         Teacher teacher = createTeacher("Ivan","Petrenko","Professor");
-        repo.save(teacher);
+        teacherRepo.save(teacher);
 
         service.updatePartial(
                 teacher.getId(),
@@ -125,14 +147,14 @@ class TeacherServiceTest {
     void findByPositionParameterized(String position, int expectedSize) {
 
         InMemoryRepository<Teacher, Integer> repo = new InMemoryRepository<>();
-        TeacherService service = new TeacherService(repo);
+        TeacherService service = new TeacherService(teacherRepo,saveService,dataContext);
 
         Faculty faculty = new Faculty("CS", "CS");
         Department department = new Department("Software Engineering", faculty);
 
-        repo.save(new Teacher("Petrenko", "Ivan", "A", "Professor", department));
-        repo.save(new Teacher("Bondar", "Anna", "B", "Professor", department));
-        repo.save(new Teacher("Koval", "Oleh", "C", "Assistant", department));
+        teacherRepo.save(new Teacher("Petrenko", "Ivan", "A", "Professor", department));
+        teacherRepo.save(new Teacher("Bondar", "Anna", "B", "Professor", department));
+        teacherRepo.save(new Teacher("Koval", "Oleh", "C", "Assistant", department));
 
         List<Teacher> result = service.findByPosition(position);
 
@@ -143,8 +165,8 @@ class TeacherServiceTest {
         Faculty faculty = new Faculty("CS", "CS");
         Department department = new Department("SE", faculty);
 
-        repo.save(new Teacher("Petrenko", "Ivan", "A", "Professor", department));
-        repo.save(new Teacher("Bondar", "Anna", "B", "Professor", department));
+        teacherRepo.save(new Teacher("Petrenko", "Ivan", "A", "Professor", department));
+        teacherRepo.save(new Teacher("Bondar", "Anna", "B", "Professor", department));
 
         List<Teacher> result = service.findByDepartmentSortedByName(department.getId());
 
