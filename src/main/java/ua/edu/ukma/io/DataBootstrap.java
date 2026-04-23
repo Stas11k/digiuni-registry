@@ -41,14 +41,14 @@ public class DataBootstrap {
         Map<Integer, Specialty> specialtyMap = new HashMap<>();
         Map<Integer, Teacher> teacherMap = new HashMap<>();
 
-        List<FacultyDTO> facultyDTOs = facultyFileService.loadDTOs("faculties.json");
+        List<FacultyDTO> facultyDTOs = facultyFileService.loadDTOs(DataPaths.FACULTIES);
         for (FacultyDTO dto : facultyDTOs) {
             Faculty faculty = FacultyMapper.fromDTO(dto);
             facultyRepo.save(faculty);
             facultyMap.put(faculty.getId(), faculty);
         }
 
-        List<DepartmentDTO> departmentDTOs = departmentFileService.loadDTOs("departments.json");
+        List<DepartmentDTO> departmentDTOs = departmentFileService.loadDTOs(DataPaths.DEPARTMENTS);
         for (DepartmentDTO dto : departmentDTOs) {
             Faculty faculty = facultyMap.get(dto.facultyId());
             if (faculty != null) {
@@ -58,7 +58,7 @@ public class DataBootstrap {
             }
         }
 
-        List<SpecialtyDTO> specialtyDTOs = specialtyFileService.loadDTOs("specialties.json");
+        List<SpecialtyDTO> specialtyDTOs = specialtyFileService.loadDTOs(DataPaths.SPECIALTIES);
         for (SpecialtyDTO dto : specialtyDTOs) {
             Department department = departmentMap.get(dto.departmentId());
             if (department != null) {
@@ -68,7 +68,7 @@ public class DataBootstrap {
             }
         }
 
-        List<TeacherDTO> teacherDTOs = teacherFileService.loadDTOs("teachers.json");
+        List<TeacherDTO> teacherDTOs = teacherFileService.loadDTOs(DataPaths.TEACHERS);
         for (TeacherDTO dto : teacherDTOs) {
             Department department = departmentMap.get(dto.departmentId());
             if (department != null) {
@@ -98,7 +98,7 @@ public class DataBootstrap {
             }
         }
 
-        List<StudentDTO> studentDTOs = studentFileService.loadDTOs("students.json");
+        List<StudentDTO> studentDTOs = studentFileService.loadDTOs(DataPaths.STUDENTS);
         for (StudentDTO dto : studentDTOs) {
             Specialty specialty = specialtyMap.get(dto.specialtyId());
             if (specialty != null) {
@@ -107,7 +107,7 @@ public class DataBootstrap {
             }
         }
 
-        University university = universityFileService.loadFromFile("university.json");
+        University university = universityFileService.loadFromFile(DataPaths.UNIVERSITY);
         if (university == null) {
             logger.warn("University file not found. Using default university.");
             university = new University("Kyiv-Mohyla Academy", "NaUKMA", "Kyiv", "2 Hryhorii Skovoroda St.");

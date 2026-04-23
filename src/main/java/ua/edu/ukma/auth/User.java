@@ -2,11 +2,9 @@ package ua.edu.ukma.auth;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 import ua.edu.ukma.exception.ValidationException;
 
 @Getter
-@ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
     private static int counter = 1;
@@ -30,6 +28,23 @@ public class User {
         this.role = role;
         this.permissions = role.getDefaultPermissions();
         this.blocked = false;
+    }
+
+    public User(int id, String login, String password, Role role, int permissions, boolean blocked) {
+        validateLogin(login);
+        validatePassword(password);
+        validateRole(role);
+        this.id = id;
+        this.login = login;
+        this.password = password;
+        this.role = role;
+        this.permissions = permissions;
+        this.blocked = blocked;
+        if (id >= counter) counter = id + 1;
+    }
+
+    public static void resetCounter() {
+        counter = 1;
     }
 
     public void setLogin(String login) {

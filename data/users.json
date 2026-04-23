@@ -1,0 +1,22 @@
+[ {
+  "id" : 1,
+  "login" : "user",
+  "password" : "user",
+  "role" : "USER",
+  "permissions" : 1365,
+  "blocked" : false
+}, {
+  "id" : 2,
+  "login" : "manager",
+  "password" : "manager",
+  "role" : "MANAGER",
+  "permissions" : 2047,
+  "blocked" : false
+}, {
+  "id" : 3,
+  "login" : "admin",
+  "password" : "admin",
+  "role" : "ADMIN",
+  "permissions" : 8191,
+  "blocked" : false
+} ]

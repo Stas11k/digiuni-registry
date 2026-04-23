@@ -1,10 +1,9 @@
 package ua.edu.ukma.ui;
 
-import ua.edu.ukma.domain.Teacher;
 import ua.edu.ukma.domain.University;
+import ua.edu.ukma.io.DataPaths;
 import ua.edu.ukma.io.UniversityFileService;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -26,8 +25,8 @@ public class UniversityMenu {
                     --- University settings ---
                     1. Show info
                     2. Edit
-                    3.Save to file
-                    4.Load from file
+                    3. Save to file
+                    4. Load from file
                     0. Back
                     """);
 
@@ -100,47 +99,44 @@ public class UniversityMenu {
             System.out.println("Updated\n");
         }
     }
+
     private void saveToFile() {
-        fileService.saveToFile(university, "university.json");
-        System.out.println("Saved ");
+        fileService.saveToFile(university, DataPaths.UNIVERSITY);
+        System.out.println("Saved");
     }
+
     private void loadFromFile() {
-        University loaded = fileService.loadFromFile("university.json");
+        University loaded = fileService.loadFromFile(DataPaths.UNIVERSITY);
 
         if (loaded != null) {
             university = loaded;
-            System.out.println("Loaded ");
+            System.out.println("Loaded");
         }
     }
 
-
-    private void updatePartial(Optional<String> fullName,
-                               Optional<String> shortName,
-                               Optional<String> city,
-                               Optional<String> address) {
+    private void updatePartial(Optional<String> fullName, Optional<String> shortName, Optional<String> city, Optional<String> address) {
         if (fullName.isPresent()) university.setFullName(fullName.get());
         if (shortName.isPresent()) university.setShortName(shortName.get());
         if (city.isPresent()) university.setCity(city.get());
         if (address.isPresent()) university.setAddress(address.get());
     }
 
-
     private String readRequiredLine(String prompt) {
         while (true) {
             System.out.print(prompt + ": ");
-            String v = scanner.nextLine();
-            if (!v.isBlank()) return v;
-            System.out.println("Value cannot be empty\n");
+            String line = scanner.nextLine().trim();
+            if (!line.isEmpty()) return line;
+            System.out.println("Value cannot be empty");
         }
     }
 
     private int readInt() {
         while (true) {
-            String input = scanner.nextLine().trim();
+            String line = scanner.nextLine();
             try {
-                return Integer.parseInt(input);
+                return Integer.parseInt(line.trim());
             } catch (NumberFormatException e) {
-                System.out.print("Please enter a number: ");
+                System.out.print("Enter a number: ");
             }
         }
     }

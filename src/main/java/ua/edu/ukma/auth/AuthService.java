@@ -1,19 +1,29 @@
 package ua.edu.ukma.auth;
 
+import ua.edu.ukma.converter.UserMapper;
+import ua.edu.ukma.dto.UserDTO;
 import ua.edu.ukma.exception.EntityNotFoundException;
 import ua.edu.ukma.exception.ValidationException;
+import ua.edu.ukma.io.DataPaths;
+import ua.edu.ukma.io.UserFileService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class AuthService {
+    private static final String USERS_FILE = DataPaths.USERS;
     private final List<User> users = new ArrayList<>();
+    private final UserFileService userFileService = new UserFileService();
 
     public AuthService() {
-        users.add(new User("user", "user", Role.USER));
-        users.add(new User("manager", "manager", Role.MANAGER));
-        users.add(new User("admin", "admin", Role.ADMIN));
+        loadUsers();
+        if (users.isEmpty()) {
+            users.add(new User("user", "user", Role.USER));
+            users.add(new User("manager", "manager", Role.MANAGER));
+            users.add(new User("admin", "admin", Role.ADMIN));
+            saveUsers();
+        }
     }
 
     public User login(String login, String password) {
@@ -42,8 +52,11 @@ public class AuthService {
     }
 
     public void addUser(String login, String password, Role role) {
-        if (findByLogin(login).isPresent()) throw new ValidationException("User with this login already exists");
+        if (findByLogin(login).isPresent()) {
+            throw new ValidationException("User with this login already exists");
+        }
         users.add(new User(login, password, role));
+        saveUsers();
     }
 
     public void updateUser(int id, Optional<String> login, Optional<String> password, Optional<Role> role) {
@@ -51,21 +64,29 @@ public class AuthService {
         if (login.isPresent()) {
             String newLogin = login.get();
             Optional<User> existing = findByLogin(newLogin);
-            if (existing.isPresent() && existing.get().getId() != id) throw new ValidationException("User with this login already exists");
+            if (existing.isPresent() && existing.get().getId() != id) {
+                throw new ValidationException("User with this login already exists");
+            }
             user.setLogin(newLogin);
         }
         if (password.isPresent()) user.setPassword(password.get());
         if (role.isPresent()) user.setRole(role.get());
+        saveUsers();
     }
 
     public void setBlocked(int id, boolean blocked) {
         User user = getUserOrThrow(id);
         user.setBlocked(blocked);
+        saveUsers();
     }
 
     public boolean deleteUser(int id) {
         User user = getUserOrThrow(id);
-        return users.remove(user);
+        boolean removed = users.remove(user);
+        if (removed) {
+            saveUsers();
+        }
+        return removed;
     }
 
     private User getUserOrThrow(int id) {
@@ -81,10 +102,25 @@ public class AuthService {
     public void addPermission(int id, int permission) {
         User user = getUserOrThrow(id);
         user.addPermission(permission);
+        saveUsers();
     }
 
     public void removePermission(int id, int permission) {
         User user = getUserOrThrow(id);
         user.removePermission(permission);
+        saveUsers();
+    }
+
+    private void saveUsers() {
+        userFileService.saveToFile(users, USERS_FILE);
+    }
+
+    private void loadUsers() {
+        users.clear();
+        User.resetCounter();
+        List<UserDTO> dtos = userFileService.loadDTOs(USERS_FILE);
+        for (UserDTO dto : dtos) {
+            users.add(UserMapper.fromDTO(dto));
+        }
     }
 }

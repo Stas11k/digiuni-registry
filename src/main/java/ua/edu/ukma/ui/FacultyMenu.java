@@ -33,7 +33,7 @@ public class FacultyMenu {
         while (inMenu) {
             if (canWrite()) {
                 System.out.println("""
-                    --- Departments ---
+                    --- Faculties ---
                     1. Show all
                     2. Add
                     3. Edit
@@ -42,7 +42,7 @@ public class FacultyMenu {
                     """);
             } else {
                 System.out.println("""
-                    --- Departments ---
+                    --- Faculties ---
                     1. Show all
                     0. Back
                     """);
