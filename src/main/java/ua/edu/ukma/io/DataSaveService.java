@@ -13,11 +13,11 @@ public class DataSaveService {
     private final UniversityFileService universityFileService = new UniversityFileService();
 
     public void saveAll(Repository<Faculty, Integer> facultyRepo, Repository<Department, Integer> departmentRepo, Repository<Specialty, Integer> specialtyRepo, Repository<Teacher, Integer> teacherRepo, Repository<Student, Integer> studentRepo, University university) {
-        facultyFileService.saveToFile(facultyRepo.findAll(), "faculties.json");
-        departmentFileService.saveToFile(departmentRepo.findAll(), "departments.json");
-        specialtyFileService.saveToFile(specialtyRepo.findAll(), "specialties.json");
-        teacherFileService.saveToFile(teacherRepo.findAll(), "teachers.json");
-        studentFileService.saveToFile(studentRepo.findAll(), "students.json");
-        universityFileService.saveToFile(university, "university.json");
+        facultyFileService.saveToFile(facultyRepo.findAll(), DataPaths.FACULTIES);
+        departmentFileService.saveToFile(departmentRepo.findAll(), DataPaths.DEPARTMENTS);
+        specialtyFileService.saveToFile(specialtyRepo.findAll(), DataPaths.SPECIALTIES);
+        teacherFileService.saveToFile(teacherRepo.findAll(), DataPaths.TEACHERS);
+        studentFileService.saveToFile(studentRepo.findAll(), DataPaths.STUDENTS);
+        universityFileService.saveToFile(university, DataPaths.UNIVERSITY);
     }
 }

@@ -3,6 +3,8 @@ package ua.edu.ukma.network;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ua.edu.ukma.auth.AuthService;
 import ua.edu.ukma.service.DepartmentService;
 import ua.edu.ukma.service.FacultyService;
@@ -17,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class TcpServer {
+    private static final Logger logger = LoggerFactory.getLogger(TcpServer.class);
     private final int port;
     private final CommandProcessor processor;
     private final ObjectMapper mapper = new ObjectMapper()
@@ -31,10 +34,10 @@ public class TcpServer {
 
     public void start() throws IOException {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("TCP server started on port " + port);
+            logger.info("TCP server started on port {}", port);
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Client connected: " + clientSocket.getRemoteSocketAddress());
+                logger.info("Client connected: {}", clientSocket.getRemoteSocketAddress());
                 pool.submit(new ClientHandler(clientSocket, processor, mapper));
             }
         }

@@ -1,11 +1,17 @@
 package ua.edu.ukma.auth;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import ua.edu.ukma.exception.ValidationException;
 
+@Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
     private static int counter = 1;
 
+    @EqualsAndHashCode.Include
     private final int id;
+
     private String login;
     private String password;
     private Role role;
@@ -24,12 +30,21 @@ public class User {
         this.blocked = false;
     }
 
-    public int getId() {
-        return id;
+    public User(int id, String login, String password, Role role, int permissions, boolean blocked) {
+        validateLogin(login);
+        validatePassword(password);
+        validateRole(role);
+        this.id = id;
+        this.login = login;
+        this.password = password;
+        this.role = role;
+        this.permissions = permissions;
+        this.blocked = blocked;
+        if (id >= counter) counter = id + 1;
     }
 
-    public String getLogin() {
-        return login;
+    public static void resetCounter() {
+        counter = 1;
     }
 
     public void setLogin(String login) {
@@ -37,27 +52,15 @@ public class User {
         this.login = login;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public void setPassword(String password) {
         validatePassword(password);
         this.password = password;
-    }
-
-    public Role getRole() {
-        return role;
     }
 
     public void setRole(Role role) {
         validateRole(role);
         this.role = role;
         this.permissions = role.getDefaultPermissions();
-    }
-
-    public boolean isBlocked() {
-        return blocked;
     }
 
     public void setBlocked(boolean blocked) {
@@ -74,10 +77,6 @@ public class User {
 
     private void validateRole(Role role) {
         if (role == null) throw new ValidationException("Role cannot be null");
-    }
-
-    public int getPermissions() {
-        return permissions;
     }
 
     public void setPermissions(int permissions) {

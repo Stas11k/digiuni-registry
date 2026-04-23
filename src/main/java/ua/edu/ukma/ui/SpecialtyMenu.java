@@ -31,7 +31,7 @@ public class SpecialtyMenu {
         while (inMenu) {
             if (canWrite()) {
                 System.out.println("""
-                    --- Departments ---
+                    --- Specialties ---
                     1. Show all
                     2. Add
                     3. Edit
@@ -41,7 +41,7 @@ public class SpecialtyMenu {
                     """);
             } else {
                 System.out.println("""
-                    --- Departments ---
+                    --- Specialties ---
                     1. Show all
                     5. Show by department
                     0. Back

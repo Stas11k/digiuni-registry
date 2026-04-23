@@ -1,5 +1,7 @@
 package ua.edu.ukma.io;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ua.edu.ukma.converter.*;
 import ua.edu.ukma.domain.*;
 import ua.edu.ukma.dto.*;
@@ -10,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DataBootstrap {
+    private static final Logger logger = LoggerFactory.getLogger(DataBootstrap.class);
 
     private final FacultyFileService facultyFileService = new FacultyFileService();
     private final DepartmentFileService departmentFileService = new DepartmentFileService();
@@ -19,6 +22,8 @@ public class DataBootstrap {
     private final UniversityFileService universityFileService = new UniversityFileService();
 
     public University loadAll(Repository<Faculty, Integer> facultyRepo, Repository<Department, Integer> departmentRepo, Repository<Specialty, Integer> specialtyRepo, Repository<Teacher, Integer> teacherRepo, Repository<Student, Integer> studentRepo) {
+        logger.info("Starting bootstrap loading");
+
         facultyRepo.clear();
         departmentRepo.clear();
         specialtyRepo.clear();
@@ -36,14 +41,14 @@ public class DataBootstrap {
         Map<Integer, Specialty> specialtyMap = new HashMap<>();
         Map<Integer, Teacher> teacherMap = new HashMap<>();
 
-        List<FacultyDTO> facultyDTOs = facultyFileService.loadDTOs("faculties.json");
+        List<FacultyDTO> facultyDTOs = facultyFileService.loadDTOs(DataPaths.FACULTIES);
         for (FacultyDTO dto : facultyDTOs) {
             Faculty faculty = FacultyMapper.fromDTO(dto);
             facultyRepo.save(faculty);
             facultyMap.put(faculty.getId(), faculty);
         }
 
-        List<DepartmentDTO> departmentDTOs = departmentFileService.loadDTOs("departments.json");
+        List<DepartmentDTO> departmentDTOs = departmentFileService.loadDTOs(DataPaths.DEPARTMENTS);
         for (DepartmentDTO dto : departmentDTOs) {
             Faculty faculty = facultyMap.get(dto.facultyId());
             if (faculty != null) {
@@ -53,7 +58,7 @@ public class DataBootstrap {
             }
         }
 
-        List<SpecialtyDTO> specialtyDTOs = specialtyFileService.loadDTOs("specialties.json");
+        List<SpecialtyDTO> specialtyDTOs = specialtyFileService.loadDTOs(DataPaths.SPECIALTIES);
         for (SpecialtyDTO dto : specialtyDTOs) {
             Department department = departmentMap.get(dto.departmentId());
             if (department != null) {
@@ -63,7 +68,7 @@ public class DataBootstrap {
             }
         }
 
-        List<TeacherDTO> teacherDTOs = teacherFileService.loadDTOs("teachers.json");
+        List<TeacherDTO> teacherDTOs = teacherFileService.loadDTOs(DataPaths.TEACHERS);
         for (TeacherDTO dto : teacherDTOs) {
             Department department = departmentMap.get(dto.departmentId());
             if (department != null) {
@@ -93,7 +98,7 @@ public class DataBootstrap {
             }
         }
 
-        List<StudentDTO> studentDTOs = studentFileService.loadDTOs("students.json");
+        List<StudentDTO> studentDTOs = studentFileService.loadDTOs(DataPaths.STUDENTS);
         for (StudentDTO dto : studentDTOs) {
             Specialty specialty = specialtyMap.get(dto.specialtyId());
             if (specialty != null) {
@@ -102,7 +107,12 @@ public class DataBootstrap {
             }
         }
 
-        University university = universityFileService.loadFromFile("university.json");
-        return university != null ? university : new University("Kyiv-Mohyla Academy", "NaUKMA", "Kyiv", "2 Hryhorii Skovoroda St.");
+        University university = universityFileService.loadFromFile(DataPaths.UNIVERSITY);
+        if (university == null) {
+            logger.warn("University file not found. Using default university.");
+            university = new University("Kyiv-Mohyla Academy", "NaUKMA", "Kyiv", "2 Hryhorii Skovoroda St.");
+        }
+        logger.info("Bootstrap loading completed");
+        return university;
     }
 }
