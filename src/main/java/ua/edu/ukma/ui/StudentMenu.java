@@ -267,12 +267,13 @@ public class StudentMenu {
     }
 
     private void delete() {
+        System.out.print("Student ID: ");
         boolean deleted = studentService.delete(readInt());
 
         if (deleted) {
-            System.out.println("Deleted");
+            System.out.println("Deleted\n");
         } else {
-            System.out.println("Not found");
+            System.out.println("Not found\n");
         }
     }
 

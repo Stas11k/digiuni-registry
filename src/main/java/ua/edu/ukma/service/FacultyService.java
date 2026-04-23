@@ -1,12 +1,20 @@
 package ua.edu.ukma.service;
 
+import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
+import ua.edu.ukma.domain.Specialty;
+import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.Teacher;
-import ua.edu.ukma.exception.*;
-import ua.edu.ukma.io.*;
+import ua.edu.ukma.exception.EntityNotFoundException;
+import ua.edu.ukma.exception.ValidationException;
+import ua.edu.ukma.io.AsyncSaveService;
+import ua.edu.ukma.io.DataContext;
 import ua.edu.ukma.repository.Repository;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 public class FacultyService {
 
@@ -43,8 +51,51 @@ public class FacultyService {
     }
 
     public boolean delete(int id) {
+        Faculty faculty = repo.findById(id).orElse(null);
+        if (faculty == null) {
+            return false;
+        }
+
+        List<Integer> departmentIdsToDelete = new ArrayList<>();
+        List<Integer> specialtyIdsToDelete = new ArrayList<>();
+        List<Integer> teacherIdsToDelete = new ArrayList<>();
+        List<Integer> studentIdsToDelete = new ArrayList<>();
+        for (Department d : dataContext.departmentRepo().findAll()) {
+            if (d.getFaculty() != null && d.getFaculty().getId() == id) {
+                departmentIdsToDelete.add(d.getId());
+            }
+        }
+        for (Specialty s : dataContext.specialtyRepo().findAll()) {
+            if (s.getDepartment() != null && departmentIdsToDelete.contains(s.getDepartment().getId())) {
+                specialtyIdsToDelete.add(s.getId());
+            }
+        }
+        for (Teacher t : dataContext.teacherRepo().findAll()) {
+            if (t.getDepartment() != null && departmentIdsToDelete.contains(t.getDepartment().getId())) {
+                teacherIdsToDelete.add(t.getId());
+            }
+        }
+        for (Student s : dataContext.studentRepo().findAll()) {
+            if (s.getSpecialty() != null && specialtyIdsToDelete.contains(s.getSpecialty().getId())) {
+                studentIdsToDelete.add(s.getId());
+            }
+        }
+        for (Integer studentId : studentIdsToDelete) {
+            dataContext.studentRepo().deleteById(studentId);
+        }
+        for (Integer teacherId : teacherIdsToDelete) {
+            dataContext.teacherRepo().deleteById(teacherId);
+        }
+        for (Integer specialtyId : specialtyIdsToDelete) {
+            dataContext.specialtyRepo().deleteById(specialtyId);
+        }
+        for (Integer departmentId : departmentIdsToDelete) {
+            dataContext.departmentRepo().deleteById(departmentId);
+        }
         boolean deleted = repo.deleteById(id);
-        if (deleted) saveAll();
+        if (deleted) {
+            saveAll();
+        }
         return deleted;
     }
 
@@ -70,6 +121,6 @@ public class FacultyService {
     }
 
     private void saveAll() {
-        saveService.saveAsync(dataContext);
+        saveService.saveAsync(dataContext).join();
     }
 }
