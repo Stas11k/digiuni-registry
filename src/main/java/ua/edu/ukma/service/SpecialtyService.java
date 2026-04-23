@@ -64,6 +64,6 @@ public class SpecialtyService {
     }
 
     private void saveAll() {
-        saveService.saveAsync(dataContext);
+        saveService.saveAsync(dataContext).join();
     }
 }

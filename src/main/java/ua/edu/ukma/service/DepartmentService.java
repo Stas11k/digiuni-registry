@@ -72,6 +72,6 @@ public class DepartmentService {
     }
 
     private void saveAll() {
-        saveService.saveAsync(dataContext);
+        saveService.saveAsync(dataContext).join();
     }
 }

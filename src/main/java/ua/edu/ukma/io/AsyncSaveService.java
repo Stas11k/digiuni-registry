@@ -3,6 +3,7 @@ package ua.edu.ukma.io;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -12,8 +13,8 @@ public class AsyncSaveService {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final DataSaveService dataSaveService = new DataSaveService();
 
-    public void saveAsync(DataContext context) {
-        executor.submit(() -> {
+    public CompletableFuture<Void> saveAsync(DataContext context) {
+        return CompletableFuture.runAsync(() -> {
             try {
                 logger.info("Starting async save");
                 dataSaveService.saveAll(
@@ -27,7 +28,8 @@ public class AsyncSaveService {
                 logger.info("Async save completed successfully");
             } catch (Exception e) {
                 logger.error("Async save failed", e);
+                throw new RuntimeException(e);
             }
-        });
+        }, executor);
     }
 }

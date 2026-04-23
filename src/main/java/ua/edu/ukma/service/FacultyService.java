@@ -70,6 +70,6 @@ public class FacultyService {
     }
 
     private void saveAll() {
-        saveService.saveAsync(dataContext);
+        saveService.saveAsync(dataContext).join();
     }
 }

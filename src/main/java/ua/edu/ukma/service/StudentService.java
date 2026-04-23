@@ -172,7 +172,8 @@ public class StudentService {
 
     private void validate(Student s) {
         if (s == null) throw new ValidationException("Student cannot be null");
-        if (s.getFirstName() == null || s.getFirstName().isBlank() || s.getLastName() == null || s.getLastName().isBlank()) {
+        if (s.getFirstName() == null || s.getFirstName().isBlank()
+                || s.getLastName() == null || s.getLastName().isBlank()) {
             throw new ValidationException("Name cannot be empty");
         }
         if (s.getCourse() < 1 || s.getCourse() > 6) throw new ValidationException("Invalid course");
@@ -189,12 +190,13 @@ public class StudentService {
         if (firstName.isPresent()) s.setFirstName(firstName.get());
         if (middleName.isPresent()) s.setMiddleName(middleName.get());
         if (birthDate.isPresent()) {
-            String value = birthDate.get();
-            s.setBirthDate(value.isBlank() ? null : LocalDate.parse(value));
+            String value = birthDate.get().trim();
+            if (value.isEmpty()) s.setBirthDate(null);
+            else s.setBirthDate(LocalDate.parse(value));
         }
-        if (email.isPresent()) s.setEmail(emptyToNull(email.get()));
-        if (phone.isPresent()) s.setPhone(emptyToNull(phone.get()));
-        if (address.isPresent()) s.setAddress(emptyToNull(address.get()));
+        if (email.isPresent()) s.setEmail(email.get());
+        if (phone.isPresent()) s.setPhone(phone.get());
+        if (address.isPresent()) s.setAddress(address.get());
         if (gradeBook.isPresent()) s.setGradeBookNumber(gradeBook.get());
         if (course.isPresent()) s.setCourse(course.get());
         if (group.isPresent()) s.setGroup(group.get());
@@ -202,15 +204,12 @@ public class StudentService {
         if (admissionYear.isPresent()) s.setAdmissionYear(admissionYear.get());
         if (studyForm.isPresent()) s.setStudyForm(studyForm.get());
         if (status.isPresent()) s.setStatus(status.get());
+
         repo.save(s);
         saveAll();
     }
 
-    private String emptyToNull(String value) {
-        return value == null || value.isBlank() ? null : value;
-    }
-
     private void saveAll() {
-        saveService.saveAsync(dataContext);
+        saveService.saveAsync(dataContext).join();
     }
 }
