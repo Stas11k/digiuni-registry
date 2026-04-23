@@ -2,6 +2,8 @@ package ua.edu.ukma.service;
 
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Faculty;
+import ua.edu.ukma.domain.Specialty;
+import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.domain.Teacher;
 import ua.edu.ukma.exception.*;
 import ua.edu.ukma.io.*;
@@ -44,6 +46,37 @@ public class DepartmentService {
     }
 
     public boolean delete(int id) {
+        Department department = repo.findById(id).orElse(null);
+        if (department == null) {
+            return false;
+        }
+        List<Integer> specialtyIdsToDelete = new ArrayList<>();
+        List<Integer> teacherIdsToDelete = new ArrayList<>();
+        List<Integer> studentIdsToDelete = new ArrayList<>();
+        for (Specialty s : dataContext.specialtyRepo().findAll()) {
+            if (s.getDepartment() != null && s.getDepartment().getId() == id) {
+                specialtyIdsToDelete.add(s.getId());
+            }
+        }
+        for (Teacher t : dataContext.teacherRepo().findAll()) {
+            if (t.getDepartment() != null && t.getDepartment().getId() == id) {
+                teacherIdsToDelete.add(t.getId());
+            }
+        }
+        for (Student s : dataContext.studentRepo().findAll()) {
+            if (s.getSpecialty() != null && specialtyIdsToDelete.contains(s.getSpecialty().getId())) {
+                studentIdsToDelete.add(s.getId());
+            }
+        }
+        for (Integer studentId : studentIdsToDelete) {
+            dataContext.studentRepo().deleteById(studentId);
+        }
+        for (Integer teacherId : teacherIdsToDelete) {
+            dataContext.teacherRepo().deleteById(teacherId);
+        }
+        for (Integer specialtyId : specialtyIdsToDelete) {
+            dataContext.specialtyRepo().deleteById(specialtyId);
+        }
         boolean deleted = repo.deleteById(id);
         if (deleted) saveAll();
         return deleted;

@@ -2,10 +2,12 @@ package ua.edu.ukma.service;
 
 import ua.edu.ukma.domain.Department;
 import ua.edu.ukma.domain.Specialty;
+import ua.edu.ukma.domain.Student;
 import ua.edu.ukma.exception.*;
 import ua.edu.ukma.io.*;
 import ua.edu.ukma.repository.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +40,19 @@ public class SpecialtyService {
     }
 
     public boolean delete(int id) {
+        Specialty specialty = repo.findById(id).orElse(null);
+        if (specialty == null) {
+            return false;
+        }
+        List<Integer> studentIdsToDelete = new ArrayList<>();
+        for (Student s : dataContext.studentRepo().findAll()) {
+            if (s.getSpecialty() != null && s.getSpecialty().getId() == id) {
+                studentIdsToDelete.add(s.getId());
+            }
+        }
+        for (Integer studentId : studentIdsToDelete) {
+            dataContext.studentRepo().deleteById(studentId);
+        }
         boolean deleted = repo.deleteById(id);
         if (deleted) saveAll();
         return deleted;
