@@ -1,5 +1,7 @@
 package ua.edu.ukma.domain;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import ua.edu.ukma.exception.ValidationException;
 import ua.edu.ukma.repository.Identifiable;
 import ua.edu.ukma.validation.AnnotationValidator;
@@ -8,10 +10,12 @@ import ua.edu.ukma.validation.NotBlankField;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Objects;
 
+@Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public abstract sealed class Person implements Identifiable<Integer> permits Student, Teacher {
 
+    @EqualsAndHashCode.Include
     private final int id;
 
     @NotBlankField(message = "Last name cannot be empty")
@@ -43,10 +47,6 @@ public abstract sealed class Person implements Identifiable<Integer> permits Stu
         return id;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
     public void setFirstName(String firstName) {
         this.firstName = firstName;
         AnnotationValidator.validate(this);
@@ -57,26 +57,14 @@ public abstract sealed class Person implements Identifiable<Integer> permits Stu
         return Period.between(birthDate, LocalDate.now()).getYears();
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
     public void setLastName(String lastName) {
         this.lastName = lastName;
         AnnotationValidator.validate(this);
     }
 
-    public String getMiddleName() {
-        return middleName;
-    }
-
     public void setMiddleName(String middleName) {
         this.middleName = middleName;
         AnnotationValidator.validate(this);
-    }
-
-    public LocalDate getBirthDate() {
-        return birthDate;
     }
 
     public void setBirthDate(LocalDate birthDate) {
@@ -86,24 +74,12 @@ public abstract sealed class Person implements Identifiable<Integer> permits Stu
         this.birthDate = birthDate;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
     public void setEmail(String email) {
         this.email = email;
     }
 
-    public String getPhone() {
-        return phone;
-    }
-
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public String getAddress() {
-        return address;
     }
 
     public void setAddress(String address) {
@@ -117,18 +93,5 @@ public abstract sealed class Person implements Identifiable<Integer> permits Stu
     @Override
     public String toString() {
         return getFullName();
-    }
-
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Person person = (Person) o;
-        return id == person.id;
-    }
-
-    @Override
-    public final int hashCode() {
-        return Objects.hash(id);
     }
 }

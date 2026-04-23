@@ -1,16 +1,19 @@
 package ua.edu.ukma.domain;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import ua.edu.ukma.exception.ValidationException;
 import ua.edu.ukma.repository.Identifiable;
 import ua.edu.ukma.validation.AnnotationValidator;
 import ua.edu.ukma.validation.NoDigitsField;
 import ua.edu.ukma.validation.NotBlankField;
 
-import java.util.Objects;
-
+@Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Department implements Identifiable<Integer> {
     private static int counter = 1;
 
+    @EqualsAndHashCode.Include
     private final int id;
 
     @NotBlankField(message = "Department name cannot be empty")
@@ -47,17 +50,9 @@ public class Department implements Identifiable<Integer> {
         return id;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public void setName(String name) {
         this.name = name;
         AnnotationValidator.validate(this);
-    }
-
-    public Faculty getFaculty() {
-        return faculty;
     }
 
     public void setFaculty(Faculty faculty) {
@@ -65,16 +60,8 @@ public class Department implements Identifiable<Integer> {
         this.faculty = faculty;
     }
 
-    public Teacher getHead() {
-        return head;
-    }
-
     public void setHead(Teacher head) {
         this.head = head;
-    }
-
-    public String getLocation() {
-        return location;
     }
 
     public void setLocation(String location) {
@@ -84,18 +71,5 @@ public class Department implements Identifiable<Integer> {
     @Override
     public String toString() {
         return name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Department that = (Department) o;
-        return id == that.id;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }

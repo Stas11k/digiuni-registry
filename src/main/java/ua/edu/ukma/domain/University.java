@@ -1,8 +1,10 @@
 package ua.edu.ukma.domain;
 
+import lombok.Getter;
 import ua.edu.ukma.validation.AnnotationValidator;
 import ua.edu.ukma.validation.NotBlankField;
 
+@Getter
 public class University {
 
     @NotBlankField(message = "Full name cannot be empty")
@@ -20,33 +22,17 @@ public class University {
         AnnotationValidator.validate(this);
     }
 
-    public String getFullName() {
-        return fullName;
-    }
-
     public void setFullName(String fullName) {
         this.fullName = fullName;
         AnnotationValidator.validate(this);
-    }
-
-    public String getShortName() {
-        return shortName;
     }
 
     public void setShortName(String shortName) {
         this.shortName = shortName;
     }
 
-    public String getCity() {
-        return city;
-    }
-
     public void setCity(String city) {
         this.city = city;
-    }
-
-    public String getAddress() {
-        return address;
     }
 
     public void setAddress(String address) {

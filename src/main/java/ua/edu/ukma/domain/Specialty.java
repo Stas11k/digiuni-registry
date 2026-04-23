@@ -1,16 +1,19 @@
 package ua.edu.ukma.domain;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import ua.edu.ukma.exception.ValidationException;
 import ua.edu.ukma.repository.Identifiable;
 import ua.edu.ukma.validation.AnnotationValidator;
 import ua.edu.ukma.validation.NoDigitsField;
 import ua.edu.ukma.validation.NotBlankField;
 
-import java.util.Objects;
-
+@Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Specialty implements Identifiable<Integer> {
     private static int counter = 1;
 
+    @EqualsAndHashCode.Include
     private final int id;
 
     @NotBlankField(message = "Specialty name cannot be empty")
@@ -45,17 +48,9 @@ public class Specialty implements Identifiable<Integer> {
         return id;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public void setName(String name) {
         this.name = name;
         AnnotationValidator.validate(this);
-    }
-
-    public Department getDepartment() {
-        return department;
     }
 
     public void setDepartment(Department department) {
@@ -66,18 +61,5 @@ public class Specialty implements Identifiable<Integer> {
     @Override
     public String toString() {
         return name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Specialty that = (Specialty) o;
-        return id == that.id;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }
