@@ -1,28 +1,50 @@
 package ua.edu.ukma.service;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import ua.edu.ukma.domain.*;
-import ua.edu.ukma.exception.EntityNotFoundException;
+import ua.edu.ukma.io.AsyncSaveService;
+import ua.edu.ukma.io.DataContext;
 import ua.edu.ukma.repository.InMemoryRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class StudentServiceTest {
+    InMemoryRepository<Faculty, Integer> facultyRepo = new InMemoryRepository<>();
+    InMemoryRepository<Department, Integer> departmentRepo = new InMemoryRepository<>();
+    InMemoryRepository<Specialty, Integer> specialtyRepo = new InMemoryRepository<>();
+    InMemoryRepository<Teacher, Integer> teacherRepo = new InMemoryRepository<>();
+    InMemoryRepository<Student, Integer> studentRepo = new InMemoryRepository<>();
+
+    University university = new University("NaUKMA", "NaUKMA", "Kyiv", "Address");
+
+    DataContext dataContext = new DataContext(
+            facultyRepo,
+            departmentRepo,
+            specialtyRepo,
+            teacherRepo,
+            studentRepo,
+            university
+    );
+    AsyncSaveService saveService = new AsyncSaveService() {
+        @Override
+        public CompletableFuture<Void> saveAsync(DataContext dataContext) {
+
+            return CompletableFuture.completedFuture(null);
+        }
+    };
 
     private StudentService service;
-
 
     @Test
     void addStudentTest() {
         InMemoryRepository<Student, Integer> repo = new InMemoryRepository<>();
-        StudentService service = new StudentService(repo);
+        StudentService service = new StudentService(studentRepo, saveService, dataContext);
         Faculty faculty = new Faculty("ComputerScience", "CS");
         Department department = new Department("SoftwareEngineering", faculty);
         Specialty specialty = new Specialty("ComputerScience", department);
@@ -40,8 +62,7 @@ class StudentServiceTest {
     }
     @Test
     void getOrThrowStudentTest() {
-        InMemoryRepository<Student, Integer> repo = new InMemoryRepository<>();
-        StudentService service = new StudentService(repo);
+        StudentService service = new StudentService(studentRepo, saveService, dataContext);
         Faculty faculty = new Faculty("ComputerScience", "CS");
         Department department = new Department("SoftwareEngineering", faculty);
         Specialty specialty = new Specialty("ComputerScience", department);
@@ -55,7 +76,7 @@ class StudentServiceTest {
                 12,
                 specialty
         );
-        repo.save(student);
+        studentRepo.save(student);
 
         Student result = service.getOrThrow(student.getId());
 
@@ -72,7 +93,7 @@ class StudentServiceTest {
     @Test
     void deleteStudent() {
         InMemoryRepository<Student, Integer> repo = new InMemoryRepository<>();
-        StudentService service = new StudentService(repo);
+        StudentService service = new StudentService(studentRepo, saveService, dataContext);
         Faculty faculty = new Faculty("ComputerScience", "CS");
         Department department = new Department("SoftwareEngineering", faculty);
         Specialty specialty = new Specialty("ComputerScience", department);
@@ -93,8 +114,7 @@ class StudentServiceTest {
 
     @Test
     void findByCourseTest() {
-        InMemoryRepository<Student, Integer> repo = new InMemoryRepository<>();
-        StudentService service = new StudentService(repo);
+        StudentService service = new StudentService(studentRepo, saveService, dataContext);
         Faculty faculty = new Faculty("ComputerScience", "CS");
         Department department = new Department("SoftwareEngineering", faculty);
         Specialty specialty = new Specialty("ComputerScience", department);
@@ -107,7 +127,7 @@ class StudentServiceTest {
                 12,
                 specialty
         );
-        repo.save(student);
+        studentRepo.save(student);
         List<Student> result = service.findByCourse(1);
         assertEquals(1, result.size());
     }
@@ -116,7 +136,7 @@ class StudentServiceTest {
     @Test
     void findByGroupTest() {
         InMemoryRepository<Student, Integer> repo = new InMemoryRepository<>();
-        StudentService service = new StudentService(repo);
+        StudentService service = new StudentService(studentRepo, saveService, dataContext);
         Faculty faculty = new Faculty("ComputerScience", "CS");
         Department department = new Department("SoftwareEngineering", faculty);
         Specialty specialty = new Specialty("ComputerScience", department);
@@ -129,7 +149,7 @@ class StudentServiceTest {
                 12,
                 specialty
         );
-        repo.save(student);
+        studentRepo.save(student);
         List<Student> result = service.findByGroup(12);
         assertEquals(1, result.size());
 
@@ -138,13 +158,13 @@ class StudentServiceTest {
     @Test
     void findByFacultySortedByName() {
         InMemoryRepository<Student, Integer> repo = new InMemoryRepository<>();
-        StudentService service = new StudentService(repo);
+        StudentService service = new StudentService(studentRepo, saveService, dataContext);
         Faculty faculty = new Faculty("CS", "CS");
         Department department = new Department("SE", faculty);
         Specialty specialty = new Specialty("CS", department);
 
-        repo.save(new Student("Petrenko", "Ivan", "A", "101", 2,123, specialty));
-        repo.save(new Student("Bondar", "Anna", "B", "102", 2, 123, specialty));
+        studentRepo.save(new Student("Petrenko", "Ivan", "A", "101", 2,123, specialty));
+        studentRepo.save(new Student("Bondar", "Anna", "B", "102", 2, 123, specialty));
 
         List<Student> result = service.findByFacultySortedByName(faculty.getId());
 
@@ -153,13 +173,13 @@ class StudentServiceTest {
     @Test
     void findByDepartmentSortedByCourse() {
         InMemoryRepository<Student, Integer> repo = new InMemoryRepository<>();
-        StudentService service = new StudentService(repo);
+        StudentService service = new StudentService(studentRepo, saveService, dataContext);
         Faculty faculty = new Faculty("CS", "CS");
         Department department = new Department("SE", faculty);
         Specialty specialty = new Specialty("CS", department);
 
-        repo.save(new Student("Petrenko", "Ivan", "A", "101", 1,123, specialty));
-        repo.save(new Student("Bondar", "Anna", "B", "102", 2, 123, specialty));
+        studentRepo.save(new Student("Petrenko", "Ivan", "A", "101", 1,123, specialty));
+        studentRepo.save(new Student("Bondar", "Anna", "B", "102", 2, 123, specialty));
 
         List<Student> result = service.findByDepartmentSortedByCourse(department.getId());
 
@@ -168,13 +188,13 @@ class StudentServiceTest {
     @Test
     void findByDepartmentSortedByName() {
         InMemoryRepository<Student, Integer> repo = new InMemoryRepository<>();
-        StudentService service = new StudentService(repo);
+        StudentService service = new StudentService(studentRepo, saveService, dataContext);
         Faculty faculty = new Faculty("CS", "CS");
         Department department = new Department("SE", faculty);
         Specialty specialty = new Specialty("CS", department);
 
-        repo.save(new Student("Petrenko", "Ivan", "A", "101", 1,123, specialty));
-        repo.save(new Student("Bondar", "Anna", "B", "102", 2, 123, specialty));
+        studentRepo.save(new Student("Petrenko", "Ivan", "A", "101", 1,123, specialty));
+        studentRepo.save(new Student("Bondar", "Anna", "B", "102", 2, 123, specialty));
 
         List<Student> result = service.findByDepartmentSortedByName(department.getId());
 
@@ -190,17 +210,17 @@ class StudentServiceTest {
     void findByCourseParameterized(int course, int expectedSize) {
 
         InMemoryRepository<Student, Integer> repo = new InMemoryRepository<>();
-        StudentService service = new StudentService(repo);
+        StudentService service = new StudentService(studentRepo, saveService, dataContext);
 
         Faculty faculty = new Faculty("CS", "CS");
         Department department = new Department("Software Engineering", faculty);
         Specialty specialty = new Specialty("Computer Science", department);
 
-        repo.save(new Student("Petrenko", "Ivan", "A", "101", 1,123, specialty));
-        repo.save(new Student("Bondar", "Anna", "B", "102", 2, 123, specialty));
-        repo.save(new Student("Petrenko", "Ivan", "A", "101", 3,123, specialty));
-        repo.save(new Student("Petrenko", "Ivan", "A", "101", 4,123, specialty));
-        repo.save(new Student("Bondar", "Anna", "B", "102", 5, 123, specialty));
+        studentRepo.save(new Student("Petrenko", "Ivan", "A", "101", 1,123, specialty));
+        studentRepo.save(new Student("Bondar", "Anna", "B", "102", 2, 123, specialty));
+        studentRepo.save(new Student("Petrenko", "Ivan", "A", "101", 3,123, specialty));
+        studentRepo.save(new Student("Petrenko", "Ivan", "A", "101", 4,123, specialty));
+        studentRepo.save(new Student("Bondar", "Anna", "B", "102", 5, 123, specialty));
 
         List<Student> result = service.findByCourse(course);
 
@@ -209,13 +229,13 @@ class StudentServiceTest {
     @Test
     void findByDepartmentAndCourse() {
         InMemoryRepository<Student, Integer> repo = new InMemoryRepository<>();
-        StudentService service = new StudentService(repo);
+        StudentService service = new StudentService(studentRepo, saveService, dataContext);
         Faculty faculty = new Faculty("CS", "CS");
         Department department = new Department("SE", faculty);
         Specialty specialty = new Specialty("CS", department);
 
-        repo.save(new Student("Petrenko", "Ivan", "A", "101", 1,123, specialty));
-        repo.save(new Student("Bondar", "Anna", "B", "102", 2, 123, specialty));
+        studentRepo.save(new Student("Petrenko", "Ivan", "A", "101", 1,123, specialty));
+        studentRepo.save(new Student("Bondar", "Anna", "B", "102", 2, 123, specialty));
 
         List<Student> result = service.findByDepartmentAndCourse(department.getId(), 2);
 
@@ -227,7 +247,7 @@ class StudentServiceTest {
     @Test
     void sortedByCourseTest() {
         InMemoryRepository<Student, Integer> repo = new InMemoryRepository<>();
-        StudentService service = new StudentService(repo);
+        StudentService service = new StudentService(studentRepo, saveService, dataContext);
         Faculty faculty = new Faculty("ComputerScience", "CS");
         Department department = new Department("SoftwareEngineering", faculty);
         Specialty specialty = new Specialty("ComputerScience", department);
@@ -240,7 +260,7 @@ class StudentServiceTest {
                 12,
                 specialty
         );
-        repo.save(student);
+        studentRepo.save(student);
         List<Student> result = service.sortedByCourse();
 
         assertEquals(1, result.get(0).getCourse());
@@ -248,7 +268,7 @@ class StudentServiceTest {
     @Test
     void findByFullNameTest() {
         InMemoryRepository<Student, Integer> repo = new InMemoryRepository<>();
-        StudentService service = new StudentService(repo);
+        StudentService service = new StudentService(studentRepo, saveService, dataContext);
         Faculty faculty = new Faculty("ComputerScience", "CS");
         Department department = new Department("SoftwareEngineering", faculty);
         Specialty specialty = new Specialty("ComputerScience", department);
@@ -261,7 +281,7 @@ class StudentServiceTest {
                 12,
                 specialty
         );
-        repo.save(student);
+        studentRepo.save(student);
         List<Student> result = service.findByFullName("Iva");
 
         assertEquals(1, result.size());
@@ -269,7 +289,7 @@ class StudentServiceTest {
     @Test
     void updatePartialStudentTest() {
         InMemoryRepository<Student, Integer> repo = new InMemoryRepository<>();
-        StudentService service = new StudentService(repo);
+        StudentService service = new StudentService(studentRepo, saveService, dataContext);
         Faculty faculty = new Faculty("ComputerScience", "CS");
         Department department = new Department("SoftwareEngineering", faculty);
         Specialty specialty = new Specialty("ComputerScience", department);
@@ -282,7 +302,7 @@ class StudentServiceTest {
                 12,
                 specialty
         );
-        repo.save(student);
+        studentRepo.save(student);
         service.updatePartial(
                 student.getId(),
                 Optional.of("Shevchenko"),
@@ -309,13 +329,13 @@ class StudentServiceTest {
     @Test
     void findByDepartmentAndCourseSortedByName() {
         InMemoryRepository<Student, Integer> repo = new InMemoryRepository<>();
-        StudentService service = new StudentService(repo);
+        StudentService service = new StudentService(studentRepo, saveService, dataContext);
         Faculty faculty = new Faculty("CS", "CS");
         Department department = new Department("SE", faculty);
         Specialty specialty = new Specialty("CS", department);
 
-        repo.save(new Student("Petrenko", "Ivan", "A", "101", 2,123, specialty));
-        repo.save(new Student("Bondar", "Anna", "B", "102", 2, 123, specialty));
+        studentRepo.save(new Student("Petrenko", "Ivan", "A", "101", 2,123, specialty));
+        studentRepo.save(new Student("Bondar", "Anna", "B", "102", 2, 123, specialty));
 
         List<Student> result =
                 service.findByDepartmentAndCourseSortedByName(department.getId(), 2);

@@ -29,7 +29,7 @@ class DepartmentTest {
         Faculty faculty = new Faculty("Computer Science", "CS");
         Department department = new Department("Programming", faculty);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(ValidationException.class,
                 () -> department.setFaculty(null));
     }
 
