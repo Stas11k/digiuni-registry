@@ -1,17 +1,22 @@
 package ua.edu.ukma;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ua.edu.ukma.domain.*;
 import ua.edu.ukma.io.AsyncSaveService;
 import ua.edu.ukma.io.DataBootstrap;
 import ua.edu.ukma.io.DataContext;
-import ua.edu.ukma.io.DataSaveService;
 import ua.edu.ukma.repository.InMemoryRepository;
 import ua.edu.ukma.repository.Repository;
 import ua.edu.ukma.service.*;
 import ua.edu.ukma.ui.ConsoleMenu;
 
 public class Main {
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
+
     public static void main(String[] args) {
+        logger.info("Application started in console mode");
+
         Repository<Faculty, Integer> facultyRepo = new InMemoryRepository<>();
         Repository<Department, Integer> departmentRepo = new InMemoryRepository<>();
         Repository<Specialty, Integer> specialtyRepo = new InMemoryRepository<>();
@@ -32,5 +37,6 @@ public class Main {
 
         ConsoleMenu menu = new ConsoleMenu(facultyService, departmentService, specialtyService, studentService, teacherService, university);
         menu.start();
+        logger.info("Application finished");
     }
 }

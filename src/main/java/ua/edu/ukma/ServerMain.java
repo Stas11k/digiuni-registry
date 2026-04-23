@@ -1,18 +1,23 @@
 package ua.edu.ukma;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ua.edu.ukma.auth.AuthService;
 import ua.edu.ukma.domain.*;
 import ua.edu.ukma.io.AsyncSaveService;
 import ua.edu.ukma.io.DataBootstrap;
 import ua.edu.ukma.io.DataContext;
-import ua.edu.ukma.io.DataSaveService;
 import ua.edu.ukma.network.TcpServer;
 import ua.edu.ukma.repository.InMemoryRepository;
 import ua.edu.ukma.repository.Repository;
 import ua.edu.ukma.service.*;
 
 public class ServerMain {
+    private static final Logger logger = LoggerFactory.getLogger(ServerMain.class);
+
     public static void main(String[] args) throws Exception {
+        logger.info("Starting server application");
+
         Repository<Faculty, Integer> facultyRepo = new InMemoryRepository<>();
         Repository<Department, Integer> departmentRepo = new InMemoryRepository<>();
         Repository<Specialty, Integer> specialtyRepo = new InMemoryRepository<>();
@@ -33,6 +38,7 @@ public class ServerMain {
         AuthService authService = new AuthService();
 
         TcpServer server = new TcpServer(5555, authService, facultyService, departmentService, specialtyService, studentService, teacherService);
+        logger.info("Server initialized, starting listen loop");
         server.start();
     }
 }

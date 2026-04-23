@@ -1,6 +1,8 @@
 package ua.edu.ukma.network;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -9,6 +11,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class ClientHandler implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
     private final Socket socket;
     private final CommandProcessor processor;
     private final ObjectMapper mapper;
@@ -22,27 +25,27 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        try (socket; DataInputStream in = new DataInputStream(socket.getInputStream());
+        try (socket;
+             DataInputStream in = new DataInputStream(socket.getInputStream());
              DataOutputStream out = new DataOutputStream(socket.getOutputStream())) {
-            System.out.println("Handling client: " + socket.getRemoteSocketAddress());
+            logger.info("Handling client: {}", socket.getRemoteSocketAddress());
             socket.setSoTimeout(60_000);
 
             while (true) {
                 String requestJson = PacketIO.readPacket(in);
-                System.out.println("Received: " + requestJson);
+                logger.info("Received from {}: {}", socket.getRemoteSocketAddress(), requestJson);
                 Request request = mapper.readValue(requestJson, Request.class);
                 Response response = processor.process(request, session);
                 String responseJson = mapper.writeValueAsString(response);
-                System.out.println("Sending: " + responseJson);
+                logger.info("Sending to {}: {}", socket.getRemoteSocketAddress(), responseJson);
                 PacketIO.writePacket(out, responseJson);
             }
         } catch (EOFException e) {
-            System.out.println("Client disconnected: " + socket.getRemoteSocketAddress());
+            logger.info("Client disconnected: {}", socket.getRemoteSocketAddress());
         } catch (IOException e) {
-            System.out.println("I/O error with client " + socket.getRemoteSocketAddress() + ": " + e.getMessage());
+            logger.error("I/O error with client {}: {}", socket.getRemoteSocketAddress(), e.getMessage(), e);
         } catch (Exception e) {
-            System.out.println("Unexpected error with client " + socket.getRemoteSocketAddress());
-            e.printStackTrace();
+            logger.error("Unexpected error with client {}", socket.getRemoteSocketAddress(), e);
         }
     }
 }

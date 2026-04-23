@@ -36,7 +36,6 @@ public abstract sealed class Person implements Identifiable<Integer> permits Stu
         this.lastName = lastName;
         this.firstName = firstName;
         this.middleName = middleName;
-        AnnotationValidator.validate(this);
     }
 
     @Override
@@ -81,7 +80,9 @@ public abstract sealed class Person implements Identifiable<Integer> permits Stu
     }
 
     public void setBirthDate(LocalDate birthDate) {
-        if (birthDate != null && birthDate.isAfter(LocalDate.now())) throw new ValidationException("Birth date cannot be in the future");
+        if (birthDate != null && birthDate.isAfter(LocalDate.now())) {
+            throw new ValidationException("Birth date cannot be in the future");
+        }
         this.birthDate = birthDate;
     }
 
